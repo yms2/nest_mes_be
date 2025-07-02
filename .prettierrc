@@ -1,0 +1,37 @@
+{
+  "importOrder": [
+    "^@nestjs/(.*)$",
+    "^@prisma/(.*)$",
+    "<THIRD_PARTY_MODULES>",
+    "^@core/(.*)$",
+    "^@ui/(.*)$",
+    "^[~/]",
+    "^[./]"
+  ],
+  "printWidth": 100,
+  "tabWidth": 2,
+  "useTabs": false,
+  "trailingComma": "all",
+  "singleQuote": true,
+  "endOfLine": "auto",
+  "bracketSpacing": true,
+  "semi": true,
+  "bracketSameLine": true,
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true,
+  "arrowParens": "avoid",
+  "overrides": [
+    {
+      "files": "*.json",
+      "options": {
+        "printWidth": 200
+      }
+    },
+    {
+      "files": ["*.ts", "*.tsx"],
+      "options": {
+        "parser": "typescript"
+      }
+    }
+  ]
+}
