@@ -1,27 +1,18 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { NoticeModule } from './notice/notice.module';
+
 import { TypeOrmModule } from '@nestjs/typeorm';
 // import { ConfigModule, ConfigService } from '@nestjs/config';
-import { QnaController } from './qna/qna.controller';
-import { QnaService } from './qna/qna.service';
-import { QnaModule } from './qna/qna.module';
-import { SampleModule } from './sample/sample.module';
-import { UserModule } from './user/user.module';
-import { AuthController } from './auth/auth.controller';
-import { AuthModule } from './auth/auth.module';
+// import { QnaController } from './qna/qna.controller';
+// import { QnaService } from './qna/qna.service';
+
 import * as path from 'path';
 import { ConfigService } from '@nestjs/config';
 import { ConfigModule } from '@nestjs/config';
 import { RegisterModule } from './register/register.module';
 @Module({
   imports: [
-    NoticeModule,
-    QnaModule,
-    SampleModule,
-    UserModule,
-    AuthModule,
     RegisterModule,
     ConfigModule.forRoot({
       isGlobal: true,
@@ -43,7 +34,7 @@ import { RegisterModule } from './register/register.module';
       }),
     }),
   ],
-  controllers: [AppController, AuthController],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
