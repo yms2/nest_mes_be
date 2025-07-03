@@ -8,7 +8,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-
+import { ChangePasswordDto } from './change-pasesword/change-password.dto';
 import { AdminLoginUserDto } from './auth.dto';
 import { AuthService } from './auth.service';
 import { RegisterService } from '../register/create/register.service';
@@ -67,15 +67,34 @@ export class AuthController {
 
   @Post('change-password')
   @ApiOperation({ summary: '비밀번호 변경', description: '비밀번호를 변경합니다.' })
-  async changePassword(
-    @Body('username') username: string,
-    @Body('password') password: string,
-    @Body('newPassword') newPassword: string,
-  ) {
+  async changePassword(@Body() changePasswordDto: ChangePasswordDto) {
+    const { username, password, newPassword } = changePasswordDto;
+    // 1. 비밀번호가 같은 경우 체크
+    if (password === newPassword) {
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: '새 비밀번호는 현재 비밀번호와 다르게 설정해야 합니다.',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    // 2. 기존 비밀번호 확인
     const userWithoutPassword = await this.userService.validateUserPassword(username, password);
     if (!userWithoutPassword) {
-      throw new HttpException('Invalid password', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: '올바르지 않은 비밀번호입니다.',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
     }
-    return this.userService.changePassword(userWithoutPassword.id, newPassword);
+    // 3. 비밀번호 변경
+    const result = await this.userService.changePassword(userWithoutPassword.id, newPassword);
+    return {
+      message: '비밀번호 변경 성공',
+      result: result,
+    };
   }
 }

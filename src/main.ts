@@ -40,7 +40,7 @@ async function bootstrap() {
       transform: true,
     }),
   );
-
+  app.setGlobalPrefix('api');
   // ✅ Swagger 설정 추가 시작
   const config = new DocumentBuilder()
     .setTitle('Covonics API 문서')
