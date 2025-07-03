@@ -18,7 +18,12 @@ export class AuthService {
 
   async login(user: Omit<user, 'password'>) {
     try {
-      const payload = { id: user.id, username: user.username, email: user.email };
+      const payload = {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        group_name: user.group_name,
+      };
 
       const accessToken = this.jwtService.sign(payload, {
         secret: this.configService.get('JWT_SECRET'),
@@ -49,7 +54,12 @@ export class AuthService {
     }
 
     const accessToken = this.jwtService.sign(
-      { id: user.id, username: user.username, email: user.email },
+      {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        group_name: user.group_name,
+      },
       {
         secret: this.configService.get('JWT_SECRET'),
         expiresIn: this.configService.get('JWT_EXPIRES_IN'),
