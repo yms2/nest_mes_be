@@ -1,5 +1,5 @@
 //회원가입 하는 Controller
-import { Body, Controller,Get, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { RegisterService } from '../service/create-register.service';
 import { CreateRegisterDto } from '../dto/create-register.dto';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';

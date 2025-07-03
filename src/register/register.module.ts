@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common';
 import { RegisterController } from './controller/create-register.controller';
 import { RegisterService } from './service/create-register.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User2 } from '../register/entity/create-register.entity'; // User 엔티티를 사용한다면
+import { user } from '../register/entity/create-register.entity'; // User 엔티티를 사용한다면
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User2])], // 만약 User 엔티티 사용한다면
+  imports: [TypeOrmModule.forFeature([user])], // 만약 User 엔티티 사용한다면
   controllers: [RegisterController],
   providers: [RegisterService],
 })
