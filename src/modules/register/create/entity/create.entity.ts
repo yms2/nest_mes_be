@@ -18,12 +18,16 @@ export class user {
   username: string;
 
   @ApiProperty({ example: 'hashed_password_123', description: '사용자 비밀번호 (해시 저장 권장)' })
-  @Column()
+  @Column({ comment: '비밀번호' })
   password: string;
 
   @ApiProperty({ example: 'test@example.com', description: '사용자 이메일 (선택사항)' })
   @Column({ nullable: true })
   email: string;
+
+  @ApiProperty({ example: 'admin', description: '그룹명' })
+  @Column({ comment: '그룹명' })
+  group_name: string;
 
   @ApiProperty({ example: 'refresh_token_123', description: '리프레시 토큰' })
   @Column({ nullable: true })

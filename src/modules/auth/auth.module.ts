@@ -4,10 +4,14 @@ import { RegisterModule } from '../register/register.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthController } from './auth.controller';
+import { GroupPermissionService } from './GroupPermission/GroupPermission.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { authoritymanages } from './GroupPermission/GroupPermission.entity';
 
 @Module({
   imports: [
     RegisterModule,
+    TypeOrmModule.forFeature([authoritymanages]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -18,7 +22,7 @@ import { AuthController } from './auth.controller';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, GroupPermissionService],
   exports: [AuthService, JwtModule],
 })
 export class AuthModule {}

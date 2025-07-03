@@ -13,6 +13,7 @@ import { AdminLoginUserDto } from './auth.dto';
 import { AuthService } from './auth.service';
 import { RegisterService } from '../register/create/register.service';
 import { user } from '../register/create/entity/create.entity';
+import { GroupPermissionService } from './GroupPermission/GroupPermission.service';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -20,13 +21,14 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly userService: RegisterService,
+    private readonly groupPermissionService: GroupPermissionService,
   ) {}
 
   @Post('login')
   @ApiOperation({ summary: '관리자 로그인', description: '관리자 로그인을 수행합니다.' })
   async adminLogin(
     @Body() adminLoginUserDto: AdminLoginUserDto,
-  ): Promise<{ message: string; accessToken: string; refreshToken: string }> {
+  ): Promise<{ message: string; accessToken: string; refreshToken: string; permissions: any }> {
     const { username, password } = adminLoginUserDto;
     const userWithoutPassword = await this.authService.validateAdmin(username, password);
     if (!userWithoutPassword) {
@@ -40,10 +42,15 @@ export class AuthController {
     }
     const tokens = await this.authService.login(userWithoutPassword);
 
+    const permissions = await this.groupPermissionService.getPermissionsByGroup(
+      userWithoutPassword.group_name,
+    );
+
     return {
       message: '로그인 성공',
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
+      permissions: permissions,
     };
   }
 
