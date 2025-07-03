@@ -3,17 +3,16 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
 import { TypeOrmModule } from '@nestjs/typeorm';
-// import { ConfigModule, ConfigService } from '@nestjs/config';
-// import { QnaController } from './qna/qna.controller';
-// import { QnaService } from './qna/qna.service';
 
 import * as path from 'path';
 import { ConfigService } from '@nestjs/config';
 import { ConfigModule } from '@nestjs/config';
-import { RegisterModule } from './register/register.module';
+import { RegisterModule } from './modules/register/register.module';
+import { AuthModule } from './modules/auth/auth.module';
 @Module({
   imports: [
     RegisterModule,
+    AuthModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',

@@ -3,8 +3,8 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import * as fs from 'fs';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as fs from 'fs';
 
 async function bootstrap() {
   const configService = new ConfigService();
@@ -43,8 +43,8 @@ async function bootstrap() {
 
   // ✅ Swagger 설정 추가 시작
   const config = new DocumentBuilder()
-    .setTitle('API 문서')
-    .setDescription('NestJS API Swagger 문서')
+    .setTitle('Covonics API 문서')
+    .setDescription('Covonics API Swagger 문서')
     .setVersion('1.0')
     .build();
 
