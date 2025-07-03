@@ -11,7 +11,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { ChangePasswordDto } from './change-pasesword/change-password.dto';
 import { AdminLoginUserDto } from './auth.dto';
 import { AuthService } from './auth.service';
@@ -32,6 +32,37 @@ export class AuthController {
 
   @Post('login')
   @ApiOperation({ summary: '관리자 로그인', description: '관리자 로그인을 수행합니다.' })
+  @ApiResponse({
+    status: 200,
+    description: '로그인 성공',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: '로그인 성공' },
+        accessToken: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' },
+        refreshToken: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' },
+        permissions: {
+          type: 'object',
+          properties: {
+            main_menu: { type: 'string', example: 'admin,user,settings' },
+            sub_menu: { type: 'string', example: 'dashboard,profile,logs' },
+            all_grant: { type: 'string', example: 'read,write,delete' },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: '잘못된 로그인 정보',
+    schema: {
+      type: 'object',
+      properties: {
+        statusCode: { type: 'number', example: 400 },
+        message: { type: 'string', example: '올바르지 않은 아이디 또는 비밀번호입니다.' },
+      },
+    },
+  })
   async adminLogin(
     @Body() adminLoginUserDto: AdminLoginUserDto,
   ): Promise<{ message: string; accessToken: string; refreshToken: string }> {
@@ -148,9 +179,41 @@ export class AuthController {
   @Get('groupauthority/:group_name')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access-token')
+  @ApiParam({ name: 'group_name', description: '그룹명', example: 'admin' })
   @ApiOperation({
     summary: '그룹 권한 조회',
     description: '특정 그룹의 권한 정보를 조회합니다.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '그룹 권한 조회 성공',
+    schema: {
+      type: 'object',
+      properties: {
+        result: { type: 'boolean', example: true },
+        message: { type: 'string', example: '그룹 권한 조회 성공' },
+        data: {
+          type: 'object',
+          properties: {
+            main_menu: { type: 'string', example: 'admin,user,settings' },
+            sub_menu: { type: 'string', example: 'dashboard,profile,logs' },
+            all_grant: { type: 'string', example: 'read,write,delete' },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: '인증 실패',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: '토큰이 제공되지 않았습니다.' },
+        error: { type: 'string', example: 'Unauthorized' },
+        statusCode: { type: 'number', example: 401 },
+      },
+    },
   })
   async getGroupAuthority(
     @Req() req: Request & { user: Record<string, unknown> },
