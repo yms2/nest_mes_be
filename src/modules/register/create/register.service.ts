@@ -17,7 +17,7 @@ export class RegisterService {
   // 회원가입 요청 처리
   async createUser(createRegisterDto: CreateRegisterDto): Promise<user> {
     // 요청 들어온 데이터에 username, password, email 추출
-    const { username, password, email } = createRegisterDto;
+    const { username, password, email, group_name } = createRegisterDto;
 
     // 아이디 중복 체크
     const existingUser = await this.regiseterRepository.findOne({ where: { username } });
@@ -34,6 +34,11 @@ export class RegisterService {
     const existingEmail = await this.regiseterRepository.findOne({ where: { email } });
     if (existingEmail) {
       throw new BadRequestException('이미 사용중인 이메일입니다.');
+    }
+
+    // 그룹명 존재 유무 체크
+    if (!group_name) {
+      throw new BadRequestException('그룹명을 선택해주세요.');
     }
 
     // 3. 비밀번호 해싱
@@ -83,5 +88,10 @@ export class RegisterService {
   async changePassword(id: number, newPassword: string): Promise<void> {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await this.regiseterRepository.update(id, { password: hashedPassword });
+  }
+
+  // 사용자명으로 사용자 조회
+  async findByUsername(username: string): Promise<user | null> {
+    return await this.regiseterRepository.findOne({ where: { username } });
   }
 }

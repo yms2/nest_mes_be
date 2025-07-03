@@ -40,12 +40,23 @@ async function bootstrap() {
       transform: true,
     }),
   );
-
+  app.setGlobalPrefix('api');
   // ✅ Swagger 설정 추가 시작
   const config = new DocumentBuilder()
     .setTitle('Covonics API 문서')
     .setDescription('Covonics API Swagger 문서')
     .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'JWT 토큰을 입력하세요',
+        in: 'header',
+      },
+      'access-token', // This name here is important for references
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

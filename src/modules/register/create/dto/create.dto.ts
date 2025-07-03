@@ -13,4 +13,8 @@ export class CreateRegisterDto {
   @ApiProperty({ example: 'hong@example.com', description: '이메일' })
   @IsEmail()
   email?: string;
+
+  @ApiProperty({ example: 'admin', description: '그룹명' })
+  @IsString()
+  group_name: string;
 }
