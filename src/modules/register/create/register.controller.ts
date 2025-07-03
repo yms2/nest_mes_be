@@ -1,7 +1,7 @@
 //회원가입 하는 Controller
 import { Body, Controller, Post } from '@nestjs/common';
-import { RegisterService } from '../service/create-register.service';
-import { CreateRegisterDto } from '../dto/create-register.dto';
+import { RegisterService } from './register.service';
+import { CreateRegisterDto } from './dto/create.dto';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
 @ApiTags('Register') // Swagger에서 User 그룹으로 묶기

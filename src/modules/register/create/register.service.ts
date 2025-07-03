@@ -1,8 +1,8 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { user } from '../entity/create-register.entity';
-import { CreateRegisterDto } from '../dto/create-register.dto';
+import { user } from './entity/create.entity';
+import { CreateRegisterDto } from './dto/create.dto';
 import * as bcrypt from 'bcrypt';
 
 // Service 받을 수 있게 해준다.
@@ -47,5 +47,41 @@ export class RegisterService {
     });
     // 실제 DB에 INSERT 실행
     return await this.regiseterRepository.save(user);
+  }
+
+  // 사용자 비밀번호 검증
+  async validateUserPassword(
+    username: string,
+    password: string,
+  ): Promise<Omit<user, 'password'> | null> {
+    const user = await this.regiseterRepository.findOne({ where: { username } });
+    if (user && (await bcrypt.compare(password, user.password))) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password: passwordField, ...userWithoutPassword } = user;
+      return userWithoutPassword;
+    }
+    return null;
+  }
+
+  // 리프레시 토큰 업데이트
+  async updateRefreshToken(id: number, refreshToken: string): Promise<void> {
+    await this.regiseterRepository.update(id, { refreshToken });
+  }
+
+  // 로그아웃
+  async logout(id: number): Promise<void> {
+    await this.regiseterRepository.update(id, { refreshToken: undefined });
+  }
+
+  // 토큰 확인
+  async tokenConfirm(id: number, refreshToken: string): Promise<user | null> {
+    const user = await this.regiseterRepository.findOne({ where: { id, refreshToken } });
+    return user;
+  }
+
+  // 비밀번호 변경
+  async changePassword(id: number, newPassword: string): Promise<void> {
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await this.regiseterRepository.update(id, { password: hashedPassword });
   }
 }

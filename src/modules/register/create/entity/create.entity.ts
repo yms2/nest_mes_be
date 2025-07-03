@@ -25,6 +25,10 @@ export class user {
   @Column({ nullable: true })
   email: string;
 
+  @ApiProperty({ example: 'refresh_token_123', description: '리프레시 토큰' })
+  @Column({ nullable: true })
+  refreshToken: string;
+
   @ApiProperty({ example: '2025-07-02T09:00:00.000Z', description: '계정 생성일시 (자동 생성)' })
   @CreateDateColumn()
   createdAt: Date;
