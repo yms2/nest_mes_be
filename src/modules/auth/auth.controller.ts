@@ -14,6 +14,8 @@ import { AuthService } from './auth.service';
 import { RegisterService } from '../register/create/register.service';
 import { user } from '../register/create/entity/create.entity';
 import { GroupPermissionService } from './GroupPermission/GroupPermission.service';
+import { UseGuards, Get } from '@nestjs/common';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -103,5 +105,43 @@ export class AuthController {
       message: '비밀번호 변경 성공',
       result: result,
     };
+  }
+
+  @Get('check-token')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: '토큰 검증',
+    description: '토큰의 유효성을 검증하고 사용자 정보를 반환합니다.',
+  })
+  async checkToken(@Req() req: Request & { user: Record<string, unknown> }) {
+    try {
+      const user = await this.userService.findByUsername(req.user.username as string);
+
+      if (user) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { password: passwordField, ...userWithoutPassword } = user;
+        return {
+          result: true,
+          data: userWithoutPassword,
+          message: 'Success',
+        };
+      } else {
+        throw new HttpException(
+          {
+            statusCode: HttpStatus.BAD_REQUEST,
+            message: 'User not found',
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    } catch {
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: 'Internal Server Error',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

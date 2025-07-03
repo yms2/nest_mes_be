@@ -89,4 +89,9 @@ export class RegisterService {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     await this.regiseterRepository.update(id, { password: hashedPassword });
   }
+
+  // 사용자명으로 사용자 조회
+  async findByUsername(username: string): Promise<user | null> {
+    return await this.regiseterRepository.findOne({ where: { username } });
+  }
 }

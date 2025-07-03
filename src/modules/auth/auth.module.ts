@@ -7,6 +7,7 @@ import { AuthController } from './auth.controller';
 import { GroupPermissionService } from './GroupPermission/GroupPermission.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { authoritymanages } from './GroupPermission/GroupPermission.entity';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { authoritymanages } from './GroupPermission/GroupPermission.entity';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, GroupPermissionService],
+  providers: [AuthService, GroupPermissionService, JwtAuthGuard],
   exports: [AuthService, JwtModule],
 })
 export class AuthModule {}
