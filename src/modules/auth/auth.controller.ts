@@ -31,11 +31,11 @@ export class AuthController {
   @ApiOperation({ summary: '관리자 로그인', description: '관리자 로그인을 수행합니다.' })
   @ApiResponse({
     status: 200,
-    description: '로그인 성공',
+    description: '로그인 되었습니다.',
     schema: {
       type: 'object',
       properties: {
-        message: { type: 'string', example: '로그인 성공' },
+        message: { type: 'string', example: '로그인 되었습니다.' },
         accessToken: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' },
         refreshToken: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' },
         permissions: {
@@ -51,7 +51,7 @@ export class AuthController {
   })
   @ApiResponse({
     status: 400,
-    description: '잘못된 로그인 정보',
+    description: '잘못된 로그인 정보입니다.',
     schema: {
       type: 'object',
       properties: {
@@ -77,7 +77,7 @@ export class AuthController {
     const tokens = await this.authService.login(userWithoutPassword);
 
     return {
-      message: '로그인 성공',
+      message: '로그인 되었습니다.',
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
     };
@@ -129,7 +129,7 @@ export class AuthController {
     // 3. 비밀번호 변경
     const result = await this.userService.changePassword(userWithoutPassword.id, newPassword);
     return {
-      message: '비밀번호 변경 성공',
+      message: '비밀번호 변경되었습니다.',
       result: result,
     };
   }
@@ -151,13 +151,13 @@ export class AuthController {
         return {
           result: true,
           data: userWithoutPassword,
-          message: '토큰 검증 성공',
+          message: '토큰 검증 되었습니다.',
         };
       } else {
         throw new HttpException(
           {
             statusCode: HttpStatus.BAD_REQUEST,
-            message: '사용자 정보 조회 실패',
+            message: '사용자 정보 조회 실패했습니다.',
           },
           HttpStatus.BAD_REQUEST,
         );
@@ -166,7 +166,7 @@ export class AuthController {
       throw new HttpException(
         {
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: '토큰 검증 실패',
+          message: '토큰 검증 실패했습니다.',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );

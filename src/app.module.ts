@@ -9,10 +9,12 @@ import { ConfigService } from '@nestjs/config';
 import { ConfigModule } from '@nestjs/config';
 import { RegisterModule } from './modules/register/register.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { BusinessInfoModule } from './modules/base-info/business-info/business-info.module';
 @Module({
   imports: [
     RegisterModule,
     AuthModule,
+    BusinessInfoModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
