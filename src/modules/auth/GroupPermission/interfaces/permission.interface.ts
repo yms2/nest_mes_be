@@ -1,18 +1,16 @@
-export interface MainMenuPermission {
+export interface MenuPermission {
   menu_id: string;
   view: string;
-  key: string;
-}
-
-export interface SubMenuPermission {
-  upper_menu_id: string;
-  menu_id: string;
+  delete: string;
   create: string;
   read: string;
   update: string;
-  delete: string;
   rowCount: number;
   key: string;
+}
+
+export interface SubMenuPermission extends MenuPermission {
+  upper_menu_id: string;
 }
 
 export interface MainMenuResult {
