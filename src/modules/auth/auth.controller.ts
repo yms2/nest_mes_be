@@ -7,17 +7,15 @@ import {
   Req,
   UnauthorizedException,
   Get,
-  Param,
-  NotFoundException,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { ChangePasswordDto } from './change-pasesword/change-password.dto';
 import { AdminLoginUserDto } from './auth.dto';
 import { AuthService } from './auth.service';
 import { RegisterService } from '../register/create/register.service';
 import { user } from '../register/create/entity/create.entity';
-import { GroupPermissionService } from './GroupPermission/GroupPermission.service';
+
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
@@ -27,7 +25,6 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly userService: RegisterService,
-    private readonly groupPermissionService: GroupPermissionService,
   ) {}
 
   @Post('login')
@@ -170,79 +167,6 @@ export class AuthController {
         {
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
           message: '토큰 검증 실패',
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  @Get('groupauthority/:group_name')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth('access-token')
-  @ApiParam({ name: 'group_name', description: '그룹명', example: 'admin' })
-  @ApiOperation({
-    summary: '그룹 권한 조회',
-    description: '특정 그룹의 권한 정보를 조회합니다.',
-  })
-  @ApiResponse({
-    status: 200,
-    description: '그룹 권한 조회 성공',
-    schema: {
-      type: 'object',
-      properties: {
-        result: { type: 'boolean', example: true },
-        message: { type: 'string', example: '그룹 권한 조회 성공' },
-        data: {
-          type: 'object',
-          properties: {
-            main_menu: { type: 'string', example: 'admin,user,settings' },
-            sub_menu: { type: 'string', example: 'dashboard,profile,logs' },
-            all_grant: { type: 'string', example: 'read,write,delete' },
-          },
-        },
-      },
-    },
-  })
-  @ApiResponse({
-    status: 401,
-    description: '인증 실패',
-    schema: {
-      type: 'object',
-      properties: {
-        message: { type: 'string', example: '토큰이 제공되지 않았습니다.' },
-        error: { type: 'string', example: 'Unauthorized' },
-        statusCode: { type: 'number', example: 401 },
-      },
-    },
-  })
-  async getGroupAuthority(
-    @Req() req: Request & { user: Record<string, unknown> },
-    @Param('group_name') groupName: string,
-  ) {
-    try {
-      const permissions = await this.groupPermissionService.getPermissionsByGroup(groupName);
-
-      return {
-        result: true,
-        message: '그룹 권한 조회 성공',
-        data: permissions,
-      };
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new HttpException(
-          {
-            statusCode: HttpStatus.BAD_REQUEST,
-            message: '그룹 권한 조회 실패',
-          },
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-
-      throw new HttpException(
-        {
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: '그룹 권한 조회 실패',
-          error: error instanceof Error ? error.message : 'Unknown error',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );

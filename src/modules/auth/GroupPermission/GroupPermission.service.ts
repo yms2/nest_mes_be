@@ -4,6 +4,7 @@ import { authoritymanages } from './GroupPermission.entity';
 import { MainMenus } from './MainMenu.entity';
 import { SubMenus } from './SubMenu.entity';
 import { In, Repository } from 'typeorm';
+import { GroupPermissionResponse } from './interfaces/permission.interface';
 
 @Injectable()
 export class GroupPermissionService {
@@ -16,7 +17,7 @@ export class GroupPermissionService {
     private readonly subMenuRepository: Repository<SubMenus>,
   ) {}
 
-  async getPermissionsByGroup(groupName: string) {
+  async getPermissionsByGroup(groupName: string): Promise<GroupPermissionResponse> {
     const groupPermission = await this.permissionRepository.findOne({
       where: { group_name: groupName },
     });
