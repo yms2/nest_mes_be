@@ -7,12 +7,14 @@ import { AuthController } from './auth.controller';
 import { GroupPermissionService } from './GroupPermission/GroupPermission.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { authoritymanages } from './GroupPermission/GroupPermission.entity';
+import { MainMenus } from './GroupPermission/MainMenu.entity';
+import { SubMenus } from './GroupPermission/SubMenu.entity';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Module({
   imports: [
     RegisterModule,
-    TypeOrmModule.forFeature([authoritymanages]),
+    TypeOrmModule.forFeature([authoritymanages, MainMenus, SubMenus]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
