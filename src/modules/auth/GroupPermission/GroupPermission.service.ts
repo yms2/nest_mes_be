@@ -49,17 +49,49 @@ export class GroupPermissionService {
   }
 
   private parsePermissionData(groupPermission: authoritymanages) {
-    let mainMenuData: { menu_id: string }[] = [];
+    let mainMenuData: {
+      menu_id: string;
+      rowCount: number;
+      view: string;
+      delete: string;
+      create: string;
+      read: string;
+      update: string;
+      key: string;
+    }[] = [];
     let subMenuData: {
       upper_menu_id: string;
       menu_id: string;
+      rowCount: number;
+      view: string;
+      delete: string;
+      create: string;
+      read: string;
+      update: string;
+      key: string;
     }[] = [];
 
     try {
-      mainMenuData = JSON.parse(groupPermission.main_menu || '[]') as { menu_id: string }[];
+      mainMenuData = JSON.parse(groupPermission.main_menu || '[]') as {
+        menu_id: string;
+        rowCount: number;
+        view: string;
+        delete: string;
+        create: string;
+        read: string;
+        update: string;
+        key: string;
+      }[];
       subMenuData = JSON.parse(groupPermission.sub_menu || '[]') as {
         upper_menu_id: string;
         menu_id: string;
+        rowCount: number;
+        view: string;
+        delete: string;
+        create: string;
+        read: string;
+        update: string;
+        key: string;
       }[];
     } catch {
       throw new InternalServerErrorException('메뉴 데이터 파싱 실패');
@@ -69,8 +101,27 @@ export class GroupPermissionService {
   }
 
   private async fetchMenuData(
-    mainMenuData: { menu_id: string }[],
-    subMenuData: { upper_menu_id: string; menu_id: string }[],
+    mainMenuData: {
+      menu_id: string;
+      rowCount: number;
+      view: string;
+      delete: string;
+      create: string;
+      read: string;
+      update: string;
+      key: string;
+    }[],
+    subMenuData: {
+      upper_menu_id: string;
+      menu_id: string;
+      rowCount: number;
+      view: string;
+      delete: string;
+      create: string;
+      read: string;
+      update: string;
+      key: string;
+    }[],
   ) {
     const allMainMenuIds = Array.from(
       new Set([...mainMenuData.map(m => m.menu_id), ...subMenuData.map(m => m.upper_menu_id)]),
@@ -97,14 +148,40 @@ export class GroupPermissionService {
 
   private buildPermissionResponse(
     groupPermission: authoritymanages,
-    mainMenuData: { menu_id: string }[],
-    subMenuData: { upper_menu_id: string; menu_id: string }[],
+    mainMenuData: {
+      menu_id: string;
+      rowCount: number;
+      view: string;
+      delete: string;
+      create: string;
+      read: string;
+      update: string;
+      key: string;
+    }[],
+    subMenuData: {
+      upper_menu_id: string;
+      menu_id: string;
+      rowCount: number;
+      view: string;
+      delete: string;
+      create: string;
+      read: string;
+      update: string;
+      key: string;
+    }[],
     mainMenuMap: Map<string, string>,
     subMenuMap: Map<string, string>,
   ): GroupPermissionResponse {
     const mainMenuResult = mainMenuData.map(item => ({
       menu_id: item.menu_id,
       menu_name: mainMenuMap.get(item.menu_id) || '',
+      view: item.view,
+      key: item.key,
+      create: item.create,
+      read: item.read,
+      update: item.update,
+      delete: item.delete,
+      rowCount: item.rowCount,
     }));
 
     const subMenuResult = subMenuData.map(item => ({
@@ -112,6 +189,13 @@ export class GroupPermissionService {
       upper_menu_name: mainMenuMap.get(item.upper_menu_id) || '',
       menu_id: item.menu_id,
       menu_name: subMenuMap.get(`${item.upper_menu_id}_${item.menu_id}`) || '',
+      view: item.view,
+      key: item.key,
+      create: item.create,
+      read: item.read,
+      update: item.update,
+      delete: item.delete,
+      rowCount: item.rowCount,
     }));
 
     return {
