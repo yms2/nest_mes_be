@@ -7,17 +7,15 @@ import {
   Req,
   UnauthorizedException,
   Get,
-  Param,
-  NotFoundException,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { ChangePasswordDto } from './change-pasesword/change-password.dto';
 import { AdminLoginUserDto } from './auth.dto';
 import { AuthService } from './auth.service';
 import { RegisterService } from '../register/create/register.service';
 import { user } from '../register/create/entity/create.entity';
-import { GroupPermissionService } from './GroupPermission/GroupPermission.service';
+
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
@@ -27,11 +25,41 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly userService: RegisterService,
-    private readonly groupPermissionService: GroupPermissionService,
   ) {}
 
   @Post('login')
   @ApiOperation({ summary: '관리자 로그인', description: '관리자 로그인을 수행합니다.' })
+  @ApiResponse({
+    status: 200,
+    description: '로그인 되었습니다.',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: '로그인 되었습니다.' },
+        accessToken: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' },
+        refreshToken: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' },
+        permissions: {
+          type: 'object',
+          properties: {
+            main_menu: { type: 'string', example: 'admin,user,settings' },
+            sub_menu: { type: 'string', example: 'dashboard,profile,logs' },
+            all_grant: { type: 'string', example: 'read,write,delete' },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: '잘못된 로그인 정보입니다.',
+    schema: {
+      type: 'object',
+      properties: {
+        statusCode: { type: 'number', example: 400 },
+        message: { type: 'string', example: '올바르지 않은 아이디 또는 비밀번호입니다.' },
+      },
+    },
+  })
   async adminLogin(
     @Body() adminLoginUserDto: AdminLoginUserDto,
   ): Promise<{ message: string; accessToken: string; refreshToken: string }> {
@@ -49,7 +77,7 @@ export class AuthController {
     const tokens = await this.authService.login(userWithoutPassword);
 
     return {
-      message: '로그인 성공',
+      message: '로그인 되었습니다.',
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
     };
@@ -101,7 +129,7 @@ export class AuthController {
     // 3. 비밀번호 변경
     const result = await this.userService.changePassword(userWithoutPassword.id, newPassword);
     return {
-      message: '비밀번호 변경 성공',
+      message: '비밀번호 변경되었습니다.',
       result: result,
     };
   }
@@ -123,13 +151,13 @@ export class AuthController {
         return {
           result: true,
           data: userWithoutPassword,
-          message: '토큰 검증 성공',
+          message: '토큰 검증 되었습니다.',
         };
       } else {
         throw new HttpException(
           {
             statusCode: HttpStatus.BAD_REQUEST,
-            message: '사용자 정보 조회 실패',
+            message: '사용자 정보 조회 실패했습니다.',
           },
           HttpStatus.BAD_REQUEST,
         );
@@ -138,48 +166,7 @@ export class AuthController {
       throw new HttpException(
         {
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: '토큰 검증 실패',
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  @Get('groupauthority/:group_name')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth('access-token')
-  @ApiOperation({
-    summary: '그룹 권한 조회',
-    description: '특정 그룹의 권한 정보를 조회합니다.',
-  })
-  async getGroupAuthority(
-    @Req() req: Request & { user: Record<string, unknown> },
-    @Param('group_name') groupName: string,
-  ) {
-    try {
-      const permissions = await this.groupPermissionService.getPermissionsByGroup(groupName);
-
-      return {
-        result: true,
-        message: '그룹 권한 조회 성공',
-        data: permissions,
-      };
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new HttpException(
-          {
-            statusCode: HttpStatus.BAD_REQUEST,
-            message: '그룹 권한 조회 실패',
-          },
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-
-      throw new HttpException(
-        {
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: '그룹 권한 조회 실패',
-          error: error instanceof Error ? error.message : 'Unknown error',
+          message: '토큰 검증 실패했습니다.',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
