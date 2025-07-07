@@ -15,7 +15,7 @@ import { AdminLoginUserDto } from './auth.dto';
 import { AuthService } from './auth.service';
 import { RegisterService } from '../register/create/register.service';
 import { user } from '../register/create/entity/create.entity';
-
+import { LogService } from '../log/Services/log.service';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
@@ -25,6 +25,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly userService: RegisterService,
+    private readonly LogService: LogService, // Assuming LogService is imported correctly
   ) {}
 
   @Post('login')
@@ -66,6 +67,13 @@ export class AuthController {
     const { username, password } = adminLoginUserDto;
     const userWithoutPassword = await this.authService.validateAdmin(username, password);
     if (!userWithoutPassword) {
+
+      await this.LogService.createSimpleLog({
+      moduleName: '계정관리',
+      action: 'LOGIN_FAIL',
+      username,
+    });
+
       throw new HttpException(
         {
           statusCode: HttpStatus.BAD_REQUEST,
@@ -76,6 +84,12 @@ export class AuthController {
     }
     const tokens = await this.authService.login(userWithoutPassword);
 
+    await this.LogService.createSimpleLog({
+      moduleName: '계정관리',
+      action: 'LOGIN',
+      username,
+    });
+
     return {
       message: '로그인 되었습니다.',
       accessToken: tokens.accessToken,
@@ -83,12 +97,20 @@ export class AuthController {
     };
   }
 
-  @Post('logout')
-  @ApiOperation({ summary: '관리자 로그아웃', description: '관리자 로그아웃을 수행합니다.' })
-  async logout(@Req() req: Request & { headers: { authorization: string }; user: user }) {
-    await this.authService.logout(req.user.id);
-    return { message: 'logout success' };
-  }
+@UseGuards(JwtAuthGuard)
+@Post('logout')
+@ApiOperation({ summary: '관리자 로그아웃', description: '관리자 로그아웃을 수행합니다.' })
+async logout(@Req() req: Request & { user: { id: number; username: string } }) {
+  await this.authService.logout(req.user.id);
+
+  await this.LogService.createSimpleLog({
+    moduleName: '계정관리',
+    action: 'LOGOUT',
+    username: req.user.username,
+  });
+
+  return { message: '로그아웃 되었습니다.' };
+}
 
   @Post('refresh-token')
   @ApiOperation({ summary: '리프레시 토큰 생성', description: '리프레시 토큰을 생성합니다.' })

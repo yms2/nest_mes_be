@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Query, Get, UseInterceptors, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Query, Get, UseInterceptors } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { ClassSerializerInterceptor } from '@nestjs/common';
 import { BusinessInfoCreateService } from './services/business-info-create.service';
@@ -7,10 +7,8 @@ import { CreateBusinessInfoDto } from './dto/create-business-info.dto';
 import { ReadBusinessInfoDto } from './dto/read-business-info.dto';
 import { BusinessInfoReadService } from './services/business-info-read.service';
 import { ApiResponseBuilder } from '../../../common/interfaces/api-response.interface';
-import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 
 @ApiTags('BusinessInfo')
-@UseGuards(JwtAuthGuard)
 @Controller('business-info')
 @UseInterceptors(ClassSerializerInterceptor)
 export class BusinessInfoController {
