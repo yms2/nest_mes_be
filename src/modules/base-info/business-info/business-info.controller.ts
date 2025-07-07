@@ -148,6 +148,72 @@ export class BusinessInfoController {
     }
   }
 
+  @Delete(':businessNumber/hard')
+  @ApiOperation({
+    summary: '사업장 정보 영구 삭제',
+    description: '사업장 정보를 영구적으로 삭제합니다.',
+  })
+  @ApiParam({ name: 'businessNumber', description: '사업자 번호', example: '6743001715' })
+  async hardDeleteBusinessInfo(@Param('businessNumber') businessNumber: string) {
+    try {
+      await this.businessInfoDeleteService.hardDeleteBusinessInfo(businessNumber);
+
+      // 상세 로그 생성
+      await this.logService.createBusinessLog({
+        action: 'HARD_DELETE',
+        username: 'system',
+        businessNumber,
+        details: '사업장 정보 영구 삭제',
+      });
+
+      return ApiResponseBuilder.success(null, '사업장 정보가 영구 삭제되었습니다.');
+    } catch (error) {
+      // 에러 로그 생성
+      await this.logService
+        .createBusinessLog({
+          action: 'HARD_DELETE_FAIL',
+          username: 'system',
+          businessNumber,
+          details: `영구 삭제 실패: ${(error as Error).message}`,
+        })
+        .catch(() => {});
+
+      throw error;
+    }
+  }
+
+  @Post(':businessNumber/restore')
+  @ApiOperation({ summary: '사업장 정보 복원', description: '삭제된 사업장 정보를 복원합니다.' })
+  @ApiParam({ name: 'businessNumber', description: '사업자 번호', example: '6743001715' })
+  async restoreBusinessInfo(@Param('businessNumber') businessNumber: string) {
+    try {
+      const result = await this.businessInfoDeleteService.restoreBusinessInfo(businessNumber);
+
+      // 상세 로그 생성
+      await this.logService.createBusinessLog({
+        action: 'RESTORE',
+        username: 'system',
+        businessNumber: result.businessNumber,
+        businessName: result.businessName,
+        details: '삭제된 사업장 정보 복원',
+      });
+
+      return ApiResponseBuilder.success(result, '사업장 정보가 복원되었습니다.');
+    } catch (error) {
+      // 에러 로그 생성
+      await this.logService
+        .createBusinessLog({
+          action: 'RESTORE_FAIL',
+          username: 'system',
+          businessNumber,
+          details: `복원 실패: ${(error as Error).message}`,
+        })
+        .catch(() => {});
+
+      throw error;
+    }
+  }
+
   @Get('')
   @ApiOperation({
     summary: '사업장 정보 조회/검색',
@@ -168,51 +234,28 @@ export class BusinessInfoController {
     @Query('page') page?: number,
     @Query('limit') limit?: number,
   ) {
-    try {
-      const pagination = this.getPagination(page, limit);
+    const pagination = this.getPagination(page, limit);
 
-      let result: ApiResponse;
-      let action = 'READ';
+    let result: ApiResponse;
 
-      // 단일 조회 (우선순위 최고)
-      if (query.businessNumber) {
-        result = await this.handleSingleRead(query);
-        action = 'READ_SINGLE';
-      }
-      // 날짜 범위 검색 (우선순위 높음)
-      else if (startDate && endDate) {
-        result = await this.handleDateRangeSearch(startDate, endDate, pagination);
-        action = 'READ_DATE_RANGE';
-      }
-      // 통합검색 (우선순위 중간)
-      else if (search) {
-        result = await this.handleSearch(search, pagination);
-        action = 'READ_SEARCH';
-      }
-      // 전체 조회 (기본값)
-      else {
-        result = await this.handleListRead(pagination);
-        action = 'READ_ALL';
-      }
-
-      // 로그 생성
-      await this.logService.createBusinessLog({
-        action,
-        username: 'system',
-      });
-
-      return result;
-    } catch (error) {
-      // 에러 로그 생성
-      await this.logService
-        .createBusinessLog({
-          action: 'READ_FAIL',
-          username: 'system',
-        })
-        .catch(() => {});
-
-      throw error;
+    // 단일 조회 (우선순위 최고)
+    if (query.businessNumber) {
+      result = await this.handleSingleRead(query);
     }
+    // 날짜 범위 검색 (우선순위 높음)
+    else if (startDate && endDate) {
+      result = await this.handleDateRangeSearch(startDate, endDate, pagination);
+    }
+    // 통합검색 (우선순위 중간)
+    else if (search) {
+      result = await this.handleSearch(search, pagination);
+    }
+    // 전체 조회 (기본값)
+    else {
+      result = await this.handleListRead(pagination);
+    }
+
+    return result;
   }
 
   private getPagination(page?: number, limit?: number) {

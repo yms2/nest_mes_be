@@ -19,13 +19,45 @@ export class BusinessInfoUpdateService {
     // 1. 사업장 정보 존재 여부 확인
     const existingBusinessInfo = await this.findBusinessInfoByNumber(businessNumber);
 
-    // 2. 입력 데이터 검증
+    // 2. 필수값 검증 (누락된 필드 모두 표시)
+    const missingFields: string[] = [];
+    if (
+      updateBusinessInfoDto.businessNumber !== undefined &&
+      (updateBusinessInfoDto.businessNumber === null ||
+        updateBusinessInfoDto.businessNumber.trim() === '')
+    ) {
+      missingFields.push('businessNumber');
+    }
+    if (
+      updateBusinessInfoDto.businessName !== undefined &&
+      (updateBusinessInfoDto.businessName === null ||
+        updateBusinessInfoDto.businessName.trim() === '')
+    ) {
+      missingFields.push('businessName');
+    }
+    if (
+      updateBusinessInfoDto.businessCeo !== undefined &&
+      (updateBusinessInfoDto.businessCeo === null ||
+        updateBusinessInfoDto.businessCeo.trim() === '')
+    ) {
+      missingFields.push('businessCeo');
+    }
+    const fieldNameMap: Record<string, string> = {
+      businessNumber: '사업자번호',
+      businessName: '사업장명',
+      businessCeo: '대표자명',
+    };
+    const missingFieldNames = missingFields.map(f => fieldNameMap[f] || f);
+    if (missingFields.length > 0) {
+      throw new BadRequestException(
+        `❗️[필수 입력값 오류] 아래 항목이 비어 있습니다: ${missingFieldNames.join(', ')}`,
+      );
+    }
+
+    // 3. 입력 데이터 검증
     this.validateUpdateData(updateBusinessInfoDto);
 
-    // 필수값 체크
-    BusinessUtils.validateRequiredFields(updateBusinessInfoDto);
-
-    // 3. 사업자번호 중복 검증 (사업자번호가 변경되는 경우)
+    // 4. 사업자번호 중복 검증 (사업자번호가 변경되는 경우)
     if (
       updateBusinessInfoDto.businessNumber &&
       updateBusinessInfoDto.businessNumber !== businessNumber
@@ -33,7 +65,7 @@ export class BusinessInfoUpdateService {
       await this.validateBusinessNumberUniqueness(updateBusinessInfoDto.businessNumber);
     }
 
-    // 4. 사업장 정보 업데이트
+    // 5. 사업장 정보 업데이트
     return this.saveUpdatedBusinessInfo(existingBusinessInfo, updateBusinessInfoDto);
   }
 
