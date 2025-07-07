@@ -65,11 +65,8 @@ export class AuthController {
     @Body() adminLoginUserDto: AdminLoginUserDto,
   ): Promise<{ message: string; accessToken: string; refreshToken: string }> {
     const { username, password } = adminLoginUserDto;
-    console.log('로그인 시도:', username);
-    
     const userWithoutPassword = await this.authService.validateAdmin(username, password);
     if (!userWithoutPassword) {
-      console.log('로그인 실패: 사용자 검증 실패');
       try {
         await this.logService.createSimpleLog({
           moduleName: '계정관리',
@@ -88,13 +85,7 @@ export class AuthController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    
-    console.log('사용자 검증 성공:', userWithoutPassword.username);
     const tokens = await this.authService.login(userWithoutPassword);
-    console.log('토큰 생성 완료:', {
-      accessToken: tokens.accessToken ? '토큰 존재' : '토큰 없음',
-      refreshToken: tokens.refreshToken ? '토큰 존재' : '토큰 없음'
-    });
 
     try {
       await this.logService.createSimpleLog({
@@ -111,13 +102,7 @@ export class AuthController {
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
     };
-    
-    console.log('로그인 응답:', {
-      message: response.message,
-      accessToken: response.accessToken ? '토큰 존재' : '토큰 없음',
-      refreshToken: response.refreshToken ? '토큰 존재' : '토큰 없음'
-    });
-    
+
     return response;
   }
 
@@ -148,9 +133,6 @@ export class AuthController {
     },
   })
   async logout(@Req() req: Request & { user: { id: number; username: string } }) {
-    console.log('로그아웃 요청 - 사용자 정보:', req.user);
-    console.log('로그아웃 요청 - 헤더:', req.headers);
-    
     try {
       await this.authService.logout(req.user.id);
 
@@ -161,11 +143,9 @@ export class AuthController {
         username: req.user.username,
       });
 
-      console.log('로그아웃 성공:', req.user.username);
       return { message: '로그아웃 되었습니다.' };
     } catch (error) {
       console.error('로그아웃 중 에러 발생:', error);
-
       // 로그아웃은 성공했지만 로그 생성에 실패한 경우에도 로그아웃은 완료된 것으로 처리
       return { message: '로그아웃 되었습니다.' };
     }

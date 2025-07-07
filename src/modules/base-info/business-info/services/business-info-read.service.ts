@@ -20,7 +20,7 @@ export class BusinessInfoReadService {
     });
 
     if (!businessInfo) {
-      throw new NotFoundException('Business info not found');
+      throw new NotFoundException('사업장 정보를 찾을 수 없습니다.');
     }
 
     return DateFormatter.formatBusinessInfoDates(businessInfo);
