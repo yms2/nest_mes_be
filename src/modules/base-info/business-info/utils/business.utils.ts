@@ -12,14 +12,14 @@ export class BusinessUtils {
    * 사업자 번호 유효성 검사
    */
   static validateBusinessNumber(businessNumber: string): boolean {
-    return BUSINESS_CONSTANTS.BUSINESS_NUMBER_REGEX.test(businessNumber);
+    return BUSINESS_CONSTANTS.REGEX.BUSINESS_NUMBER.test(businessNumber);
   }
 
   /**
    * 숫자만 허용하는 유효성 검사
    */
   static validateNumbersOnly(value: string): boolean {
-    return BUSINESS_CONSTANTS.NUMBERS_ONLY_REGEX.test(value);
+    return BUSINESS_CONSTANTS.REGEX.NUMBERS_ONLY.test(value);
   }
 
   /**
@@ -27,7 +27,7 @@ export class BusinessUtils {
    */
   static validateNumberField(value: string | undefined, fieldName: string): void {
     if (value && !this.validateNumbersOnly(value)) {
-      throw new ValidationError(`${fieldName}: ${BUSINESS_CONSTANTS.ERROR_MESSAGES.NUMBERS_ONLY}`);
+      throw new ValidationError(`${fieldName}: ${BUSINESS_CONSTANTS.ERROR.NUMBERS_ONLY.message}`);
     }
   }
 
@@ -36,14 +36,14 @@ export class BusinessUtils {
    */
   static generateNextBusinessCode(lastBusinessCode: string | null): string {
     if (!lastBusinessCode) {
-      return BUSINESS_CONSTANTS.DEFAULT_BUSINESS_CODE;
+      return BUSINESS_CONSTANTS.CODE.DEFAULT;
     }
 
-    const lastCodeNumber = lastBusinessCode.split(BUSINESS_CONSTANTS.BUSINESS_CODE_PREFIX)[1];
+    const lastCodeNumber = lastBusinessCode.split(BUSINESS_CONSTANTS.CODE.PREFIX)[1];
     const nextNumber = Number(lastCodeNumber) + 1;
 
-    return `${BUSINESS_CONSTANTS.BUSINESS_CODE_PREFIX}${String(nextNumber).padStart(
-      BUSINESS_CONSTANTS.BUSINESS_CODE_LENGTH,
+    return `${BUSINESS_CONSTANTS.CODE.PREFIX}${String(nextNumber).padStart(
+      BUSINESS_CONSTANTS.CODE.LENGTH,
       '0',
     )}`;
   }
@@ -55,21 +55,21 @@ export class BusinessUtils {
     const requiredFields = [
       {
         field: 'businessNumber',
-        message: BUSINESS_CONSTANTS.ERROR_MESSAGES.BUSINESS_NUMBER_REQUIRED,
+        message: BUSINESS_CONSTANTS.ERROR.BUSINESS_NUMBER_REQUIRED,
       },
       {
         field: 'businessName',
-        message: BUSINESS_CONSTANTS.ERROR_MESSAGES.BUSINESS_NAME_REQUIRED,
+        message: BUSINESS_CONSTANTS.ERROR.BUSINESS_NAME_REQUIRED,
       },
       {
         field: 'businessCeo',
-        message: BUSINESS_CONSTANTS.ERROR_MESSAGES.BUSINESS_CEO_REQUIRED,
+        message: BUSINESS_CONSTANTS.ERROR.BUSINESS_CEO_REQUIRED,
       },
     ];
 
     for (const { field, message } of requiredFields) {
       if (!fields[field]) {
-        throw new ValidationError(message);
+        throw new ValidationError([message.message, message.code].join(' '));
       }
     }
   }

@@ -34,7 +34,7 @@ export class BusinessInfoCreateService {
 
       // 사업자 번호 형식 체크
       if (!BusinessUtils.validateBusinessNumber(dto.businessNumber)) {
-        throw new BadRequestException(BUSINESS_CONSTANTS.ERROR_MESSAGES.BUSINESS_NUMBER_FORMAT);
+        throw new BadRequestException(BUSINESS_CONSTANTS.ERROR.BUSINESS_NUMBER_FORMAT);
       }
 
       // 숫자 필드 검증
@@ -66,7 +66,7 @@ export class BusinessInfoCreateService {
       where: { businessNumber },
     });
     if (existingBusinessInfo) {
-      throw new BadRequestException(BUSINESS_CONSTANTS.ERROR_MESSAGES.BUSINESS_NUMBER_DUPLICATE);
+      throw new BadRequestException(BUSINESS_CONSTANTS.ERROR.BUSINESS_NUMBER_DUPLICATE);
     }
   }
   // 사업장 코드 생성

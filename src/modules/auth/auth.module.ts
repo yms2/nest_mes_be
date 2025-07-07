@@ -6,10 +6,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthController } from './auth.controller';
 import { GroupPermissionModule } from './GroupPermission/GroupPermission.module';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-
+import { LogModule } from '../log/log.module';
 @Module({
   imports: [
     RegisterModule,
+    LogModule,
     GroupPermissionModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
