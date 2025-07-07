@@ -18,32 +18,6 @@ export class BusinessInfoDeleteService {
     await this.softDeleteBusinessInfo(existingBusinessInfo);
   }
 
-  async hardDeleteBusinessInfo(businessNumber: string): Promise<void> {
-    // 1. 사업장 정보 존재 여부 확인
-    const existingBusinessInfo = await this.findBusinessInfoByNumber(businessNumber);
-
-    // 2. 하드 삭제 (실제 DB에서 삭제)
-    await this.businessInfoRepository.remove(existingBusinessInfo);
-  }
-
-  async restoreBusinessInfo(businessNumber: string): Promise<BusinessInfo> {
-    // 1. 삭제된 사업장 정보 찾기
-    const deletedBusinessInfo = await this.businessInfoRepository.findOne({
-      where: { businessNumber, isDeleted: true },
-    });
-
-    if (!deletedBusinessInfo) {
-      throw new NotFoundException('삭제된 사업장 정보를 찾을 수 없습니다.');
-    }
-
-    // 2. 복원 (isDeleted = false, deletedAt = null)
-    deletedBusinessInfo.isDeleted = false;
-    deletedBusinessInfo.deletedAt = null;
-    deletedBusinessInfo.updatedAt = new Date();
-
-    return this.businessInfoRepository.save(deletedBusinessInfo);
-  }
-
   private async findBusinessInfoByNumber(businessNumber: string): Promise<BusinessInfo> {
     const businessInfo = await this.businessInfoRepository.findOne({
       where: { businessNumber },

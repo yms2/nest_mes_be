@@ -148,38 +148,6 @@ export class BusinessInfoController {
     }
   }
 
-  @Post(':businessNumber/restore')
-  @ApiOperation({ summary: '사업장 정보 복원', description: '삭제된 사업장 정보를 복원합니다.' })
-  @ApiParam({ name: 'businessNumber', description: '사업자 번호', example: '6743001715' })
-  async restoreBusinessInfo(@Param('businessNumber') businessNumber: string) {
-    try {
-      const result = await this.businessInfoDeleteService.restoreBusinessInfo(businessNumber);
-
-      // 상세 로그 생성
-      await this.logService.createBusinessLog({
-        action: 'RESTORE',
-        username: 'system',
-        businessNumber: result.businessNumber,
-        businessName: result.businessName,
-        details: '삭제된 사업장 정보 복원',
-      });
-
-      return ApiResponseBuilder.success(result, '사업장 정보가 복원되었습니다.');
-    } catch (error) {
-      // 에러 로그 생성
-      await this.logService
-        .createBusinessLog({
-          action: 'RESTORE_FAIL',
-          username: 'system',
-          businessNumber,
-          details: `복원 실패: ${(error as Error).message}`,
-        })
-        .catch(() => {});
-
-      throw error;
-    }
-  }
-
   @Get('')
   @ApiOperation({
     summary: '사업장 정보 조회/검색',
