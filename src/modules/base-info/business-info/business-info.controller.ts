@@ -21,6 +21,8 @@ import { BusinessInfoUpdateService } from './services/business-info-update.servi
 import { BusinessInfoDeleteService } from './services/business-info-delete.service';
 import { logService } from '../../log/Services/log.service';
 import { ApiResponseBuilder } from '../../../common/interfaces/api-response.interface';
+import { NotEmptyStringPipe } from '../../../common/pipes/not-empty-string.pipe';
+import { buildPaginatedResponse } from '../../../common/utils/pagination.util';
 
 interface ApiResponse {
   success: boolean;
@@ -46,7 +48,12 @@ export class BusinessInfoController {
 
   @Post('')
   @ApiOperation({ summary: '사업장 정보 생성', description: '신규 사업장 정보를 생성합니다.' })
-  async createBusinessInfo(@Body() createBusinessInfoDto: CreateBusinessInfoDto) {
+  async createBusinessInfo(
+    @Body('businessNumber', NotEmptyStringPipe) bodyBusinessNumber: string,
+    @Body('businessName', NotEmptyStringPipe) bodyBusinessName: string,
+    @Body('businessCeo', NotEmptyStringPipe) bodyBusinessCeo: string,
+    @Body() createBusinessInfoDto: CreateBusinessInfoDto,
+  ) {
     try {
       const result = await this.businessInfoCreateService.createBusinessInfo(createBusinessInfoDto);
 
@@ -81,6 +88,9 @@ export class BusinessInfoController {
   @ApiParam({ name: 'businessNumber', description: '사업자 번호', example: '6743001715' })
   async updateBusinessInfo(
     @Param('businessNumber') businessNumber: string,
+    @Body('businessNumber', NotEmptyStringPipe) bodyBusinessNumber: string,
+    @Body('businessName', NotEmptyStringPipe) bodyBusinessName: string,
+    @Body('businessCeo', NotEmptyStringPipe) bodyBusinessCeo: string,
     @Body() updateBusinessInfoDto: UpdateBusinessInfoDto,
   ) {
     try {
@@ -276,7 +286,7 @@ export class BusinessInfoController {
       pagination.page,
       pagination.limit,
     );
-    return ApiResponseBuilder.paginated(
+    return buildPaginatedResponse(
       result.data,
       result.page,
       result.limit,
@@ -290,7 +300,7 @@ export class BusinessInfoController {
       pagination.page,
       pagination.limit,
     );
-    return ApiResponseBuilder.paginated(
+    return buildPaginatedResponse(
       result.data,
       result.page,
       result.limit,
@@ -310,7 +320,7 @@ export class BusinessInfoController {
       pagination.page,
       pagination.limit,
     );
-    return ApiResponseBuilder.paginated(
+    return buildPaginatedResponse(
       result.data,
       result.page,
       result.limit,
