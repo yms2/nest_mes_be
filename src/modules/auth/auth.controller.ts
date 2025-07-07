@@ -15,7 +15,7 @@ import { AdminLoginUserDto } from './auth.dto';
 import { AuthService } from './auth.service';
 import { RegisterService } from '../register/create/register.service';
 import { user } from '../register/create/entity/create.entity';
-import { LogService } from '../log/Services/log.service';
+import { logService } from '../log/Services/log.service';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
@@ -25,7 +25,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly userService: RegisterService,
-    private readonly LogService: LogService, // Assuming LogService is imported correctly
+    private readonly logService: logService, // Assuming LogService is imported correctly
   ) {}
 
   @Post('login')
@@ -65,14 +65,20 @@ export class AuthController {
     @Body() adminLoginUserDto: AdminLoginUserDto,
   ): Promise<{ message: string; accessToken: string; refreshToken: string }> {
     const { username, password } = adminLoginUserDto;
+    console.log('로그인 시도:', username);
+    
     const userWithoutPassword = await this.authService.validateAdmin(username, password);
     if (!userWithoutPassword) {
-
-      await this.LogService.createSimpleLog({
-      moduleName: '계정관리',
-      action: 'LOGIN_FAIL',
-      username,
-    });
+      console.log('로그인 실패: 사용자 검증 실패');
+      try {
+        await this.logService.createSimpleLog({
+          moduleName: '계정관리',
+          action: 'LOGIN_FAIL',
+          username,
+        });
+      } catch (error) {
+        console.error('로그인 실패 로그 생성 중 에러:', error);
+      }
 
       throw new HttpException(
         {
@@ -82,35 +88,88 @@ export class AuthController {
         HttpStatus.BAD_REQUEST,
       );
     }
+    
+    console.log('사용자 검증 성공:', userWithoutPassword.username);
     const tokens = await this.authService.login(userWithoutPassword);
-
-    await this.LogService.createSimpleLog({
-      moduleName: '계정관리',
-      action: 'LOGIN',
-      username,
+    console.log('토큰 생성 완료:', {
+      accessToken: tokens.accessToken ? '토큰 존재' : '토큰 없음',
+      refreshToken: tokens.refreshToken ? '토큰 존재' : '토큰 없음'
     });
 
-    return {
+    try {
+      await this.logService.createSimpleLog({
+        moduleName: '계정관리',
+        action: 'LOGIN',
+        username,
+      });
+    } catch (error) {
+      console.error('로그인 성공 로그 생성 중 에러:', error);
+    }
+
+    const response = {
       message: '로그인 되었습니다.',
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
     };
+    
+    console.log('로그인 응답:', {
+      message: response.message,
+      accessToken: response.accessToken ? '토큰 존재' : '토큰 없음',
+      refreshToken: response.refreshToken ? '토큰 존재' : '토큰 없음'
+    });
+    
+    return response;
   }
 
-@UseGuards(JwtAuthGuard)
-@Post('logout')
-@ApiOperation({ summary: '관리자 로그아웃', description: '관리자 로그아웃을 수행합니다.' })
-async logout(@Req() req: Request & { user: { id: number; username: string } }) {
-  await this.authService.logout(req.user.id);
+  @UseGuards(JwtAuthGuard)
+  @Post('logout')
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: '관리자 로그아웃', description: '관리자 로그아웃을 수행합니다.' })
+  @ApiResponse({
+    status: 200,
+    description: '로그아웃 성공',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: '로그아웃 되었습니다.' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: '인증 실패',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: '토큰이 제공되지 않았습니다.' },
+        error: { type: 'string', example: 'Unauthorized' },
+        statusCode: { type: 'number', example: 401 },
+      },
+    },
+  })
+  async logout(@Req() req: Request & { user: { id: number; username: string } }) {
+    console.log('로그아웃 요청 - 사용자 정보:', req.user);
+    console.log('로그아웃 요청 - 헤더:', req.headers);
+    
+    try {
+      await this.authService.logout(req.user.id);
 
-  await this.LogService.createSimpleLog({
-    moduleName: '계정관리',
-    action: 'LOGOUT',
-    username: req.user.username,
-  });
+      // 로그 생성
+      await this.logService.createSimpleLog({
+        moduleName: '계정관리',
+        action: 'LOGOUT',
+        username: req.user.username,
+      });
 
-  return { message: '로그아웃 되었습니다.' };
-}
+      console.log('로그아웃 성공:', req.user.username);
+      return { message: '로그아웃 되었습니다.' };
+    } catch (error) {
+      console.error('로그아웃 중 에러 발생:', error);
+
+      // 로그아웃은 성공했지만 로그 생성에 실패한 경우에도 로그아웃은 완료된 것으로 처리
+      return { message: '로그아웃 되었습니다.' };
+    }
+  }
 
   @Post('refresh-token')
   @ApiOperation({ summary: '리프레시 토큰 생성', description: '리프레시 토큰을 생성합니다.' })

@@ -26,3 +26,4 @@ import { JwtAuthGuard } from '../guards/jwt-auth.guard';
   exports: [GroupPermissionService],
 })
 export class GroupPermissionModule {}
+ 

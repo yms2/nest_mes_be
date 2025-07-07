@@ -24,7 +24,6 @@ export class AuthService {
         email: user.email,
         group_name: user.group_name,
       };
-
       const accessToken = this.jwtService.sign(payload, {
         secret: this.configService.get('JWT_SECRET'),
         expiresIn: this.configService.get('JWT_EXPIRES_IN'),
@@ -33,10 +32,10 @@ export class AuthService {
         secret: this.configService.get('JWT_REFRESH_SECRET'),
         expiresIn: this.configService.get('JWT_REFRESH_EXPIRES_IN'),
       });
-
       await this.userService.updateRefreshToken(user.id, refreshToken);
 
-      return { accessToken, refreshToken };
+      const result = { accessToken, refreshToken };
+      return result;
     } catch (error) {
       console.error('로그인 처리 오류:', error);
       throw new InternalServerErrorException('로그인 실패');
