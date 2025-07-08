@@ -7,7 +7,7 @@ import { MainMenus } from './MainMenu.entity';
 import { SubMenus } from './SubMenu.entity';
 import { GroupPermissionService } from './GroupPermission.service';
 import { GroupPermissionController } from './GroupPermission.controller';
-import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 
 @Module({
   imports: [

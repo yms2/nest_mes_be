@@ -17,7 +17,7 @@ import { RegisterService } from '../register/create/register.service';
 import { user } from '../register/create/entity/create.entity';
 import { logService } from '../log/Services/log.service';
 import { UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
