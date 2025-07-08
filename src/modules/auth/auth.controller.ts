@@ -25,7 +25,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly userService: RegisterService,
-    private readonly logService: logService, // Assuming LogService is imported correctly
+    private readonly logService: logService, // Assuming logService is imported correctly
   ) {}
 
   @Post('login')

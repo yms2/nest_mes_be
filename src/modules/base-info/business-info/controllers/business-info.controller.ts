@@ -8,8 +8,9 @@ import {
   Put,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiQuery, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiQuery, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { ClassSerializerInterceptor } from '@nestjs/common';
 import { BusinessInfoCreateService } from '../services/business-info-create.service';
 import { BusinessInfoSearchService } from '../services/business-info-search.service';
@@ -23,6 +24,7 @@ import { logService } from '../../../log/Services/log.service';
 import { ApiResponseBuilder } from '../../../../common/interfaces/api-response.interface';
 import { NotEmptyStringPipe } from '../../../../common/pipes/not-empty-string.pipe';
 import { buildPaginatedResponse } from '../../../../common/utils/pagination.util';
+import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 
 interface ApiResponse {
   success: boolean;
@@ -45,6 +47,8 @@ export class BusinessInfoController {
 
 
   @Get('')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access-token')
   @ApiOperation({
     summary: '사업장 정보 조회/검색',
     description:

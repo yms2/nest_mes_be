@@ -13,7 +13,10 @@ export class BusinessInfoCreateService {
     private readonly businessInfoRepository: Repository<BusinessInfo>,
   ) {}
 
-  async createBusinessInfo(createBusinessInfoDto: CreateBusinessInfoDto): Promise<BusinessInfo> {
+  async createBusinessInfo(
+    createBusinessInfoDto: CreateBusinessInfoDto,
+    createdBy:string
+  ): Promise<BusinessInfo> {
     // 1. 입력 데이터 검증
     this.validateInputData(createBusinessInfoDto);
 
@@ -24,7 +27,7 @@ export class BusinessInfoCreateService {
     const newBusinessCode = await this.generateBusinessCode();
 
     // 4. 사업장 정보 생성 및 저장
-    return this.saveBusinessInfo(createBusinessInfoDto, newBusinessCode);
+    return this.saveBusinessInfo(createBusinessInfoDto, newBusinessCode, createdBy);
   }
 
   private validateInputData(dto: CreateBusinessInfoDto): void {
@@ -82,10 +85,12 @@ export class BusinessInfoCreateService {
   private async saveBusinessInfo(
     dto: CreateBusinessInfoDto,
     businessCode: string,
+    createdBy: string,
   ): Promise<BusinessInfo> {
     const newBusinessInfo = this.businessInfoRepository.create({
       businessCode,
       ...dto,
+      createdBy,
     });
 
     return this.businessInfoRepository.save(newBusinessInfo);
