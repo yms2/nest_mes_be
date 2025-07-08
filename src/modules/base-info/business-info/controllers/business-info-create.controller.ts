@@ -35,11 +35,12 @@ export class BusinessInfoCreateController {
       );
 
       // 상세 로그 생성
-      await this.logService.createBusinessLog({
+      await this.logService.createDetailedLog({
+        moduleName: '사업장관리',
         action: 'CREATE',
-        username: req.user.username, // 생성자 정보
-        businessNumber: result.businessNumber,
-        businessName: result.businessName,
+        username: req.user.username,
+        targetId: result.businessNumber,
+        targetName: result.businessName,
         details: '새로운 사업장 정보 생성',
       });
 
@@ -47,12 +48,13 @@ export class BusinessInfoCreateController {
     } catch (error) {
       // 에러 로그 생성
       await this.logService
-        .createBusinessLog({
-          action: 'CREATE_FAIL',
-          username: req.user.username, // 생성자 정보
-          businessNumber: createBusinessInfoDto.businessNumber,
-          businessName: createBusinessInfoDto.businessName,
-          details: `생성 실패: ${(error as Error).message}`,
+        .createDetailedLog({
+        moduleName: '사업장관리',
+        action: 'CREATE_FAIL',
+        username: req.user.username,
+        targetId: createBusinessInfoDto.businessNumber,
+        targetName: createBusinessInfoDto.businessName,
+        details: `생성 실패: ${(error as Error).message}`,
         })
         .catch(() => {});
 

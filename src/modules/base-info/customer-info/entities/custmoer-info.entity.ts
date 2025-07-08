@@ -59,6 +59,10 @@ export class CustomerInfo {
   @Column({ name: 'created_by', type: 'varchar', length: 50, comment: '계정 생성자' })
   createdBy: string;
 
+  @ApiProperty({ example: 'admin'  , description: '계정 수정자' })
+  @Column({ name: 'updated_by', type: 'varchar', length: 50, comment: '계정 수정자', nullable: true })
+  updatedBy: string;
+
   @ApiProperty({ example: '2025-07-02T09:00:00.000Z', description: '계정 생성일시 (자동 생성)' })
   @CreateDateColumn({ comment: '생성일시' })
   createdAt: Date;

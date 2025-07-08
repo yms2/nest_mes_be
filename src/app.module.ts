@@ -9,14 +9,15 @@ import { ConfigService } from '@nestjs/config';
 import { ConfigModule } from '@nestjs/config';
 import { RegisterModule } from './modules/register/register.module';
 import { AuthModule } from './modules/auth/auth.module';
-import { BusinessInfoModule } from './modules/base-info/business-info/business-info.module';
+import { BaseInfoModule } from './modules/base-info/base-info.module';
 import { LogModule } from './modules/log/log.module';
 @Module({
   imports: [
     RegisterModule,
     AuthModule,
-    BusinessInfoModule,
+    BaseInfoModule,
     LogModule,
+
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',

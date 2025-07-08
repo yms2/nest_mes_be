@@ -31,10 +31,11 @@ export class BusinessInfoDeleteController{
         ); // 수정자 정보
   
         // 상세 로그 생성
-        await this.logService.createBusinessLog({
+        await this.logService.createDetailedLog({
+          moduleName: '사업장관리',
           action: 'HARD_DELETE',
           username: 'system',
-          businessNumber,
+          targetId : businessNumber,
           details: '사업장 정보 영구 삭제',
         });
   
@@ -42,10 +43,11 @@ export class BusinessInfoDeleteController{
       } catch (error) {
         // 에러 로그 생성
         await this.logService
-          .createBusinessLog({
+          .createDetailedLog({
+            moduleName: '사업장관리',
             action: 'HARD_DELETE_FAIL',
             username: 'system',
-            businessNumber,
+            targetId : businessNumber,
             details: `영구 삭제 실패: ${(error as Error).message}`,
           })
           .catch(() => {});

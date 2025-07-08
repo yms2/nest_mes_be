@@ -37,6 +37,8 @@ async function bootstrap() {
 
   app.useGlobalPipes(
     new ValidationPipe({
+      whitelist: true,  // DTO에 없는 값 제거
+      forbidNonWhitelisted: true,  // DTO에 없는 값이 오면 에러 발생
       transform: true,
     }),
   );

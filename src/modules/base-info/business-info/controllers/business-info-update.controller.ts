@@ -37,11 +37,12 @@ export class BusinessInfoUpdateController {
         );
   
         // 상세 로그 생성
-        await this.logService.createBusinessLog({
+        await this.logService.createDetailedLog({
+          moduleName: '사업장관리',
           action: 'UPDATE',
           username: req.user.username, // 수정자 정보
-          businessNumber: result.businessNumber,
-          businessName: result.businessName,
+          targetId: result.businessNumber,
+          targetName: result.businessName,
           details: '사업장 정보 수정',
         });
   
@@ -49,10 +50,12 @@ export class BusinessInfoUpdateController {
       } catch (error) {
         // 에러 로그 생성
         await this.logService
-          .createBusinessLog({
+          .createDetailedLog({
+            moduleName: '사업장관리',
             action: 'UPDATE_FAIL',
             username: req.user.username, // 수정자 정보
-            businessNumber,
+            targetId: bodyBusinessNumber,
+            targetName: bodyBusinessName,
             details: `수정 실패: ${(error as Error).message}`,
           })
           .catch(() => {});
