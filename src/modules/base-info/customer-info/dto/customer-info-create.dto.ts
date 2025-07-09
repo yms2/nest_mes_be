@@ -54,7 +54,9 @@ export class CreateCustomerInfoDto {
     required: false,
   })
   @OptionalString()
-  @Matches(/^\d+$/, { message: '전화번호는 숫자만 입력해야 합니다.' })
+  @Matches(/^(\d{10,11}|\d{2,3}-\d{3,4}-\d{4})$/, {
+    message: '전화번호는 숫자만 입력하거나 000-0000-0000 형식으로 입력해야 합니다.',
+  })
   customerTel?: string;
 
   @ApiProperty({
@@ -63,7 +65,9 @@ export class CreateCustomerInfoDto {
     required: false,
   })
   @OptionalString()
-  @Matches(/^\d+$/, { message: '휴대폰번호는 숫자만 입력해야 합니다.' })
+  @Matches(/^(\d{10,11}|\d{2,3}-\d{3,4}-\d{4})$/, {
+    message: '휴대폰번호는 숫자만 입력하거나 000-0000-0000 형식으로 입력해야 합니다.',
+  })
   customerMobile?: string;
 
   @ApiProperty({

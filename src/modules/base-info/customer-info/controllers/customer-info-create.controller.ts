@@ -1,14 +1,12 @@
 import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { create } from 'domain';
-import { NotEmptyStringPipe } from 'src/common/pipes/not-empty-string.pipe';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { logService } from "src/modules/log/Services/log.service";
-//import { CreateCustomerInfoDto } from '../dto/create-customer-info.dto';
 import { CustomerInfoCreateService } from '../services/customer-info-create.service';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+
 import { ApiResponseBuilder } from 'src/common/interfaces/api-response.interface';
 import { CreateCustomerInfoDto } from '../dto/customer-info-create.dto';
 import { CustomerInfo } from '../entities/custmoer-info.entity';
+import { Auth } from 'src/common/decorators/auth.decorator';
 
 @ApiTags("CustomerInfo")
 @Controller('customer-info')
@@ -20,8 +18,7 @@ export class CustomerInfoCreateController {
 
 
   @Post()
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth('access-token')
+  @Auth()
   @ApiOperation({ summary: '거래처 정보 생성', description: '신규 거래처 정보를 생성합니다.' })
   async createCustomerInfo(
     @Body() createCustomerInfoDto: CreateCustomerInfoDto,

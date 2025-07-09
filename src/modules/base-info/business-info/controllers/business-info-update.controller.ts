@@ -1,12 +1,12 @@
 import { Put, Controller, Param, Body, Req,  } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiParam } from '@nestjs/swagger';
 
-import { NotEmptyStringPipe } from "src/common/pipes/not-empty-string.pipe";
 import { CreateBusinessInfoDto } from "../dto/create-business-info.dto";
 import { ApiResponseBuilder } from "src/common/interfaces/api-response.interface";
 import { BusinessInfoUpdateService } from "../services/business-info-update.service";
 import { logService } from "src/modules/log/Services/log.service";
 import { Auth } from "src/common/decorators/auth.decorator";
+import { BusinessInfo } from "../entities/business-info.entity";
 @ApiTags('BusinessInfo')
 @Controller('business-info')
 export class BusinessInfoUpdateController {
@@ -22,43 +22,45 @@ export class BusinessInfoUpdateController {
     @ApiParam({ name: 'businessNumber', description: '사업자 번호', example: '6743001715' })
     async updateBusinessInfo(
       @Param('businessNumber') businessNumber: string,
-      @Body('businessNumber', NotEmptyStringPipe) bodyBusinessNumber: string,
-      @Body('businessName', NotEmptyStringPipe) bodyBusinessName: string,
-      @Body('businessCeo', NotEmptyStringPipe) bodyBusinessCeo: string,
-      @Body() CreateBusinessInfoDto: CreateBusinessInfoDto,
+      @Body() createBusinessInfoDto: CreateBusinessInfoDto,
       @Req() req: Request & { user: { username: string } },  // 추가
     ) {
       try {
         const result = await this.businessInfoUpdateService.updateBusinessInfo(
           businessNumber,
-          CreateBusinessInfoDto,
+          createBusinessInfoDto,
           req.user.username, // 수정자 정보
         );
-        // 상세 로그 생성
-        await this.logService.createDetailedLog({
-          moduleName: '사업장관리',
-          action: 'UPDATE',
-          username: req.user.username, // 수정자 정보
-          targetId: result.businessNumber,
-          targetName: result.businessName,
-          details: '사업장 정보 수정',
-        });
-  
+
+        await this.writeCreateLog(result, req.user.username);
+
         return ApiResponseBuilder.success(result, '사업장 정보가 수정되었습니다.');
+
       } catch (error) {
         // 에러 로그 생성
-        await this.logService
-          .createDetailedLog({
-            moduleName: '사업장관리',
-            action: 'UPDATE_FAIL',
-            username: req.user.username, // 수정자 정보
-            targetId: bodyBusinessNumber,
-            targetName: bodyBusinessName,
-            details: `수정 실패: ${(error as Error).message}`,
-          })
-          .catch(() => {});
-  
+      await this.writeCreateFailLog(createBusinessInfoDto, req.user.username, error);
         throw error;
       }
+    }
+    private async writeCreateLog(result: BusinessInfo, username: string) {
+      await this.logService.createDetailedLog({
+        moduleName: '사업장관리',
+        action: 'UPDATE',
+        username,
+        targetId: result.businessNumber,
+        targetName: result.businessName,
+        details: '새로운 사업장 정보 수정',
+      });
+    }
+    
+    private async writeCreateFailLog(dto: CreateBusinessInfoDto, username: string, error: Error) {
+      await this.logService.createDetailedLog({
+        moduleName: '사업장관리',
+        action: 'UPDATE_FAIL',
+        username,
+        targetId: dto.businessNumber,
+        targetName: dto.businessName,
+        details: `생성 실패: ${error.message}`,
+      }).catch(() => {});
     }
 } 
