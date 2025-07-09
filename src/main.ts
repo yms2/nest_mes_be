@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as fs from 'fs';
-
+import * as cookieParser from 'cookie-parser';
 async function bootstrap() {
   const configService = new ConfigService();
   const useHttps = configService.get<boolean>('USE_HTTPS') || false;
@@ -60,11 +60,10 @@ async function bootstrap() {
       'access-token', // This name here is important for references
     )
     .build();
-
+  app.use(cookieParser());  // ✅ 필수
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api-docs', app, document);
   // ✅ Swagger 설정 추가 끝
-
   await app.listen(configService.get('PORT', 5000));
 }
 

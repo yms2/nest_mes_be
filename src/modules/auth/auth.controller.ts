@@ -9,7 +9,7 @@ import {
   Get,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse, ApiCookieAuth } from '@nestjs/swagger';
 import { ChangePasswordDto } from './change-pasesword/change-password.dto';
 import { AdminLoginUserDto } from './auth.dto';
 import { AuthService } from './auth.service';
@@ -18,11 +18,23 @@ import { user } from '../register/create/entity/create.entity';
 import { logService } from '../log/Services/log.service';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { Auth } from 'src/common/decorators/auth.decorator';
+
+interface JwtPayload {
+  id: number;
+  username: string;
+  email: string;
+  group_name: string;
+}
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(
+    private readonly jwtService: JwtService, // Assuming JwtService is imported correctly
+    private readonly configService: ConfigService,
     private readonly authService: AuthService,
     private readonly userService: RegisterService,
     private readonly logService: logService, // Assuming logService is imported correctly
@@ -150,17 +162,45 @@ export class AuthController {
       return { message: '로그아웃 되었습니다.' };
     }
   }
+    @Post('refresh-token')
+    @ApiCookieAuth('refresh_token')
+    @ApiOperation({ summary: '리프레시 토큰으로 액세스 토큰 재발급' })
+    async refreshToken(@Req() req: Request) {
+      const refreshToken = req.cookies['refresh_token'] || this.extractTokenFromHeader(req);
 
-  @Post('refresh-token')
-  @ApiOperation({ summary: '리프레시 토큰 생성', description: '리프레시 토큰을 생성합니다.' })
-  async refreshToken(@Req() req: Request & { headers: { authorization: string }; user: user }) {
-    const authHeader = req.headers?.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw new UnauthorizedException('유효하지 않은 토큰입니다.');
+      if (!refreshToken) {
+        throw new UnauthorizedException('리프레시 토큰이 제공되지 않았습니다.');
+      }
+
+      try {
+        const payload = await this.jwtService.verifyAsync<JwtPayload>(refreshToken, {
+          secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+        });
+
+        const user = await this.userService.findById(payload.id);
+        if (!user || user.refreshToken !== refreshToken) {
+          throw new UnauthorizedException('리프레시 토큰이 일치하지 않습니다.');
+        }
+
+        const newAccessToken = this.jwtService.sign(
+          { id: payload.id, username: payload.username, email: payload.email, group_name: payload.group_name },
+          { expiresIn: this.configService.get<string>('JWT_EXPIRES_IN') },
+        );
+
+      const newRefreshToken = this.jwtService.sign(
+        { id: payload.id, username: payload.username, email: payload.email, group_name: payload.group_name },
+        {
+          expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN'),
+          secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+        },
+      );
+        await this.userService.updateRefreshToken(user.id, newRefreshToken);
+
+        return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+      } catch (error) {
+        throw new UnauthorizedException('유효하지 않은 리프레시 토큰입니다.');
+      }
     }
-    const token = authHeader.split(' ')[1];
-    return this.authService.generateAdminAccessToken(req.user, token);
-  }
 
   @Post('change-password')
   @ApiOperation({ summary: '비밀번호 변경', description: '비밀번호를 변경합니다.' })
@@ -232,5 +272,21 @@ export class AuthController {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+    // ✅ 이 부분이 빠져 있었던 거예요!
+  private extractTokenFromHeader(request: Request): string | undefined {
+    const authHeader = request.headers.authorization;
+    if (!authHeader) {
+      return undefined;
+    }
+
+    const [type, token] = authHeader.split(' ');
+
+    if (type !== 'Bearer') {
+      return undefined;
+    }
+
+    return token;
   }
 }

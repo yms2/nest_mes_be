@@ -64,6 +64,18 @@ export class AuthService {
         expiresIn: this.configService.get('JWT_EXPIRES_IN'),
       },
     );
-    return { accessToken };
+
+      // ✅ 새 Refresh Token 발급
+      const newRefreshToken = this.jwtService.sign(
+        { id: user.id, username: user.username, email: user.email, group_name: user.group_name },
+        {
+          secret: this.configService.get('JWT_REFRESH_SECRET'),
+          expiresIn: this.configService.get('JWT_REFRESH_EXPIRES_IN'),
+        },
+      );
+
+      await this.userService.updateRefreshToken(user.id, newRefreshToken);
+
+      return { accessToken, refreshToken: newRefreshToken };
   }
 }
