@@ -14,6 +14,10 @@ export class RegisterService {
     @InjectRepository(user)
     private readonly regiseterRepository: Repository<user>,
   ) {}
+
+    async findById(id: number): Promise<user | null> {
+    return this.regiseterRepository.findOne({ where: { id } });
+  }
   // 회원가입 요청 처리
   async createUser(createRegisterDto: CreateRegisterDto): Promise<user> {
     // 요청 들어온 데이터에 username, password, email 추출

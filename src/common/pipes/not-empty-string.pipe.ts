@@ -5,7 +5,7 @@ import { PipeTransform, Injectable, BadRequestException } from '@nestjs/common';
 export class NotEmptyStringPipe implements PipeTransform {
   transform<T = any>(value: T): T {
     if (typeof value === 'string' && value.trim() === '') {
-      throw new BadRequestException('필수값은 빈 문자열을 허용하지 않습니다.');
+      throw new BadRequestException('필수값이 없습니다.');
     }
     return value;
   }

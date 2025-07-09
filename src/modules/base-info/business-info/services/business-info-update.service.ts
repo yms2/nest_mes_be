@@ -15,6 +15,7 @@ export class BusinessInfoUpdateService {
   async updateBusinessInfo(
     businessNumber: string,
     updateBusinessInfoDto: UpdateBusinessInfoDto,
+    updatedBy: string, // 추가: 수정자 정보
   ): Promise<BusinessInfo> {
     // 1. 사업장 정보 존재 여부 확인
     const existingBusinessInfo = await this.findBusinessInfoByNumber(businessNumber);
@@ -66,7 +67,7 @@ export class BusinessInfoUpdateService {
     }
 
     // 5. 사업장 정보 업데이트
-    return this.saveUpdatedBusinessInfo(existingBusinessInfo, updateBusinessInfoDto);
+    return this.saveUpdatedBusinessInfo(existingBusinessInfo, updateBusinessInfoDto, updatedBy);
   }
 
   private async findBusinessInfoByNumber(businessNumber: string): Promise<BusinessInfo> {
@@ -120,11 +121,13 @@ export class BusinessInfoUpdateService {
   private async saveUpdatedBusinessInfo(
     existingBusinessInfo: BusinessInfo,
     updateData: UpdateBusinessInfoDto,
+    updatedBy: string, // 수정자 정보
   ): Promise<BusinessInfo> {
     // 업데이트할 필드만 선택적으로 업데이트
     const updatedBusinessInfo = {
       ...existingBusinessInfo,
       ...updateData,
+      updatedBy, // 수정자 정보가 없으면 기존 값 사용
       updatedAt: new Date(),
     };
 

@@ -5,7 +5,7 @@ export class UpdateBusinessInfoDto {
   @ApiProperty({
     example: '6743001715',
     description: '사업자번호 (선택)',
-    required: false,
+    required: true,
   })
   @IsOptional()
   @IsString()
@@ -14,7 +14,7 @@ export class UpdateBusinessInfoDto {
   @ApiProperty({
     example: '현대자동차',
     description: '사업장명 (선택)',
-    required: false,
+    required: true,
   })
   @IsOptional()
   @IsString()
@@ -23,7 +23,7 @@ export class UpdateBusinessInfoDto {
   @ApiProperty({
     example: '김대호',
     description: '사업장 담당자 (선택)',
-    required: false,
+    required: true,
   })
   @IsOptional()
   @IsString()

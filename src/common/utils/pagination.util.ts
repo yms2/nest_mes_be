@@ -20,3 +20,19 @@ export function buildPaginatedResponse<T>(
     },
   };
 }
+
+export async function buildPaginatedSearch(
+  serviceMethod: () => Promise<{ data: any[]; page: number; limit: number; total: number }>,
+  successMessage: string,
+) {
+  const result = await serviceMethod();
+
+  return {
+    success: true,
+    message: successMessage,
+    data: result.data,
+    page: result.page,
+    limit: result.limit,
+    total: result.total,
+  };
+}

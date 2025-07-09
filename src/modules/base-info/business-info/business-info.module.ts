@@ -3,14 +3,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BusinessInfo } from './entities/business-info.entity';
-import { BusinessInfoController } from './business-info.controller';
-import { BusinessInfoCreateService } from './services/business-info-create.service';
-import { BusinessInfoReadService } from './services/business-info-read.service';
-import { BusinessInfoSearchService } from './services/business-info-search.service';
-import { BusinessInfoUpdateService } from './services/business-info-update.service';
-import { BusinessInfoDeleteService } from './services/business-info-delete.service';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { BusinessInfoCreateService, BusinessInfoReadService, BusinessInfoSearchService, BusinessInfoUpdateService, BusinessInfoDeleteService } from './services';
+import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { LogModule } from '../../log/log.module';
+import { BusinessInfoController, BusinessInfoCreateController, BusinessInfoUpdateController, BusinessInfoDeleteController} from './controllers'
+import { BusinessInfoHandler } from './handlers/business-info.handler';
 
 @Module({
   imports: [
@@ -25,14 +22,19 @@ import { LogModule } from '../../log/log.module';
       }),
     }),
   ],
-  controllers: [BusinessInfoController],
+  controllers: [
+    BusinessInfoController,
+    BusinessInfoCreateController,
+    BusinessInfoUpdateController,
+    BusinessInfoDeleteController,
+  ],
   providers: [
+    BusinessInfoHandler,
     BusinessInfoCreateService,
     BusinessInfoReadService,
     BusinessInfoSearchService,
     BusinessInfoUpdateService,
     BusinessInfoDeleteService,
-    JwtAuthGuard,
   ],
   exports: [
     BusinessInfoCreateService,

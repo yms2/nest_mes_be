@@ -1,0 +1,22 @@
+import { Module, Global } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule } from '@nestjs/config';
+
+@Global() // ✅ 모든 모듈에서 자동으로 사용 가능
+@Module({
+  imports: [
+    ConfigModule,
+    TypeOrmModule,
+    JwtModule.register({
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '1h' },
+    }),
+  ],
+  exports: [
+    ConfigModule,
+    TypeOrmModule,
+    JwtModule,
+  ],
+})
+export class CommonModule {}
