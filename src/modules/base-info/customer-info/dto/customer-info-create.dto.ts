@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, Length, IsNumberString, IsNotEmpty } from 'class-validator';
+import { IsString, IsOptional, Length, IsNumberString, IsNotEmpty, Matches } from 'class-validator';
 import { OptionalString } from 'src/common/decorators/optional-string.decorator';
 
 export class CreateCustomerInfoDto {
@@ -54,6 +54,7 @@ export class CreateCustomerInfoDto {
     required: false,
   })
   @OptionalString()
+  @Matches(/^\d+$/, { message: '전화번호는 숫자만 입력해야 합니다.' })
   customerTel?: string;
 
   @ApiProperty({
@@ -62,6 +63,7 @@ export class CreateCustomerInfoDto {
     required: false,
   })
   @OptionalString()
+  @Matches(/^\d+$/, { message: '휴대폰번호는 숫자만 입력해야 합니다.' })
   customerMobile?: string;
 
   @ApiProperty({
@@ -78,6 +80,7 @@ export class CreateCustomerInfoDto {
     required: false,
   })
   @OptionalString()
+  @Matches(/^\d{5}$/, { message: '우편번호는 5자리 숫자여야 합니다.' })
   customerZipcode?: string;
 
   @ApiProperty({

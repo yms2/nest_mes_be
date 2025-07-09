@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional, Matches } from 'class-validator';
 
 export class CreateBusinessInfoDto {
   @ApiProperty({
@@ -32,6 +32,7 @@ export class CreateBusinessInfoDto {
     required: false,
   })
   @IsOptional()
+  @Matches(/^\d{13}$/, { message: '법인번호는 13자리 숫자여야 합니다.' })
   @IsString()
   corporateRegistrationNumber?: string;
 
@@ -59,6 +60,7 @@ export class CreateBusinessInfoDto {
     required: false,
   })
   @IsOptional()
+  @Matches(/^\d+$/, { message: '전화번호는 숫자만 입력해야 합니다.' })
   @IsString()
   businessTel?: string;
 
@@ -68,6 +70,7 @@ export class CreateBusinessInfoDto {
     required: false,
   })
   @IsOptional()
+  @Matches(/^\d+$/, { message: '휴대전화는 숫자만 입력해야 합니다.' })
   @IsString()
   businessMobile?: string;
 
@@ -77,6 +80,7 @@ export class CreateBusinessInfoDto {
     required: false,
   })
   @IsOptional()
+  @Matches(/^\d+$/, { message: 'FAX는 숫자만 입력해야 합니다.' })
   @IsString()
   businessFax?: string;
 
@@ -86,6 +90,7 @@ export class CreateBusinessInfoDto {
     required: false,
   })
   @IsOptional()
+  @Matches(/^\d{5}$/, { message: '우편번호는 5자리 숫자여야 합니다.' })
   @IsString()
   businessZipcode?: string;
 
