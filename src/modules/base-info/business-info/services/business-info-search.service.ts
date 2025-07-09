@@ -2,7 +2,7 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, Repository, WhereExpressionBuilder } from 'typeorm';
 import { BusinessInfo } from '../entities/business-info.entity';
-import { DateFormatter } from '../utils/date-formatter.util';
+import { DateFormatter } from '../../../../common/utils/date-formatter.util';
 
 @Injectable()
 export class BusinessInfoSearchService {
@@ -62,18 +62,32 @@ export class BusinessInfoSearchService {
   }
 
   // 날짜 범위 검색
-  async searchBusinessInfoByDateRange(startDate: string, endDate: string, page: number = 1, limit: number = 10): Promise<SearchResult> {
+  async searchBusinessInfoByDateRange(
+    startDate: string,
+    endDate: string,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<SearchResult> {
     this.validateDateRange(startDate, endDate);
 
     const offset = (page - 1) * limit;
+    
+    // 시작일은 00:00:00, 종료일은 23:59:59로 설정
+    const startDateTime = new Date(startDate);
+    startDateTime.setHours(0, 0, 0, 0);
+    
+    const endDateTime = new Date(endDate);
+    endDateTime.setHours(23, 59, 59, 999);
+
     const queryBuilder = this.businessInfoRepository
       .createQueryBuilder('business')
       .where('business.isDeleted = false')
-      .andWhere('business.createdAt >= :startDate', { startDate: new Date(startDate).toISOString() })
-      .andWhere('business.createdAt <= :endDate', { endDate: new Date(endDate).toISOString() })
+      .andWhere('DATE(business.createdAt) >= :startDate', { startDate })
+      .andWhere('DATE(business.createdAt) <= :endDate', { endDate })
       .orderBy('business.createdAt', 'DESC')
       .skip(offset)
       .take(limit);
+
 
     const [data, total] = await queryBuilder.getManyAndCount();
 

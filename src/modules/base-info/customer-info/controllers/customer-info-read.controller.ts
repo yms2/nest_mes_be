@@ -1,44 +1,53 @@
-import { ClassSerializerInterceptor, Controller, Get, Query, UseInterceptors } from "@nestjs/common";
-import { ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
-import { Auth } from "src/common/decorators/auth.decorator";
+import { Controller, Query, Get, UseInterceptors } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
+import { ClassSerializerInterceptor } from '@nestjs/common';
+import { SearchCustomerInfoDto } from '../dto/customer-info-search.dto';
+import { Auth } from '../../../../common/decorators/auth.decorator';
+import { CustomerInfoHandler } from '../handlers/customer-info.handler';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { CustomerInfoHandler } from "../handlers/customer-info.handler";
-import { SearchCustomerInfoDto } from "../dto/customer-info-search.dto";
 
 @ApiTags('CustomerInfo')
 @Controller('customer-info')
 @UseInterceptors(ClassSerializerInterceptor)
 export class CustomerInfoReadController {
-  constructor(
-    private readonly customerInfoHandler: CustomerInfoHandler,
-  ) {}
+  constructor(private readonly customerInfoHandler: CustomerInfoHandler) {}
 
   @Get()
   @Auth()
-  @ApiOperation({ summary: '거래처 검색/조회', description: '거래처 정보를 검색하거나 조회합니다.' })
-  @ApiQuery({ name: 'customerNumber', required: false })
-  @ApiQuery({ name: 'search', required: false, description: '검색어' })
+  @ApiOperation({ summary: '거래처 정보 조회/검색', description: '조건별 거래처 정보 조회' })
+  @ApiQuery({ name: 'customerNumber', required: false, description: '사업자등록번호 (정확 매칭)' })
+  @ApiQuery({ name: 'search', required: false, description: '검색어 (통합 검색)' })
   @ApiQuery({ name: 'startDate', required: false, description: '시작 날짜 (YYYY-MM-DD)' })
   @ApiQuery({ name: 'endDate', required: false, description: '종료 날짜 (YYYY-MM-DD)' })
-  async getCustomerInfo(
-    @Query() query: SearchCustomerInfoDto,
-    @Query() pagination: PaginationDto,
-    @Query('search') search?: string,
-    @Query('startDate') startDate?: string,
-    @Query('endDate') endDate?: string,
-  ) {
-    if (query.customerNumber) {
+  @ApiQuery({ name: 'page', required: false, description: '페이지 번호' })
+  @ApiQuery({ name: 'limit', required: false, description: '페이지당 개수' })
+  async getCustomerInfo(@Query() query: SearchCustomerInfoDto) {
+    // PaginationDto 생성
+    const pagination: PaginationDto = {
+      page: query.page || 1,
+      limit: query.limit || 10,
+    };
+
+    // 사업자등록번호로 단일 조회
+    if (query.customerNumber && query.customerNumber.trim() !== '') {
       return this.customerInfoHandler.handleSingleRead(query);
     }
 
-    if (startDate && endDate) {
-      return this.customerInfoHandler.handleDateRangeSearch(startDate, endDate, pagination);
+    // 날짜 범위 검색
+    if (query.startDate && query.endDate) {
+      return this.customerInfoHandler.handleDateRangeSearch(
+        query.startDate,
+        query.endDate,
+        pagination,
+      );
     }
 
-    if (search) {
-      return this.customerInfoHandler.handleSearch(search, pagination);
+    // 통합 검색
+    if (query.search && query.search.trim() !== '') {
+      return this.customerInfoHandler.handleSearch(query.search, pagination);
     }
 
-      return this.customerInfoHandler.handleListRead(pagination);
+    // 전체 목록 조회
+    return this.customerInfoHandler.handleListRead(pagination);
   }
 }

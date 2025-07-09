@@ -3,7 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from 'typeorm';
 import { CustomerInfo } from "../entities/custmoer-info.entity";
 import { SearchCustomerInfoDto } from "../dto/customer-info-search.dto";
-import { DateFormatter } from "../../business-info/utils/date-formatter.util";
+import { DateFormatter } from "../../../../common/utils/date-formatter.util";
 
 @Injectable()
 export class CustomerInfoReadService {

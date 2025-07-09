@@ -20,13 +20,13 @@ export class BaseSearchDto {
 
   @ApiPropertyOptional({ description: '페이지 번호', example: 1 })
   @IsOptional()
-  @Type(() => Number)  // 쿼리스트링 → 숫자 변환
+  @Type(() => Number) // 쿼리스트링 → 숫자 변환
   @IsNumber()
   page?: number;
 
   @ApiPropertyOptional({ description: '페이지당 개수', example: 10 })
   @IsOptional()
-  @Type(() => Number)  // 쿼리스트링 → 숫자 변환
+  @Type(() => Number) // 쿼리스트링 → 숫자 변환
   @IsNumber()
   limit?: number;
 }
