@@ -1,7 +1,6 @@
 import { Put, Controller, Param, Body, Req } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiParam } from '@nestjs/swagger';
 
-import { NotEmptyStringPipe } from "src/common/pipes/not-empty-string.pipe";
 import { CreateCustomerInfoDto } from "../dto/customer-info-create.dto";
 import { ApiResponseBuilder } from "src/common/interfaces/api-response.interface";
 import { CustomerInfoUpdateService } from "../services/customer-info-update.service";
@@ -39,7 +38,7 @@ export class CustomerInfoUpdateController {
     } catch (error) {
       // 에러 로그 생성
       await this.writeCreateFailLog(createCustomerInfoDto, req.user.username, error);
-      throw error; // 에러를 다시 던져서 상위 핸들러에서 처리하도록 함
+      throw error; 
     }
   }
 

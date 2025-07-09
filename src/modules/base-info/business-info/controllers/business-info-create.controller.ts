@@ -1,13 +1,11 @@
 import { Body, Post,Controller, UseGuards, Req } from "@nestjs/common";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
-import { NotEmptyStringPipe } from "src/common/pipes/not-empty-string.pipe";
 import { CreateBusinessInfoDto } from "../dto/create-business-info.dto";
 import { ApiResponseBuilder } from "src/common/interfaces/api-response.interface";
 import { BusinessInfoCreateService } from "../services";
 import { logService } from "src/modules/log/Services/log.service";
 import { Auth } from "src/common/decorators/auth.decorator";
 import { BusinessInfo } from "../entities/business-info.entity";
-
 
 @ApiTags("BusinessInfo")
 @Controller('business-info')
