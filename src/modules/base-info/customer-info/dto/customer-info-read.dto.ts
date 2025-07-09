@@ -1,0 +1,13 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsOptional } from 'class-validator';
+import { OptionalString } from 'src/common/decorators/optional-string.decorator';
+
+export class ReadCustomerInfoDto {
+  @ApiProperty({
+    example: '6743001715',
+    description: '사업자 번호 (단일 조회용)',
+    required: false,
+  })
+  @OptionalString()
+  customerNumber?: string;
+}

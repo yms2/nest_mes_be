@@ -1,7 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsOptional, Length, IsNumberString, IsNotEmpty } from 'class-validator';
+import { OptionalString } from 'src/common/decorators/optional-string.decorator';
 
-export class CreateCustomerInfoDto {  
+export class CreateCustomerInfoDto {
+  //필수값
   @ApiProperty({
     example: '6743001715',
     description: '사업자 번호 (숫자 10자리, 필수)',
@@ -29,13 +31,13 @@ export class CreateCustomerInfoDto {
   @IsNotEmpty({ message: '거래처 CEO는 필수 입력값입니다.' })
   customerCeo: string;
 
+  //선택값
   @ApiProperty({
     example: '기계업',
     description: '업태 (선택)',
     required: false,
   })
-  @IsOptional()
-  @IsString()
+  @OptionalString()
   customerBusinessType?: string;
 
   @ApiProperty({
@@ -43,8 +45,7 @@ export class CreateCustomerInfoDto {
     description: '종목 (선택)',
     required: false,
   })
-  @IsOptional()
-  @IsString()
+  @OptionalString()
   customerBusinessItem?: string;
 
   @ApiProperty({
@@ -52,8 +53,7 @@ export class CreateCustomerInfoDto {
     description: '거래처 전화번호 (선택)',
     required: false,
   })
-  @IsOptional()
-  @IsString()
+  @OptionalString()
   customerTel?: string;
 
   @ApiProperty({
@@ -61,8 +61,7 @@ export class CreateCustomerInfoDto {
     description: '거래처 휴대폰번호 (선택)',
     required: false,
   })
-  @IsOptional()
-  @IsString()
+  @OptionalString()
   customerMobile?: string;
 
   @ApiProperty({
@@ -70,8 +69,7 @@ export class CreateCustomerInfoDto {
     description: '거래처 이메일 (선택)',
     required: false,
   })
-  @IsOptional()
-  @IsString()
+  @OptionalString()
   customerEmail?: string;
 
   @ApiProperty({
@@ -79,8 +77,7 @@ export class CreateCustomerInfoDto {
     description: '거래처 우편번호 (선택)',
     required: false,
   })
-  @IsOptional()
-  @IsString()
+  @OptionalString()
   customerZipcode?: string;
 
   @ApiProperty({
@@ -88,8 +85,7 @@ export class CreateCustomerInfoDto {
     description: '거래처 주소 (선택)',
     required: false,
   })
-  @IsOptional()
-  @IsString()
+  @OptionalString()
   customerAddress?: string;
 
   @ApiProperty({
@@ -97,7 +93,6 @@ export class CreateCustomerInfoDto {
     description: '거래처 상세주소 (선택)',
     required: false,
   })
-  @IsOptional()
-  @IsString()
+  @OptionalString()
   customerAddressDetail?: string;
 }

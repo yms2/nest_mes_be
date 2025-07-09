@@ -12,7 +12,10 @@ export class BusinessInfoReadService {
     private readonly businessInfoRepository: Repository<BusinessInfo>,
   ) {}
 
-  async readBusinessInfo(readBusinessInfoDto: ReadBusinessInfoDto): Promise<BusinessInfo> {
+  /**
+   * 사업자번호로 단일 조회
+   */
+  async getBusinessInfoByNumber(readBusinessInfoDto: ReadBusinessInfoDto): Promise<BusinessInfo> {
     const { businessNumber } = readBusinessInfoDto;
 
     const businessInfo = await this.businessInfoRepository.findOne({
@@ -26,6 +29,9 @@ export class BusinessInfoReadService {
     return DateFormatter.formatBusinessInfoDates(businessInfo);
   }
 
+  /**
+   * 전체 목록 조회
+   */
   async getAllBusinessInfo(
     page: number = 1,
     limit: number = 10,

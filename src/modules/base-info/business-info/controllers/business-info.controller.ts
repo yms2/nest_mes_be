@@ -1,38 +1,16 @@
-import {
-  Controller,
-  Post,
-  Body,
-  Query,
-  Get,
-  UseInterceptors,
-  Put,
-  Param,
-  Delete,
-  UseGuards,
-} from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiQuery, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
+import { Controller, Query, Get, UseInterceptors } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { ClassSerializerInterceptor } from '@nestjs/common';
-import { BusinessInfoCreateService } from '../services/business-info-create.service';
 import { BusinessInfoSearchService } from '../services/business-info-search.service';
-import { CreateBusinessInfoDto } from '../dto/create-business-info.dto';
-import { UpdateBusinessInfoDto } from '../dto/update-business-info.dto';
-import { ReadBusinessInfoDto } from '../dto/read-business-info.dto';
 import { BusinessInfoReadService } from '../services/business-info-read.service';
-import { BusinessInfoUpdateService } from '../services/business-info-update.service';
-import { BusinessInfoDeleteService } from '../services/business-info-delete.service';
-import { logService } from '../../../log/Services/log.service';
+import { ReadBusinessInfoDto } from '../dto/read-business-info.dto';
 import { ApiResponseBuilder } from '../../../../common/interfaces/api-response.interface';
-import { NotEmptyStringPipe } from '../../../../common/pipes/not-empty-string.pipe';
 import { buildPaginatedResponse } from '../../../../common/utils/pagination.util';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { Auth } from '../../../../common/decorators/auth.decorator';
 
-interface ApiResponse {
-  success: boolean;
-  message: string;
-  data?: any;
-  page?: number;
-  limit?: number;
-  total?: number;
+interface PaginationDto {
+  page: number;
+  limit: number;
 }
 
 @ApiTags('BusinessInfo')
@@ -42,24 +20,17 @@ export class BusinessInfoController {
   constructor(
     private readonly businessInfoReadService: BusinessInfoReadService,
     private readonly businessInfoSearchService: BusinessInfoSearchService,
-    private readonly logService: logService,
   ) {}
 
-
-  @Get('')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth('access-token')
-  @ApiOperation({
-    summary: '사업장 정보 조회/검색',
-    description:
-      'businessNumber: 단일 조회, search: 통합검색, startDate/endDate: 날짜 범위 검색, 둘 다 없으면: 전체 조회',
-  })
-  @ApiQuery({ name: 'businessNumber', required: false, description: '사업자번호 (단일 조회용)' })
-  @ApiQuery({ name: 'search', required: false, description: '검색어 (통합검색용)' })
-  @ApiQuery({ name: 'startDate', required: false, description: '시작일 (YYYY-MM-DD)' })
-  @ApiQuery({ name: 'endDate', required: false, description: '종료일 (YYYY-MM-DD)' })
-  @ApiQuery({ name: 'page', required: false, description: '페이지 번호 (기본값: 1)' })
-  @ApiQuery({ name: 'limit', required: false, description: '페이지당 개수 (기본값: 10)' })
+  @Get()
+  @Auth()
+  @ApiOperation({ summary: '사업장 정보 조회/검색', description: '조건별 사업장 정보 조회' })
+  @ApiQuery({ name: 'businessNumber', required: false })
+  @ApiQuery({ name: 'search', required: false })
+  @ApiQuery({ name: 'startDate', required: false })
+  @ApiQuery({ name: 'endDate', required: false })
+  @ApiQuery({ name: 'page', required: false })
+  @ApiQuery({ name: 'limit', required: false })
   async getBusinessInfo(
     @Query() query: ReadBusinessInfoDto,
     @Query('search') search?: string,
@@ -70,29 +41,22 @@ export class BusinessInfoController {
   ) {
     const pagination = this.getPagination(page, limit);
 
-    let result: ApiResponse;
-
-    // 단일 조회 (우선순위 최고)
     if (query.businessNumber) {
-      result = await this.handleSingleRead(query);
-    }
-    // 날짜 범위 검색 (우선순위 높음)
-    else if (startDate && endDate) {
-      result = await this.handleDateRangeSearch(startDate, endDate, pagination);
-    }
-    // 통합검색 (우선순위 중간)
-    else if (search) {
-      result = await this.handleSearch(search, pagination);
-    }
-    // 전체 조회 (기본값)
-    else {
-      result = await this.handleListRead(pagination);
+      return this.handleSingleRead(query);
     }
 
-    return result;
+    if (startDate && endDate) {
+      return this.handleDateRangeSearch(startDate, endDate, pagination);
+    }
+
+    if (search) {
+      return this.handleSearch(search, pagination);
+    }
+
+    return this.handleListRead(pagination);
   }
 
-  private getPagination(page?: number, limit?: number) {
+  private getPagination(page?: number, limit?: number): PaginationDto {
     return {
       page: page || 1,
       limit: limit || 10,
@@ -100,12 +64,12 @@ export class BusinessInfoController {
   }
 
   private async handleSingleRead(query: ReadBusinessInfoDto) {
-    const result = await this.businessInfoReadService.readBusinessInfo(query);
+    const result = await this.businessInfoReadService.getBusinessInfoByNumber(query);
     return ApiResponseBuilder.success(result, '사업장 정보 조회되었습니다.');
   }
 
-  private async handleSearch(search: string, pagination: { page: number; limit: number }) {
-    const result = await this.businessInfoSearchService.search(
+  private async handleSearch(search: string, pagination: PaginationDto) {
+    const result = await this.businessInfoSearchService.searchBusinessInfo(
       search,
       pagination.page,
       pagination.limit,
@@ -119,7 +83,7 @@ export class BusinessInfoController {
     );
   }
 
-  private async handleListRead(pagination: { page: number; limit: number }) {
+  private async handleListRead(pagination: PaginationDto) {
     const result = await this.businessInfoReadService.getAllBusinessInfo(
       pagination.page,
       pagination.limit,
@@ -133,12 +97,8 @@ export class BusinessInfoController {
     );
   }
 
-  private async handleDateRangeSearch(
-    startDate: string,
-    endDate: string,
-    pagination: { page: number; limit: number },
-  ) {
-    const result = await this.businessInfoSearchService.searchByDateRange(
+  private async handleDateRangeSearch(startDate: string, endDate: string, pagination: PaginationDto) {
+    const result = await this.businessInfoSearchService.searchBusinessInfoByDateRange(
       startDate,
       endDate,
       pagination.page,

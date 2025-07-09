@@ -8,26 +8,24 @@ import { CustomerInfoCreateService } from '../services/customer-info-create.serv
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { ApiResponseBuilder } from 'src/common/interfaces/api-response.interface';
 import { CreateCustomerInfoDto } from '../dto/customer-info-create.dto';
+import { CustomerInfo } from '../entities/custmoer-info.entity';
 
 @ApiTags("CutomerInfo")
 @Controller('customer-info')
 export class CustomerInfoCreateController {
   constructor(
     private readonly createCustomerInfoService: CustomerInfoCreateService,
-    private readonly logService: logService, 
+    private readonly logService: logService,
   ) {}
 
 
-  @Post('')
+  @Post()
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: '거래처 정보 생성', description: '신규 거래처 정보를 생성합니다.' })
   async createCustomerInfo(
-    // @Body('customerNumber', NotEmptyStringPipe) bodyCustomerNumber: string,
-    // @Body('customerName', NotEmptyStringPipe) bodyCustomerName: string,
-    // @Body('customerCeo', NotEmptyStringPipe) bodyCustomerCeo: string,
     @Body() createCustomerInfoDto: CreateCustomerInfoDto,
-    @Req() req: Request & { user: { username: string } },  // 추가
+    @Req() req: Request & { user: { username: string } },
   ) {
     try {
       const result = await this.createCustomerInfoService.createCustomerInfo(
@@ -35,31 +33,40 @@ export class CustomerInfoCreateController {
         req.user.username,
       );
 
-      // 상세 로그 생성
-      await this.logService.createDetailedLog({
-        moduleName: '거래처관리',
-        action: 'CREATE',
-        username: req.user.username, // 생성자 정보
-        targetId: result.customerNumber,
-        targetName: result.customerName,
-        details: '새로운 거래처 정보 생성',
-      });
+      await this.writeCreateLog(result, req.user.username);
 
       return ApiResponseBuilder.success(result, '거래처 정보 등록되었습니다.');
     } catch (error) {
-      // 에러 로그 생성
-      await this.logService
-        .createDetailedLog({
-          moduleName: '거래처관리',
-          action: 'CREATE_FAIL',
-          username: req.user.username, // 생성자 정보
-          targetId: createCustomerInfoDto.customerNumber,
-          targetName: createCustomerInfoDto.customerName,
-          details: `생성 실패: ${(error as Error).message}`,
-        })
-        .catch(() => {});
-
+      await this.writeCreateFailLog(createCustomerInfoDto, req.user.username, error);
       throw error;
     }
+  }
+  /**
+   * 거래처 생성 성공 로그
+   */
+  private async writeCreateLog(result: CustomerInfo, username: string) {
+    await this.logService.createDetailedLog({
+      moduleName: '거래처관리',
+      action: 'CREATE',
+      username,
+      targetId: result.customerNumber,
+      targetName: result.customerName,
+      details: '새로운 거래처 정보 생성',
+    });
+  }
+
+
+  /**
+   * 거래처 생성 실패 로그
+   */
+  private async writeCreateFailLog(dto: CreateCustomerInfoDto, username: string, error: Error) {
+    await this.logService.createDetailedLog({
+      moduleName: '거래처관리',
+      action: 'CREATE_FAIL',
+      username,
+      targetId: dto.customerNumber,
+      targetName: dto.customerName,
+      details: `생성 실패: ${error.message}`,
+    }).catch(() => {});
   }
 }

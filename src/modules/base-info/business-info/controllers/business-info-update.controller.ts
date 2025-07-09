@@ -7,6 +7,7 @@ import { ApiResponseBuilder } from "src/common/interfaces/api-response.interface
 import { BusinessInfoUpdateService } from "../services/business-info-update.service";
 import { logService } from "src/modules/log/Services/log.service";
 import { JwtAuthGuard } from "src/common/guards/jwt-auth.guard";
+import { Auth } from "src/common/decorators/auth.decorator";
 @ApiTags('BusinessInfo')
 @Controller('business-info')
 export class BusinessInfoUpdateController {
@@ -17,8 +18,7 @@ export class BusinessInfoUpdateController {
   ) {}
 
     @Put(':businessNumber')
-    @UseGuards(JwtAuthGuard)
-    @ApiBearerAuth('access-token')
+    @Auth()
     @ApiOperation({ summary: '사업장 정보 수정', description: '기존 사업장 정보를 수정합니다.' })
     @ApiParam({ name: 'businessNumber', description: '사업자 번호', example: '6743001715' })
     async updateBusinessInfo(
