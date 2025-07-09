@@ -1,5 +1,5 @@
 import { ClassSerializerInterceptor, Controller, Get, Query, UseInterceptors } from "@nestjs/common";
-import { ApiQuery, ApiTags } from "@nestjs/swagger";
+import { ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { Auth } from "src/common/decorators/auth.decorator";
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { CustomerInfoHandler } from "../handlers/customer-info.handler";
@@ -15,6 +15,7 @@ export class CustomerInfoReadController {
 
   @Get()
   @Auth()
+  @ApiOperation({ summary: '거래처 검색/조회', description: '거래처 정보를 검색하거나 조회합니다.' })
   @ApiQuery({ name: 'customerNumber', required: false })
   @ApiQuery({ name: 'search', required: false, description: '검색어' })
   @ApiQuery({ name: 'startDate', required: false, description: '시작 날짜 (YYYY-MM-DD)' })

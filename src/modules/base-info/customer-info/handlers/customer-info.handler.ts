@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { CustomerInfoReadService, CustomerInfoSearchService } from "../services";
-import { ReadCustomerInfoDto } from "../dto/customer-info-read.dto";
+import { SearchCustomerInfoDto } from "../dto/customer-info-search.dto";
 import { ApiResponseBuilder } from "src/common/interfaces/api-response.interface";
 import { buildPaginatedResponse } from "src/common/utils/pagination.util";
 import { PaginationDto } from "src/common/dto/pagination.dto";
@@ -12,7 +12,7 @@ export class CustomerInfoHandler {
     private readonly customerInfoSearchService: CustomerInfoSearchService,
   ) {}
 
-  async handleSingleRead(query: ReadCustomerInfoDto) {
+  async handleSingleRead(query: SearchCustomerInfoDto) {
     const result = await this.customerInfoReadService.getCustomerInfoByNumber(query);
     return ApiResponseBuilder.success(result, '거래처 정보(단일) 조회되었습니다.');
   }
