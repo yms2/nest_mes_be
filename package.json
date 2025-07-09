@@ -1,10 +1,10 @@
 {
-  "name": "kukdongenq-be",
+  "name": "mes-be",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "MES 백엔드 API",
+  "author": "[YMS]",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",

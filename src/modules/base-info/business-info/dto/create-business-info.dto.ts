@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, Matches } from 'class-validator';
+import { IsString, IsOptional, Matches, Length, IsNumberString, IsNotEmpty } from 'class-validator';
+import { OptionalString } from 'src/common/decorators/optional-string.decorator';
 
 export class CreateBusinessInfoDto {
   @ApiProperty({
@@ -7,7 +8,8 @@ export class CreateBusinessInfoDto {
     description: '사업자 번호 (필수)',
     required: true,
   })
-  @IsString()
+  @IsNumberString({}, { message: '사업자등록번호는 숫자만 입력하세요.' })
+  @Length(10, 10, { message: '사업자등록번호는 10자리 숫자여야 합니다.' })
   businessNumber: string;
 
   @ApiProperty({
@@ -15,7 +17,8 @@ export class CreateBusinessInfoDto {
     description: '사업장명 (필수)',
     required: true,
   })
-  @IsString()
+  @IsString({ message: '사업장명은 필수값입니다.' })
+  @IsNotEmpty({ message: '사업장명은 필수 입력값입니다.' })
   businessName: string;
 
   @ApiProperty({
@@ -23,7 +26,8 @@ export class CreateBusinessInfoDto {
     description: '사업장 담당자 (필수)',
     required: true,
   })
-  @IsString()
+  @IsString({ message: 'CEO는 필수값입니다.' })
+  @IsNotEmpty({ message: 'CEO는 필수 입력값입니다.' })
   businessCeo: string;
 
   @ApiProperty({
@@ -31,9 +35,8 @@ export class CreateBusinessInfoDto {
     description: '법인번호 (선택)',
     required: false,
   })
-  @IsOptional()
+  @OptionalString()
   @Matches(/^\d{13}$/, { message: '법인번호는 13자리 숫자여야 합니다.' })
-  @IsString()
   corporateRegistrationNumber?: string;
 
   @ApiProperty({
@@ -41,8 +44,7 @@ export class CreateBusinessInfoDto {
     description: '업태 (선택)',
     required: false,
   })
-  @IsOptional()
-  @IsString()
+  @OptionalString()
   businessType?: string;
 
   @ApiProperty({
@@ -50,8 +52,7 @@ export class CreateBusinessInfoDto {
     description: '종목 (선택)',
     required: false,
   })
-  @IsOptional()
-  @IsString()
+  @OptionalString()
   businessItem?: string;
 
   @ApiProperty({
@@ -59,9 +60,10 @@ export class CreateBusinessInfoDto {
     description: '전화번호 (선택)',
     required: false,
   })
-  @IsOptional()
-  @Matches(/^\d+$/, { message: '전화번호는 숫자만 입력해야 합니다.' })
-  @IsString()
+  @OptionalString()
+  @Matches(/^(\d{10,11}|\d{2,3}-\d{3,4}-\d{4})$/, {
+    message: '전화번호는 숫자만 입력하거나 000-0000-0000 형식으로 입력해야 합니다.',
+  })
   businessTel?: string;
 
   @ApiProperty({
@@ -69,9 +71,10 @@ export class CreateBusinessInfoDto {
     description: '휴대전화 (선택)',
     required: false,
   })
-  @IsOptional()
-  @Matches(/^\d+$/, { message: '휴대전화는 숫자만 입력해야 합니다.' })
-  @IsString()
+  @OptionalString()
+  @Matches(/^(\d{10,11}|\d{2,3}-\d{3,4}-\d{4})$/, {
+    message: '휴대폰번호는 숫자만 입력하거나 000-0000-0000 형식으로 입력해야 합니다.',
+  })
   businessMobile?: string;
 
   @ApiProperty({
@@ -79,9 +82,8 @@ export class CreateBusinessInfoDto {
     description: 'FAX (선택)',
     required: false,
   })
-  @IsOptional()
-  @Matches(/^\d+$/, { message: 'FAX는 숫자만 입력해야 합니다.' })
-  @IsString()
+  @OptionalString()
+  @Matches(/^(\d{10,11}|\d{2,3}-\d{3,4}-\d{4})$/, { message: 'FAX는 숫자만 입력해야 합니다.' })
   businessFax?: string;
 
   @ApiProperty({
@@ -89,9 +91,8 @@ export class CreateBusinessInfoDto {
     description: '우편번호 (선택)',
     required: false,
   })
-  @IsOptional()
+  @OptionalString()
   @Matches(/^\d{5}$/, { message: '우편번호는 5자리 숫자여야 합니다.' })
-  @IsString()
   businessZipcode?: string;
 
   @ApiProperty({
@@ -99,8 +100,7 @@ export class CreateBusinessInfoDto {
     description: '주소 (선택)',
     required: false,
   })
-  @IsOptional()
-  @IsString()
+  @OptionalString()
   businessAddress?: string;
 
   @ApiProperty({
@@ -108,8 +108,7 @@ export class CreateBusinessInfoDto {
     description: '상세주소 (선택)',
     required: false,
   })
-  @IsOptional()
-  @IsString()
+  @OptionalString()
   businessAddressDetail?: string;
 
   @ApiProperty({
@@ -117,7 +116,6 @@ export class CreateBusinessInfoDto {
     description: '대표자 이메일 (선택)',
     required: false,
   })
-  @IsOptional()
-  @IsString()
+  @OptionalString()
   businessCeoEmail?: string;
 }
