@@ -1,53 +1,43 @@
 import { ClassSerializerInterceptor, Controller, Get, Query, UseInterceptors } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
-import { logService } from '../../../log/Services/log.service';
+import { ApiQuery, ApiTags } from "@nestjs/swagger";
 import { Auth } from "src/common/decorators/auth.decorator";
 import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { CustomerInfoReadService } from "../services/";
+import { CustomerInfoHandler } from "../handlers/customer-info.handler";
+import { SearchCustomerInfoDto } from "../dto/customer-info-search.dto";
 
 @ApiTags('CustomerInfo')
 @Controller('customer-info')
 @UseInterceptors(ClassSerializerInterceptor)
 export class CustomerInfoReadController {
   constructor(
-     private readonly customerInfoReadService: CustomerInfoReadService,
-    // private readonly customerInfoSearchService: CustomerInfoSearchService,
-     private readonly logService: logService,
+    private readonly customerInfoHandler: CustomerInfoHandler,
   ) {}
 
   @Get()
   @Auth()
+  @ApiQuery({ name: 'customerNumber', required: false })
+  @ApiQuery({ name: 'search', required: false, description: '검색어' })
+  @ApiQuery({ name: 'startDate', required: false, description: '시작 날짜 (YYYY-MM-DD)' })
+  @ApiQuery({ name: 'endDate', required: false, description: '종료 날짜 (YYYY-MM-DD)' })
   async getCustomerInfo(
+    @Query() query: SearchCustomerInfoDto,
     @Query() pagination: PaginationDto,
     @Query('search') search?: string,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
-    @Query('customerNumber') customerNumber?: string,
   ) {
-    if(customerNumber) {
-       return this.handleSingleRead(customerNumber);
+    if (query.customerNumber) {
+      return this.customerInfoHandler.handleSingleRead(query);
     }
 
-    // if (startDate && endDate) {
-    //   return this.handleDateRangeSearch(startDate, endDate, pagination);
-    // }
+    if (startDate && endDate) {
+      return this.customerInfoHandler.handleDateRangeSearch(startDate, endDate, pagination);
+    }
 
-    // if (search) {
-    //   return this.handleSearch(search, pagination);
-    // }
+    if (search) {
+      return this.customerInfoHandler.handleSearch(search, pagination);
+    }
 
-      return this.handleListRead(pagination);
+      return this.customerInfoHandler.handleListRead(pagination);
   }
-
-    private async handleSingleRead(customerNumber: string) {
-    const result = await this.customerInfoReadService.getCustomerInfoByNumber(customerNumber);
-    return { success: true, data: result };
-  }
-
-
-  private async handleListRead(pagination: PaginationDto) {
-    const result = await this.customerInfoReadService.getAllCustomerInfo(pagination.page, pagination.limit);
-    return { success: true, ...result };
-  }
-
 }

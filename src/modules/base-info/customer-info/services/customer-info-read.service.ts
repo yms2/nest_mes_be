@@ -2,6 +2,8 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from 'typeorm';
 import { CustomerInfo } from "../entities/custmoer-info.entity";
+import { SearchCustomerInfoDto } from "../dto/customer-info-search.dto";
+import { DateFormatter } from "../../business-info/utils/date-formatter.util";
 
 @Injectable()
 export class CustomerInfoReadService {
@@ -10,7 +12,9 @@ export class CustomerInfoReadService {
     private readonly customerInfoRepository: Repository<CustomerInfo>,
   ) {}
 
-  async getCustomerInfoByNumber(customerNumber: string): Promise<CustomerInfo> {
+  async getCustomerInfoByNumber(SearchCustomerInfoDto: SearchCustomerInfoDto): Promise<CustomerInfo> {
+    const { customerNumber } = SearchCustomerInfoDto;
+
     const customerInfo = await this.customerInfoRepository.findOne({
       where: { customerNumber },
     });
@@ -19,7 +23,7 @@ export class CustomerInfoReadService {
       throw new NotFoundException('거래처 정보를 찾을 수 없습니다.');
     }
 
-    return customerInfo;
+    return DateFormatter.formatBusinessInfoDates(customerInfo);
   }
 
   async getAllCustomerInfo(page: number = 1, limit: number = 10): Promise<{ data: CustomerInfo[]; total: number; page: number; limit: number }> {

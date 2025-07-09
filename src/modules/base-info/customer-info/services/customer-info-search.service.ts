@@ -32,14 +32,12 @@ export class CustomerInfoSearchService {
   ) {}
 
   // 통합검색 - 가장 많이 사용되는 검색
-  async searchBusinessInfo(keyword: string, page: number = 1, limit: number = 10): Promise<SearchResult> {
-    
+  async searchCustomerInfo(keyword: string, page: number = 1, limit: number = 10): Promise<SearchResult> {
     const trimmedKeyword = keyword.trim();
     const offset = (page - 1) * limit;
 
     const queryBuilder = this.customerInfoRepository
       .createQueryBuilder('customer')
-      .where('business.isDeleted = false')
       .andWhere(
         new Brackets(qb => {
           this.addTextSearchConditions(qb, trimmedKeyword);
@@ -48,7 +46,7 @@ export class CustomerInfoSearchService {
           }
         }),
       )
-      .orderBy('business.businessName', 'ASC')
+      .orderBy('customer.customerName', 'ASC')
       .skip(offset)
       .take(limit);
 
@@ -63,16 +61,16 @@ export class CustomerInfoSearchService {
   }
 
   // 날짜 범위 검색
-  async searchBusinessInfoByDateRange(startDate: string, endDate: string, page: number = 1, limit: number = 10): Promise<SearchResult> {
+  async searchCustomerInfoByDateRange(startDate: string, endDate: string, page: number = 1, limit: number = 10): Promise<SearchResult> {
     this.validateDateRange(startDate, endDate);
 
     const offset = (page - 1) * limit;
     const queryBuilder = this.customerInfoRepository
-      .createQueryBuilder('business')
-      .where('business.isDeleted = false')
-      .andWhere('business.createdAt >= :startDate', { startDate: new Date(startDate).toISOString() })
-      .andWhere('business.createdAt <= :endDate', { endDate: new Date(endDate).toISOString() })
-      .orderBy('business.createdAt', 'DESC')
+      .createQueryBuilder('customer')
+      .where('')
+      .andWhere('customer.createdAt >= :startDate', { startDate: new Date(startDate).toISOString() })
+      .andWhere('customer.createdAt <= :endDate', { endDate: new Date(endDate).toISOString() })
+      .orderBy('customer.createdAt', 'DESC')
       .skip(offset)
       .take(limit);
 
@@ -88,14 +86,14 @@ export class CustomerInfoSearchService {
 
     private addTextSearchConditions(qb: WhereExpressionBuilder, keyword: string): void {
     this.validFields.forEach(field => {
-      qb.orWhere(`business.${field} LIKE :keyword`, { keyword: `%${keyword}%` });
+      qb.orWhere(`customer.${field} LIKE :keyword`, { keyword: `%${keyword}%` });
     });
   }
   
   private addDateSearchConditions(qb: WhereExpressionBuilder, keyword: string): void {
     const searchDate = new Date(keyword);
-    qb.orWhere('DATE(business.createdAt) = DATE(:searchDate)', { searchDate }).orWhere(
-      'DATE(business.updatedAt) = DATE(:searchDate)',
+    qb.orWhere('DATE(customer.createdAt) = DATE(:searchDate)', { searchDate }).orWhere(
+      'DATE(customer.updatedAt) = DATE(:searchDate)',
       { searchDate },
     );
   }
@@ -111,8 +109,6 @@ export class CustomerInfoSearchService {
   }
 
 }
-
-
 
 interface SearchResult {
   data: CustomerInfo[];

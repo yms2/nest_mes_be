@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional } from 'class-validator';
+import { OptionalString } from 'src/common/decorators/optional-string.decorator';
 
 export class ReadBusinessInfoDto {
   @ApiProperty({
@@ -7,7 +7,6 @@ export class ReadBusinessInfoDto {
     description: '사업자 번호 (단일 조회용)',
     required: false,
   })
-  @IsOptional()
-  @IsString()
+  @OptionalString()
   businessNumber?: string;
 }

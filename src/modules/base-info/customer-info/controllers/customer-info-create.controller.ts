@@ -10,7 +10,7 @@ import { ApiResponseBuilder } from 'src/common/interfaces/api-response.interface
 import { CreateCustomerInfoDto } from '../dto/customer-info-create.dto';
 import { CustomerInfo } from '../entities/custmoer-info.entity';
 
-@ApiTags("CutomerInfo")
+@ApiTags("CustomerInfo")
 @Controller('customer-info')
 export class CustomerInfoCreateController {
   constructor(

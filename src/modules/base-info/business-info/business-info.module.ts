@@ -7,6 +7,7 @@ import { BusinessInfoCreateService, BusinessInfoReadService, BusinessInfoSearchS
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { LogModule } from '../../log/log.module';
 import { BusinessInfoController, BusinessInfoCreateController, BusinessInfoUpdateController, BusinessInfoDeleteController} from './controllers'
+import { BusinessInfoHandler } from './handlers/business-info.handler';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { BusinessInfoController, BusinessInfoCreateController, BusinessInfoUpdat
     BusinessInfoDeleteController,
   ],
   providers: [
+    BusinessInfoHandler,
     BusinessInfoCreateService,
     BusinessInfoReadService,
     BusinessInfoSearchService,
