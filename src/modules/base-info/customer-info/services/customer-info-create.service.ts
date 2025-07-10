@@ -24,7 +24,7 @@ export class CustomerInfoCreateService {
   private async checkCustomerNumberDuplicate(customerNumber: string): Promise<void> {
     const existingCustomer = await this.customerInfoRepository.findOne({ where: { customerNumber } });
     if (existingCustomer) {
-      throw new ConflictException(`거래처 번호가 이미 존재합니다.`);
+      throw new ConflictException(`사업자 등록번호가 이미 존재합니다.`);
     }
   }
 

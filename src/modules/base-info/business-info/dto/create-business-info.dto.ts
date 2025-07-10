@@ -37,7 +37,9 @@ export class CreateBusinessInfoDto {
     required: false,
   })
   @OptionalString()
-  @Matches(/^\d{13}$/, { message: '법인번호는 13자리 숫자여야 합니다.' })
+  @Transform(({ value }) => value === '' ? undefined : value) // 빈 문자열이면 undefined 처리
+  @ValidateIf((obj, value) => value !== undefined) // 값이 있을 때만 아래 검증 수행
+  @Matches(/^\d{10}$/, { message: '법인번호는 10자리 숫자여야 합니다.' })
   corporateRegistrationNumber?: string;
 
   @ApiProperty({
