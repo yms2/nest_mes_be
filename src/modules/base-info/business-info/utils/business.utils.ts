@@ -15,15 +15,16 @@ export class BusinessUtils {
     return BUSINESS_CONSTANTS.REGEX.BUSINESS_NUMBER.test(businessNumber);
   }
 
-  /**
-   * 숫자만 허용하는 유효성 검사
-   */
+  // /**
+  //  * 숫자만 허용하는 유효성 검사
+  //  */
     static validateNumbersOnly(value: string): boolean {
       if (value === undefined || value === null || value === '') {
         return true; // 빈 값 허용
       }
-      return BUSINESS_CONSTANTS.REGEX.NUMBERS_ONLY.test(value);
+      return /^[\d-]+$/.test(value); // 숫자 또는 하이픈만 허용
     }
+
 
   /**
    * 숫자 필드 검증 (빈 값 허용)
@@ -46,6 +47,28 @@ export class BusinessUtils {
     const nextNumber = Number(lastCodeNumber) + 1;
 
     return `${BUSINESS_CONSTANTS.CODE.PREFIX}${String(nextNumber).padStart(
+      BUSINESS_CONSTANTS.CODE.LENGTH,
+      '0',
+    )}`;
+  }
+
+  /**
+   * 다음 코드 번호 가져오기 (메모리 기반 처리용)
+   */
+  static getNextCodeNumber(lastBusinessCode: string | null): number {
+    if (!lastBusinessCode) {
+      return 1; // 첫 번째 번호
+    }
+
+    const lastCodeNumber = lastBusinessCode.split(BUSINESS_CONSTANTS.CODE.PREFIX)[1];
+    return Number(lastCodeNumber) + 1;
+  }
+
+  /**
+   * 코드 번호로 사업장 코드 생성 (메모리 기반 처리용)
+   */
+  static generateBusinessCode(codeNumber: number): string {
+    return `${BUSINESS_CONSTANTS.CODE.PREFIX}${String(codeNumber).padStart(
       BUSINESS_CONSTANTS.CODE.LENGTH,
       '0',
     )}`;

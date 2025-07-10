@@ -30,7 +30,7 @@ export class BusinessInfo {
   @Column({ name: 'business_ceo', length: 50, comment: '사업장 담당자' })
   businessCeo: string;
 
-  @ApiProperty({ example: '1234567890123', description: '법인번호' })
+  @ApiProperty({ example: '1234567890', description: '법인번호' })
   @Column({
     name: 'corporate_registration_number',
     length: 13,
