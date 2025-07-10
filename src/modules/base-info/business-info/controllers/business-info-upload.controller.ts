@@ -83,6 +83,7 @@ interface ValidationResponse {
 export class BusinessUploadController {
   constructor(private readonly uploadService: BusinessUploadService) {}
 
+  //엑셀 검증
   @ApiOperation({
     summary: '사업장 엑셀 검증',
     description: '업로드할 엑셀 파일을 검증하고 중복 데이터를 확인합니다.\n\n' +
@@ -172,81 +173,8 @@ export class BusinessUploadController {
     return await this.uploadService.validateExcel(file.buffer);
   }
 
-  @ApiOperation({
-    summary: '사업장 엑셀 업로드 (직접 저장)',
-    description: '엑셀 파일을 검증 없이 바로 저장합니다.\n\n' +
-                 '⚠️ 주의: 검증 없이 바로 저장되므로 중복 데이터가 있을 수 있습니다.\n' +
-                 '안전한 업로드를 원한다면 먼저 /upload/validate API를 사용하세요.\n\n' +
-                 'mode=add : 신규만 등록\n' +
-                 'mode=overwrite : 중복 시 덮어쓰기',
-  })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        file: { type: 'string', format: 'binary', description: '업로드할 엑셀 파일 (.xlsx)' },
-      },
-    },
-  })
-  @ApiQuery({
-    name: 'mode',
-    required: false,
-    description: '업로드 모드 (add: 신규만 등록 / overwrite: 중복 시 덮어쓰기)',
-    schema: { default: 'add', enum: ['add', 'overwrite'] },
-  })
-  @ApiResponse({
-    status: 200,
-    description: '업로드 성공',
-    schema: {
-      type: 'object',
-      properties: {
-        message: { type: 'string', example: '업로드가 완료되었습니다.' },
-        result: {
-          type: 'object',
-          properties: {
-            successCount: { type: 'number', example: 95 },
-            failCount: { type: 'number', example: 5 },
-            totalCount: { type: 'number', example: 100 },
-            errors: {
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: {
-                  row: { type: 'number', example: 3 },
-                  businessNumber: { type: 'string', example: '1234567890' },
-                  businessName: { type: 'string', example: '테스트회사' },
-                  error: { type: 'string', example: '사업자등록번호는 10자리 숫자여야 합니다.' },
-                  details: { type: 'string', example: 'Error stack trace...' },
-                },
-              },
-            },
-            summary: {
-              type: 'object',
-              properties: {
-                created: { type: 'number', example: 80 },
-                updated: { type: 'number', example: 15 },
-                skipped: { type: 'number', example: 0 },
-              },
-            },
-          },
-        },
-      },
-    },
-  })
-  @Post('upload')
-  @Auth()
-  @UseInterceptors(FileInterceptor('file'))
-  async uploadExcel(
-    @UploadedFile() file: Express.Multer.File,
-    @Query('mode') mode: 'add' | 'overwrite' = 'add',
-  ): Promise<UploadResponse> {
-    if (!file) {
-      throw new BadRequestException('업로드된 파일이 없습니다.');
-    }
-
-    return await this.uploadService.processExcel(file.buffer, mode);
-  }
-
+  
+  //검증된 데이터 저장
   @ApiOperation({
     summary: '검증된 데이터 저장',
     description: '검증 단계에서 확인된 데이터를 실제로 저장합니다.\n\n' +
