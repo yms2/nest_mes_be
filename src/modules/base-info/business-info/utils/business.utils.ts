@@ -18,9 +18,12 @@ export class BusinessUtils {
   /**
    * 숫자만 허용하는 유효성 검사
    */
-  static validateNumbersOnly(value: string): boolean {
-    return BUSINESS_CONSTANTS.REGEX.NUMBERS_ONLY.test(value);
-  }
+    static validateNumbersOnly(value: string): boolean {
+      if (value === undefined || value === null || value === '') {
+        return true; // 빈 값 허용
+      }
+      return BUSINESS_CONSTANTS.REGEX.NUMBERS_ONLY.test(value);
+    }
 
   /**
    * 숫자 필드 검증 (빈 값 허용)

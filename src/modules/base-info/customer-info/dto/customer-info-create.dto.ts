@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, Length, IsNumberString, IsNotEmpty, Matches } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsString, IsOptional, Length, IsNumberString, IsNotEmpty, Matches, ValidateIf } from 'class-validator';
 import { OptionalString } from 'src/common/decorators/optional-string.decorator';
 
 export class CreateCustomerInfoDto {
@@ -54,6 +55,8 @@ export class CreateCustomerInfoDto {
     required: false,
   })
   @OptionalString()
+  @Transform(({ value }) => value === '' ? undefined : value) // 빈 문자열이면 undefined 처리
+  @ValidateIf((obj, value) => value !== undefined) // 값이 있을 때만 아래 검증 수행
   @Matches(/^(\d{10,11}|\d{2,3}-\d{3,4}-\d{4})$/, {
     message: '전화번호는 숫자만 입력하거나 000-0000-0000 형식으로 입력해야 합니다.',
   })
@@ -68,6 +71,8 @@ export class CreateCustomerInfoDto {
   @Matches(/^(\d{10,11}|\d{2,3}-\d{3,4}-\d{4})$/, {
     message: '휴대폰번호는 숫자만 입력하거나 000-0000-0000 형식으로 입력해야 합니다.',
   })
+  @Transform(({ value }) => value === '' ? undefined : value) // 빈 문자열이면 undefined 처리
+  @ValidateIf((obj, value) => value !== undefined) // 값이 있을 때만 아래 검증 수행
   customerMobile?: string;
 
   @ApiProperty({
@@ -85,6 +90,8 @@ export class CreateCustomerInfoDto {
   })
   @OptionalString()
   @Matches(/^\d{5}$/, { message: '우편번호는 5자리 숫자여야 합니다.' })
+  @Transform(({ value }) => value === '' ? undefined : value) // 빈 문자열이면 undefined 처리
+  @ValidateIf((obj, value) => value !== undefined) // 값이 있을 때만 아래 검증 수행
   customerZipcode?: string;
 
   @ApiProperty({

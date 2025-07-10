@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, Matches, Length, IsNumberString, IsNotEmpty } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsString, IsOptional, Matches, Length, IsNumberString, IsNotEmpty, ValidateIf } from 'class-validator';
 import { OptionalString } from 'src/common/decorators/optional-string.decorator';
 
 export class CreateBusinessInfoDto {
@@ -36,7 +37,9 @@ export class CreateBusinessInfoDto {
     required: false,
   })
   @OptionalString()
-  @Matches(/^\d{13}$/, { message: '법인번호는 13자리 숫자여야 합니다.' })
+  @Transform(({ value }) => value === '' ? undefined : value) // 빈 문자열이면 undefined 처리
+  @ValidateIf((obj, value) => value !== undefined) // 값이 있을 때만 아래 검증 수행
+  @Matches(/^\d{10}$/, { message: '법인번호는 10자리 숫자여야 합니다.' })
   corporateRegistrationNumber?: string;
 
   @ApiProperty({
@@ -61,6 +64,8 @@ export class CreateBusinessInfoDto {
     required: false,
   })
   @OptionalString()
+  @Transform(({ value }) => value === '' ? undefined : value) // 빈 문자열이면 undefined 처리
+  @ValidateIf((obj, value) => value !== undefined) // 값이 있을 때만 아래 검증 수행
   @Matches(/^(\d{10,11}|\d{2,3}-\d{3,4}-\d{4})$/, {
     message: '전화번호는 숫자만 입력하거나 000-0000-0000 형식으로 입력해야 합니다.',
   })
@@ -72,6 +77,8 @@ export class CreateBusinessInfoDto {
     required: false,
   })
   @OptionalString()
+  @Transform(({ value }) => value === '' ? undefined : value) // 빈 문자열이면 undefined 처리
+  @ValidateIf((obj, value) => value !== undefined) // 값이 있을 때만 아래 검증 수행
   @Matches(/^(\d{10,11}|\d{2,3}-\d{3,4}-\d{4})$/, {
     message: '휴대폰번호는 숫자만 입력하거나 000-0000-0000 형식으로 입력해야 합니다.',
   })
@@ -83,6 +90,8 @@ export class CreateBusinessInfoDto {
     required: false,
   })
   @OptionalString()
+  @Transform(({ value }) => value === '' ? undefined : value) // 빈 문자열이면 undefined 처리
+  @ValidateIf((obj, value) => value !== undefined) // 값이 있을 때만 아래 검증 수행
   @Matches(/^(\d{10,11}|\d{2,3}-\d{3,4}-\d{4})$/, { message: 'FAX는 숫자만 입력해야 합니다.' })
   businessFax?: string;
 
@@ -91,7 +100,8 @@ export class CreateBusinessInfoDto {
     description: '우편번호 (선택)',
     required: false,
   })
-  @OptionalString()
+  @Transform(({ value }) => value === '' ? undefined : value) // 빈 문자열이면 undefined 처리
+  @ValidateIf((obj, value) => value !== undefined) // 값이 있을 때만 아래 검증 수행
   @Matches(/^\d{5}$/, { message: '우편번호는 5자리 숫자여야 합니다.' })
   businessZipcode?: string;
 
