@@ -3,7 +3,7 @@ import { Transform } from 'class-transformer';
 import { IsString, IsOptional, Matches, Length, IsNumberString, IsNotEmpty, ValidateIf, IsEmail } from 'class-validator';
 import { OptionalString } from 'src/common/decorators/optional-string.decorator';
 
-export class CreateBusinessInfoDto {
+export class UploadBusinessInfoDto {
   @ApiProperty({
     example: '6743001715',
     description: '사업자 번호 (필수)',
@@ -62,7 +62,6 @@ export class CreateBusinessInfoDto {
     required: false,
   })
   @OptionalString()
-
   @Matches(/^(\d{10,11}|\d{2,3}-\d{3,4}-\d{4})$/, {
     message: '전화번호는 숫자만 입력하거나 000-0000-0000 형식으로 입력해야 합니다.',
   })
@@ -74,7 +73,6 @@ export class CreateBusinessInfoDto {
     required: false,
   })
   @OptionalString()
-
   @Matches(/^(\d{10,11}|\d{2,3}-\d{3,4}-\d{4})$/, {
     message: '휴대폰번호는 숫자만 입력하거나 000-0000-0000 형식으로 입력해야 합니다.',
   })
@@ -94,6 +92,7 @@ export class CreateBusinessInfoDto {
     description: '우편번호 (선택)',
     required: false,
   })
+  @OptionalString()
   @Matches(/^\d{5}$/, { message: '우편번호는 5자리 숫자여야 합니다.' })
   businessZipcode?: string;
 

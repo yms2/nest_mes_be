@@ -53,6 +53,28 @@ export class BusinessUtils {
   }
 
   /**
+   * 다음 코드 번호 가져오기 (메모리 기반 처리용)
+   */
+  static getNextCodeNumber(lastBusinessCode: string | null): number {
+    if (!lastBusinessCode) {
+      return 1; // 첫 번째 번호
+    }
+
+    const lastCodeNumber = lastBusinessCode.split(BUSINESS_CONSTANTS.CODE.PREFIX)[1];
+    return Number(lastCodeNumber) + 1;
+  }
+
+  /**
+   * 코드 번호로 사업장 코드 생성 (메모리 기반 처리용)
+   */
+  static generateBusinessCode(codeNumber: number): string {
+    return `${BUSINESS_CONSTANTS.CODE.PREFIX}${String(codeNumber).padStart(
+      BUSINESS_CONSTANTS.CODE.LENGTH,
+      '0',
+    )}`;
+  }
+
+  /**
    * 필수 필드 검증
    */
   static validateRequiredFields(fields: Record<string, any>): void {
