@@ -31,7 +31,7 @@ export class ProductInfoCreateService {
       ? parseInt(lastProduct.productCode.slice(1), 10) + 1
       : 1;
 
-    return `C${nextNumber.toString().padStart(3, '0')}`;
+    return `PRD${nextNumber.toString().padStart(3, '0')}`;
   }
 
     private createProductEntity(
