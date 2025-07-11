@@ -3,8 +3,8 @@ import { ProductInfoHandler } from "./handlers/product-info.handler";
 import { CommonModule } from "src/common/common.module";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ProductInfo } from "./entities/product-info.entity";
-import { ProductInfoReadController } from "./controllers";
-import { ProductInfoSearchService, ProductInfoReadService } from "./services";
+import { ProductInfoReadController,ProductInfoCreateController,ProductInfoUpdateController, ProductInfoDeleteController } from "./controllers";
+import { ProductInfoSearchService, ProductInfoReadService, ProductInfoCreateService,ProductInfoUpdateService, ProductInfoDeleteService } from "./services";
 import { Module } from "@nestjs/common";
 
 @Module({
@@ -14,17 +14,25 @@ import { Module } from "@nestjs/common";
     TypeOrmModule.forFeature([ProductInfo])
   ],
   controllers: [
-    ProductInfoReadController
-    
+    ProductInfoReadController,
+    ProductInfoCreateController,
+    ProductInfoUpdateController,
+    ProductInfoDeleteController
   ],
   providers: [
     ProductInfoSearchService,
     ProductInfoReadService,
+    ProductInfoCreateService,
+    ProductInfoUpdateService,
+    ProductInfoDeleteService,
     ProductInfoHandler
   ],
   exports: [
     ProductInfoSearchService,
     ProductInfoReadService,
+    ProductInfoCreateService,
+    ProductInfoUpdateService,
+    ProductInfoDeleteService
   ],
 })
 export class ProductInfoModule {}

@@ -1,2 +1,5 @@
 export * from './product-info-read.service'
 export * from './product-info-search.service'
+export * from './product-info-create.service'
+export * from './product-info-update.service'
+export * from './product-info-delete.service'
