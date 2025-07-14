@@ -30,7 +30,7 @@ export class BomInfoService {
     ): any[] => {
       if (visited.has(parentCode)) {
         // 순환 참조 감지 → 해당 브랜치 중단
-        console.warn(`⚠ 순환 참조 감지: ${parentCode}`);
+        
         return [];
       }
 
