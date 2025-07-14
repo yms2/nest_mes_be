@@ -14,13 +14,13 @@ async function bootstrap() {
   let app: NestExpressApplication;
 
   if (useHttps && nodeEnv === 'production') {
-    const httpsOptions = {
-      key: fs.readFileSync(configService.get('SSL_KEY_PATH') || ''),
-      cert: fs.readFileSync(configService.get('SSL_CERT_PATH') || ''),
-    };
+    // const httpsOptions = {
+    //   key: fs.readFileSync(configService.get('SSL_KEY_PATH') || ''),
+    //   cert: fs.readFileSync(configService.get('SSL_CERT_PATH') || ''),
+    // };
 
     app = await NestFactory.create<NestExpressApplication>(AppModule, {
-      httpsOptions,
+      // httpsOptions,
       logger: ['log', 'error', 'warn', 'debug'],
     });
   } else {
