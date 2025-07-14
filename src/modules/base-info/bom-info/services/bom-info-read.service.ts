@@ -17,12 +17,25 @@ export class BomInfoService {
     const allBom = await this.bomRepository.find();
     const allProducts = await this.productRepository.find();
 
-    // 제품 목록을 Map으로 캐싱
+    // 제품 목록을 Map으로 구성 (검색 성능 향상)
     const productMap = new Map<string, ProductInfo>();
-    allProducts.forEach(p => productMap.set(p.productCode, p));
+    allProducts.forEach(product => {
+      productMap.set(product.productCode, product);
+    });
 
-    // 재귀적으로 트리 구성
-    const buildTree = (parentCode: string): any[] => {
+    // 재귀적으로 트리 구성 (순환 참조 방지)
+    const buildTree = (
+      parentCode: string,
+      visited: Set<string>
+    ): any[] => {
+      if (visited.has(parentCode)) {
+        // 순환 참조 감지 → 해당 브랜치 중단
+        console.warn(`⚠ 순환 참조 감지: ${parentCode}`);
+        return [];
+      }
+
+      visited.add(parentCode);
+
       return allBom
         .filter(b => b.parentProductCode === parentCode)
         .map(b => {
@@ -33,7 +46,7 @@ export class BomInfoService {
             productName: product?.productName || null,
             quantity: b.quantity,
             unit: b.unit,
-            children: buildTree(b.childProductCode),
+            children: buildTree(b.childProductCode, new Set(visited)), // 방문기록 복사
           };
         });
     };
@@ -43,7 +56,7 @@ export class BomInfoService {
     return {
       productCode: rootProductCode,
       productName: rootProduct?.productName || null,
-      children: buildTree(rootProductCode),
+      children: buildTree(rootProductCode, new Set()),
     };
   }
 }
