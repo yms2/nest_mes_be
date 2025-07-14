@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
-import { ProductInfo } from '../../product-info/entities/product-info.entity';
-import { BomInfo } from '../entities/bom-info.entity';
+import { ProductInfo } from '../../../product-info/entities/product-info.entity';
+import { BomInfo } from '../../entities/bom-info.entity';
 import * as ExcelJS from 'exceljs';
 
 @Injectable()

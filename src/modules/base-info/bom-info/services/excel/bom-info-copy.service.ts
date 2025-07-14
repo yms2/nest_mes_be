@@ -2,7 +2,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { BomInfo } from '../entities/bom-info.entity';
+import { BomInfo } from '../../entities/bom-info.entity';
 
 @Injectable()
 export class BomCopyService {
