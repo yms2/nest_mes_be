@@ -1,9 +1,11 @@
 import { Controller, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { BomInfoUploadService } from '../services/bom-info-upload.service';
+import { BomInfoUploadService } from '../../services/excel/bom-info-upload.service';
 import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Auth } from 'src/common/decorators/auth.decorator';
 
 @ApiTags('BOM')
+@Auth()
 @Controller('bom')
 export class BomInfoUploadController {
   constructor(private readonly bomService: BomInfoUploadService) {}

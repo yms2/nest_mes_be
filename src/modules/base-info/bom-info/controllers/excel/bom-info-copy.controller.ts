@@ -1,7 +1,7 @@
 import { Controller, Post, Body } from '@nestjs/common';
-import { BomCopyService } from '../services';
+import { BomCopyService } from '../../services';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CopyBomDto } from '../dto/copy-bom.dto';
+import { CopyBomDto } from '../../dto/copy-bom.dto';
 
 @ApiTags('BOM')
 @Controller('bom')

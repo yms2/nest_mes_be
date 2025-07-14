@@ -1,6 +1,6 @@
 import { Controller, Get, Res } from '@nestjs/common';
 import { Response } from 'express';
-import { BomExcelService } from '../services/bom-info-excel.service';
+import { BomExcelService } from '../../services/excel/bom-info-excel.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('BOM')
