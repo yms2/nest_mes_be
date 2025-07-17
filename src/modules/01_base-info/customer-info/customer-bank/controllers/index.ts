@@ -1,0 +1,1 @@
+export * from './customer-bank-read.controller';
