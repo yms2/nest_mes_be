@@ -14,7 +14,7 @@ export class BusinessInfo {
   @PrimaryGeneratedColumn({ comment: '사용자 고유 ID (자동 생성)' })
   id: number;
 
-  @ApiProperty({ example: 'BPLC001', description: '사업장 코드' })
+  @ApiProperty({ example: 'BUS001', description: '사업장 코드' })
   @Column({ name: 'business_code', length: 20, unique: true, comment: '사업장 코드' })
   businessCode: string;
 

@@ -42,7 +42,7 @@ export class BusinessBankCreateController {
 
   private async writeCreateLog(result: BusinessBank, username: string) {
     await this.logService.createDetailedLog({
-      moduleName: '사업장 관리',
+      moduleName: '사업장 계좌 관리',
       action: 'CREATE',
       username,
       targetId: result.businessCode,
@@ -54,7 +54,7 @@ export class BusinessBankCreateController {
   private async writeCreateFailLog(dto: CreateBusinessBankDto, username: string, error: Error) {
     await this.logService
       .createDetailedLog({
-        moduleName: '사업장 관리',
+        moduleName: '사업장 계좌 관리',
         action: 'CREATE_FAIL',
         username,
         targetId: '',

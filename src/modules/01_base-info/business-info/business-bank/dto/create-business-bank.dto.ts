@@ -1,16 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, Length, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, Length, IsOptional, Matches } from 'class-validator';
 import { OptionalString } from 'src/common/decorators/optional-string.decorator';
 
 export class CreateBusinessBankDto {
   @ApiProperty({
-    example: 'BPLC001',
+    example: 'BUS001',
     description: '사업장 코드 (필수)',
     required: true,
   })
   @IsString({ message: '사업장 코드는 필수값입니다.' })
-  @IsNotEmpty({ message: '사업장 코드는 필수 입력값입니다.' })
-  @Length(1, 20, { message: '사업장 코드는 1~20자 이내여야 합니다.' })
   businessCode: string;
 
   @ApiProperty({
@@ -19,8 +17,6 @@ export class CreateBusinessBankDto {
     required: true,
   })
   @IsString({ message: '은행 코드는 필수값입니다.' })
-  @IsNotEmpty({ message: '은행 코드는 필수 입력값입니다.' })
-  @Length(1, 10, { message: '은행 코드는 1~10자 이내여야 합니다.' })
   bankCode: string;
 
   @ApiProperty({
