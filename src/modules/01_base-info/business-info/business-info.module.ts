@@ -25,11 +25,13 @@ import {
   BusinessUploadController,
 } from './controllers';
 import { BusinessInfoHandler } from './handlers/business-info.handler';
+import { BusinessBankModule } from './business-bank/business-bank.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([BusinessInfo]),
     LogModule,
+    BusinessBankModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
