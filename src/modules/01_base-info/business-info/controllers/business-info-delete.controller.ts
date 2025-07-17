@@ -35,7 +35,7 @@ export class BusinessInfoDeleteController {
         details: '사업장 정보 영구 삭제',
       });
 
-      return ApiResponseBuilder.success(null, '사업장 정보가 영구 삭제되었습니다.');
+      return ApiResponseBuilder.success(null, '사업장 정보가 삭제되었습니다.');
     } catch (error) {
       // 에러 로그 생성
       await this.logService
