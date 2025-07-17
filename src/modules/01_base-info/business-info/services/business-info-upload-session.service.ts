@@ -24,13 +24,14 @@ export class BusinessUploadSessionService {
     validationResult: ValidationResult,
   ): string {
     const sessionId = `validation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
+
     // nextCodeNumber 계산 (기존 데이터에서)
     const existingBusinesses = Array.from(businessNumberMap.values());
-    const latestBusinessCode = existingBusinesses.length > 0
-      ? existingBusinesses[existingBusinesses.length - 1].businessCode
-      : null;
-    
+    const latestBusinessCode =
+      existingBusinesses.length > 0
+        ? existingBusinesses[existingBusinesses.length - 1].businessCode
+        : null;
+
     const nextCodeNumber = BusinessUtils.getNextCodeNumber(latestBusinessCode);
 
     this.validationSessions.set(sessionId, {
@@ -62,4 +63,4 @@ export class BusinessUploadSessionService {
       }
     }
   }
-} 
+}

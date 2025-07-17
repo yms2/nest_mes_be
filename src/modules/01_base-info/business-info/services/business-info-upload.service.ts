@@ -19,7 +19,7 @@ export class BusinessUploadService {
   ): Promise<ProcessingResult> {
     const rows = this.validationService.parseExcelFile(fileBuffer);
     const { businessNumberMap, nextCodeNumber } = await this.processingService.loadExistingData();
-    
+
     const processedData = await this.processingService.processRows(
       rows,
       businessNumberMap,
@@ -34,7 +34,7 @@ export class BusinessUploadService {
   async validateExcel(fileBuffer: Buffer): Promise<ValidationResult & { sessionId: string }> {
     const rows = this.validationService.parseExcelFile(fileBuffer);
     const { businessNumberMap } = await this.processingService.loadExistingData();
-    
+
     const validationResult = this.validationService.validateRows(rows, businessNumberMap);
     const sessionId = this.sessionService.createSession(rows, businessNumberMap, validationResult);
 
@@ -54,7 +54,7 @@ export class BusinessUploadService {
     }
 
     const { rows, businessNumberMap, nextCodeNumber } = session.data;
-    
+
     const processedData = await this.processingService.processRows(
       rows,
       businessNumberMap,

@@ -31,10 +31,20 @@ export class BomInfoExcelDownloadService {
       });
 
       const productMap = new Map(
-        products.map(p => [p.productCode, { name: p.productName, type: p.productType }])
+        products.map(p => [p.productCode, { name: p.productName, type: p.productType }]),
       );
 
-      const header = ['상위품목명', '품목명', '수량', '단위', '', '반제품 상위품목명', '품목명', '수량', '단위'];
+      const header = [
+        '상위품목명',
+        '품목명',
+        '수량',
+        '단위',
+        '',
+        '반제품 상위품목명',
+        '품목명',
+        '수량',
+        '단위',
+      ];
       const rows: (string | number)[][] = [];
 
       let topIndex = 1;
@@ -105,14 +115,16 @@ export class BomInfoExcelDownloadService {
 
       return Buffer.from(arrayBuffer);
     } catch (error) {
-      await this.logService.createDetailedLog({
-        moduleName: 'BOM 다운로드',
-        action: 'DOWNLOAD_FAIL',
-        username: 'system',
-        targetId: '',
-        targetName: '',
-        details: `BOM 다운로드 실패: ${error.message}`,
-      }).catch(() => {});
+      await this.logService
+        .createDetailedLog({
+          moduleName: 'BOM 다운로드',
+          action: 'DOWNLOAD_FAIL',
+          username: 'system',
+          targetId: '',
+          targetName: '',
+          details: `BOM 다운로드 실패: ${error.message}`,
+        })
+        .catch(() => {});
       throw error;
     }
   }
@@ -136,12 +148,7 @@ export class BomInfoExcelDownloadService {
       const childName = productMap.get(bom.childProductCode)?.name ?? bom.childProductCode;
       const bomCode = `${codePrefix}-${childIndex}`;
 
-      rows.push([
-        parentName,
-        `${bomCode}-${childName}`,
-        `${bom.quantity}`,
-        bom.unit,
-      ]);
+      rows.push([parentName, `${bomCode}-${childName}`, `${bom.quantity}`, bom.unit]);
 
       this.processBom(bomList, productMap, bom.childProductCode, bomCode, rows, level + 1);
       childIndex++;

@@ -1,9 +1,9 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CustomerInfo } from "../entities/custmoer-info.entity";
-import { SearchCustomerInfoDto } from "../dto/customer-info-search.dto";
-import { DateFormatter } from "../../../../common/utils/date-formatter.util";
+import { CustomerInfo } from '../entities/custmoer-info.entity';
+import { SearchCustomerInfoDto } from '../dto/customer-info-search.dto';
+import { DateFormatter } from '../../../../common/utils/date-formatter.util';
 
 @Injectable()
 export class CustomerInfoReadService {
@@ -12,7 +12,9 @@ export class CustomerInfoReadService {
     private readonly customerInfoRepository: Repository<CustomerInfo>,
   ) {}
 
-  async getCustomerInfoByNumber(SearchCustomerInfoDto: SearchCustomerInfoDto): Promise<CustomerInfo> {
+  async getCustomerInfoByNumber(
+    SearchCustomerInfoDto: SearchCustomerInfoDto,
+  ): Promise<CustomerInfo> {
     const { customerNumber } = SearchCustomerInfoDto;
 
     const customerInfo = await this.customerInfoRepository.findOne({
@@ -26,7 +28,10 @@ export class CustomerInfoReadService {
     return DateFormatter.formatBusinessInfoDates(customerInfo);
   }
 
-  async getAllCustomerInfo(page: number = 1, limit: number = 10): Promise<{ data: CustomerInfo[]; total: number; page: number; limit: number }> {
+  async getAllCustomerInfo(
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<{ data: CustomerInfo[]; total: number; page: number; limit: number }> {
     const offset = (page - 1) * limit;
 
     const [data, total] = await this.customerInfoRepository.findAndCount({

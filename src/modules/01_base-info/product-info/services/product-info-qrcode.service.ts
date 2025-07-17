@@ -1,8 +1,8 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import * as QRCode from 'qrcode';
-import { ProductInfo } from "../entities/product-info.entity";
+import { ProductInfo } from '../entities/product-info.entity';
 
 @Injectable()
 export class ProductInfoQrCodeService {
@@ -19,7 +19,7 @@ export class ProductInfoQrCodeService {
     }
 
     // ✅ QR에 포함할 링크 URL
-    const localIp = '172.30.1.82'
+    const localIp = '172.30.1.82';
     const targetUrl = `http://${localIp}:3000/product/${product.productCode}`; // ← 실제 도메인으로 변경
 
     // ✅ URL을 QR로 인코딩

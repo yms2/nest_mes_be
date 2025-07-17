@@ -19,17 +19,47 @@ export class BusinessInfoHandler {
   }
 
   async handleSearch(search: string, pagination: PaginationDto) {
-    const result = await this.businessInfoSearchService.searchBusinessInfo(search, pagination.page, pagination.limit);
-    return buildPaginatedResponse(result.data, result.page, result.limit, result.total, '사업장 정보 통합검색이 완료되었습니다.');
+    const result = await this.businessInfoSearchService.searchBusinessInfo(
+      search,
+      pagination.page,
+      pagination.limit,
+    );
+    return buildPaginatedResponse(
+      result.data,
+      result.page,
+      result.limit,
+      result.total,
+      '사업장 정보 통합검색이 완료되었습니다.',
+    );
   }
 
   async handleDateRangeSearch(startDate: string, endDate: string, pagination: PaginationDto) {
-    const result = await this.businessInfoSearchService.searchBusinessInfoByDateRange(startDate, endDate, pagination.page, pagination.limit);
-    return buildPaginatedResponse(result.data, result.page, result.limit, result.total, '사업장 정보 날짜 범위 검색이 완료되었습니다.');
+    const result = await this.businessInfoSearchService.searchBusinessInfoByDateRange(
+      startDate,
+      endDate,
+      pagination.page,
+      pagination.limit,
+    );
+    return buildPaginatedResponse(
+      result.data,
+      result.page,
+      result.limit,
+      result.total,
+      '사업장 정보 날짜 범위 검색이 완료되었습니다.',
+    );
   }
 
   async handleListRead(pagination: PaginationDto) {
-    const result = await this.businessInfoReadService.getAllBusinessInfo(pagination.page, pagination.limit);
-    return buildPaginatedResponse(result.data, result.page, result.limit, result.total, '사업장 정보 전체 조회되었습니다.');
+    const result = await this.businessInfoReadService.getAllBusinessInfo(
+      pagination.page,
+      pagination.limit,
+    );
+    return buildPaginatedResponse(
+      result.data,
+      result.page,
+      result.limit,
+      result.total,
+      '사업장 정보 전체 조회되었습니다.',
+    );
   }
 }

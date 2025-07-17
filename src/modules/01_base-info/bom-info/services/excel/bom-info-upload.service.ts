@@ -63,7 +63,6 @@ export class BomInfoUploadService {
           });
           await this.bomRepository.save(bom);
         }
-
       } catch (err) {
         errors.push({
           rowIndex: index + 2, // 엑셀 기준으로 줄 번호 반환

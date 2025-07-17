@@ -63,9 +63,10 @@ export class BusinessUploadProcessingService {
       businessNumberMap.set(business.businessNumber, business);
     });
 
-    const latestBusinessCode = existingBusinesses.length > 0
-      ? existingBusinesses[existingBusinesses.length - 1].businessCode
-      : null;
+    const latestBusinessCode =
+      existingBusinesses.length > 0
+        ? existingBusinesses[existingBusinesses.length - 1].businessCode
+        : null;
     const nextCodeNumber = BusinessUtils.getNextCodeNumber(latestBusinessCode);
 
     return { businessNumberMap, nextCodeNumber };
@@ -94,14 +95,14 @@ export class BusinessUploadProcessingService {
     for (let i = 0; i < rows.length; i++) {
       try {
         const result = await this.processRow(rows[i], businessNumberMap, currentCodeNumber, mode);
-        
+
         if (result.type === 'create') {
           toCreate.push(result.data);
           currentCodeNumber++;
         } else if (result.type === 'update') {
           toUpdate.push(result.data);
         }
-        
+
         successCount++;
       } catch (error) {
         failCount++;
@@ -237,4 +238,4 @@ export class BusinessUploadProcessingService {
     if (!value) return '';
     return String(value).replace(/[^\d]/g, '');
   }
-} 
+}

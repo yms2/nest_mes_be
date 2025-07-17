@@ -1,15 +1,15 @@
-import { InjectRepository } from "@nestjs/typeorm";
-import { ProductInfo } from "../entities/product-info.entity";
-import { Repository } from "typeorm";
-import { Injectable } from "@nestjs/common";
-import { ProductInfoUpdateService } from "./product-info-update.service";
+import { InjectRepository } from '@nestjs/typeorm';
+import { ProductInfo } from '../entities/product-info.entity';
+import { Repository } from 'typeorm';
+import { Injectable } from '@nestjs/common';
+import { ProductInfoUpdateService } from './product-info-update.service';
 
 @Injectable()
 export class ProductInfoDeleteService {
   constructor(
     @InjectRepository(ProductInfo)
     private readonly productInfoRepository: Repository<ProductInfo>,
-    private readonly productInfoUpdateService: ProductInfoUpdateService
+    private readonly productInfoUpdateService: ProductInfoUpdateService,
   ) {}
 
   async hardDeleteProductInfo(id: number): Promise<void> {

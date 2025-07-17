@@ -86,8 +86,9 @@ export class BusinessUploadController {
   //엑셀 검증
   @ApiOperation({
     summary: '사업장 엑셀 검증',
-    description: '업로드할 엑셀 파일을 검증하고 중복 데이터를 확인합니다.\n\n' +
-                 '실제 저장은 하지 않고 미리보기만 제공합니다.',
+    description:
+      '업로드할 엑셀 파일을 검증하고 중복 데이터를 확인합니다.\n\n' +
+      '실제 저장은 하지 않고 미리보기만 제공합니다.',
   })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -163,9 +164,7 @@ export class BusinessUploadController {
   @Post('upload/validate')
   @Auth()
   @UseInterceptors(FileInterceptor('file'))
-  async validateExcel(
-    @UploadedFile() file: Express.Multer.File,
-  ): Promise<ValidationResponse> {
+  async validateExcel(@UploadedFile() file: Express.Multer.File): Promise<ValidationResponse> {
     if (!file) {
       throw new BadRequestException('업로드된 파일이 없습니다.');
     }
@@ -173,31 +172,31 @@ export class BusinessUploadController {
     return await this.uploadService.validateExcel(file.buffer);
   }
 
-  
   //검증된 데이터 저장
   @ApiOperation({
     summary: '검증된 데이터 저장',
-    description: '검증 단계에서 확인된 데이터를 실제로 저장합니다.\n\n' +
-                 '이 API는 검증 단계에서 반환된 데이터를 기반으로 저장하므로,\n' +
-                 '파일을 다시 업로드할 필요가 없습니다.',
+    description:
+      '검증 단계에서 확인된 데이터를 실제로 저장합니다.\n\n' +
+      '이 API는 검증 단계에서 반환된 데이터를 기반으로 저장하므로,\n' +
+      '파일을 다시 업로드할 필요가 없습니다.',
   })
   @ApiBody({
     schema: {
       type: 'object',
       properties: {
-        validationId: { 
-          type: 'string', 
+        validationId: {
+          type: 'string',
           description: '검증 세션 ID (검증 API에서 반환된 값)',
-          example: 'validation_123456789'
+          example: 'validation_123456789',
         },
-        mode: { 
-          type: 'string', 
+        mode: {
+          type: 'string',
           enum: ['add', 'overwrite'],
           description: '업로드 모드',
-          example: 'overwrite'
-        }
+          example: 'overwrite',
+        },
       },
-      required: ['validationId', 'mode']
+      required: ['validationId', 'mode'],
     },
   })
   @ApiResponse({

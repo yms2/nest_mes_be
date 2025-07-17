@@ -73,20 +73,20 @@ export class BusinessUploadValidationService {
       businessName: string;
       existingBusinessName: string;
     }> = [];
-    
+
     const errors: Array<{
       row: number;
       businessNumber?: string;
       businessName?: string;
       error: string;
     }> = [];
-    
+
     const toCreate: Array<{
       businessNumber: string;
       businessName: string;
       businessCeo: string;
     }> = [];
-    
+
     const toUpdate: Array<{
       businessNumber: string;
       businessName: string;
@@ -202,4 +202,4 @@ export class BusinessUploadValidationService {
     if (!value) return '';
     return String(value).replace(/[^\d]/g, '');
   }
-} 
+}

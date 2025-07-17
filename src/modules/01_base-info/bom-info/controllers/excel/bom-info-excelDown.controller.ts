@@ -9,7 +9,10 @@ export class BomInfoDownloadController {
   constructor(private readonly bomService: BomInfoExcelDownloadService) {}
 
   @Get('download')
-  @ApiOperation({ summary: 'BOM 다운로드', description: '등록된 BOM 데이터를 엑셀 파일로 다운로드합니다.' })
+  @ApiOperation({
+    summary: 'BOM 다운로드',
+    description: '등록된 BOM 데이터를 엑셀 파일로 다운로드합니다.',
+  })
   async downloadBom(@Res() res: Response) {
     const fileBuffer = await this.bomService.downloadBomData();
 

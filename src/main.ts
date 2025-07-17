@@ -14,7 +14,6 @@ async function bootstrap() {
   let app: NestExpressApplication;
 
   if (useHttps && nodeEnv === 'production') {
-
     app = await NestFactory.create<NestExpressApplication>(AppModule, {
       logger: ['log', 'error', 'warn', 'debug'],
     });
@@ -32,8 +31,8 @@ async function bootstrap() {
 
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,  // DTO에 없는 값 제거
-      forbidNonWhitelisted: true,  // DTO에 없는 값이 오면 에러 발생
+      whitelist: true, // DTO에 없는 값 제거
+      forbidNonWhitelisted: true, // DTO에 없는 값이 오면 에러 발생
       transform: true,
     }),
   );
@@ -41,7 +40,9 @@ async function bootstrap() {
   // ✅ Swagger 설정 추가 시작
   const config = new DocumentBuilder()
     .setTitle('Covonics API 문서')
-    .setDescription('Covonics API Swagger 문서')
+    .setDescription(
+      `Covonics API Swagger 문서\n\n📅 최근 업데이트: ${new Date().toISOString().slice(0, 10)}`,
+    )
     .setVersion('1.0')
     .addBearerAuth(
       {
@@ -52,10 +53,11 @@ async function bootstrap() {
         description: 'JWT 토큰을 입력하세요',
         in: 'header',
       },
-      'access-token', // This name here is important for references
+      'access-token',
     )
     .build();
-  app.use(cookieParser());  // ✅ 필수
+
+  app.use(cookieParser()); // ✅ 필수
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api-docs', app, document);
   // ✅ Swagger 설정 추가 끝

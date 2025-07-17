@@ -1,6 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsString, IsOptional, Matches, Length, IsNumberString, IsNotEmpty, ValidateIf, IsEmail } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  Matches,
+  Length,
+  IsNumberString,
+  IsNotEmpty,
+  ValidateIf,
+  IsEmail,
+} from 'class-validator';
 import { OptionalString } from 'src/common/decorators/optional-string.decorator';
 
 export class UploadBusinessInfoDto {

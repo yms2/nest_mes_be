@@ -48,13 +48,16 @@ export class CustomerInfoUpdateService {
     return customerInfo;
   }
 
-private async checkCustomerNumberDuplicate(customerNumber: string, currentCustomerId?: number): Promise<void> {
-  const existing = await this.customerInfoRepository.findOne({
-    where: { customerNumber },
-  });
-  // 다른 사람의 데이터인 경우에만 예외 발생
-  if (existing && existing.id !== currentCustomerId) {
-    throw new BadRequestException('이미 등록된 거래처입니다.');
+  private async checkCustomerNumberDuplicate(
+    customerNumber: string,
+    currentCustomerId?: number,
+  ): Promise<void> {
+    const existing = await this.customerInfoRepository.findOne({
+      where: { customerNumber },
+    });
+    // 다른 사람의 데이터인 경우에만 예외 발생
+    if (existing && existing.id !== currentCustomerId) {
+      throw new BadRequestException('이미 등록된 거래처입니다.');
+    }
   }
-}
 }

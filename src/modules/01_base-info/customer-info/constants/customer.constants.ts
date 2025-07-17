@@ -4,7 +4,7 @@ export const CUSTOMER_CONSTANTS = {
     CUSTOMER_NUMBER: /^\d{10}$/,
     NUMBERS_ONLY: /^\d+$/,
   },
-  
+
   // 코드 관련
   CODE: {
     DEFAULT: 'CUS001',
@@ -20,5 +20,5 @@ export const CUSTOMER_CONSTANTS = {
     CUSTOMER_NUMBER_FORMAT: { code: 'C1004', message: '사업자 등록번호는 10자리 숫자여야 합니다.' },
     CUSTOMER_NUMBER_DUPLICATE: { code: 'C1005', message: '이미 사용중인 사업자 번호입니다.' },
     NUMBERS_ONLY: { code: 'C1006', message: '숫자만 입력 가능합니다.' },
-  }
+  },
 } as const;

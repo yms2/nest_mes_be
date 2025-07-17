@@ -13,10 +13,6 @@ import { ConfigModule } from '@nestjs/config';
       signOptions: { expiresIn: '1h' },
     }),
   ],
-  exports: [
-    ConfigModule,
-    TypeOrmModule,
-    JwtModule,
-  ],
+  exports: [ConfigModule, TypeOrmModule, JwtModule],
 })
 export class CommonModule {}
