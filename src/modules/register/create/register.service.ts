@@ -15,7 +15,7 @@ export class RegisterService {
     private readonly regiseterRepository: Repository<user>,
   ) {}
 
-    async findById(id: number): Promise<user | null> {
+  async findById(id: number): Promise<user | null> {
     return this.regiseterRepository.findOne({ where: { id } });
   }
   // 회원가입 요청 처리

@@ -1,7 +1,15 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { Transform } from "class-transformer";
-import { OptionalString } from "src/common/decorators/optional-string.decorator";
-import { IsString, IsOptional, Length, IsNumberString, IsNotEmpty, Matches, ValidateIf } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
+import { OptionalString } from 'src/common/decorators/optional-string.decorator';
+import {
+  IsString,
+  IsOptional,
+  Length,
+  IsNumberString,
+  IsNotEmpty,
+  Matches,
+  ValidateIf,
+} from 'class-validator';
 
 export class CreateProductInfoDto {
   @ApiProperty({
@@ -19,7 +27,7 @@ export class CreateProductInfoDto {
     required: true,
   })
   @IsString({ message: '품목구분은 필수값입니다.' })
-  @IsNotEmpty({ message: '품목구분은 필수 입력값입니다.' })  
+  @IsNotEmpty({ message: '품목구분은 필수 입력값입니다.' })
   productType: string;
 
   @ApiProperty({
@@ -52,7 +60,7 @@ export class CreateProductInfoDto {
     required: false,
   })
   @OptionalString()
-  @Transform(({ value }) => value === '' ? undefined : value)
+  @Transform(({ value }) => (value === '' ? undefined : value))
   @ValidateIf((obj, value) => value !== undefined)
   @IsNumberString({}, { message: '수량당 수량은 숫자만 입력 가능합니다.' })
   unitQuantity: string;
@@ -63,15 +71,15 @@ export class CreateProductInfoDto {
     required: false,
   })
   @OptionalString()
-  @Transform(({ value }) => value === '' ? undefined : value)
+  @Transform(({ value }) => (value === '' ? undefined : value))
   @ValidateIf((obj, value) => value !== undefined)
   @IsNumberString({}, { message: '안전재고는 숫자만 입력 가능합니다.' })
-  safeInventory: string
+  safeInventory: string;
 
   @ApiProperty({
     example: '과세',
-    description:'과세구분',
-    required: false
+    description: '과세구분',
+    required: false,
   })
   @OptionalString()
   taxType: string;
@@ -79,7 +87,7 @@ export class CreateProductInfoDto {
   @ApiProperty({
     example: '2500',
     description: '단가',
-    required: false
+    required: false,
   })
   @OptionalString()
   productPrice: string;
@@ -87,8 +95,8 @@ export class CreateProductInfoDto {
   @ApiProperty({
     example: '비고내용',
     description: '비고',
-    required: false
+    required: false,
   })
   @OptionalString()
-  productBigo: string
+  productBigo: string;
 }

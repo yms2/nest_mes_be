@@ -162,45 +162,55 @@ export class AuthController {
       return { message: '로그아웃 되었습니다.' };
     }
   }
-    @Post('refresh-token')
-    @ApiCookieAuth('refresh_token')
-    @ApiOperation({ summary: '리프레시 토큰으로 액세스 토큰 재발급' })
-    async refreshToken(@Req() req: Request) {
-      const refreshToken = req.cookies['refresh_token'] || this.extractTokenFromHeader(req);
+  @Post('refresh-token')
+  @ApiCookieAuth('refresh_token')
+  @ApiOperation({ summary: '리프레시 토큰으로 액세스 토큰 재발급' })
+  async refreshToken(@Req() req: Request) {
+    const refreshToken = req.cookies['refresh_token'] || this.extractTokenFromHeader(req);
 
-      if (!refreshToken) {
-        throw new UnauthorizedException('리프레시 토큰이 제공되지 않았습니다.');
+    if (!refreshToken) {
+      throw new UnauthorizedException('리프레시 토큰이 제공되지 않았습니다.');
+    }
+
+    try {
+      const payload = await this.jwtService.verifyAsync<JwtPayload>(refreshToken, {
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+      });
+
+      const user = await this.userService.findById(payload.id);
+      if (!user || user.refreshToken !== refreshToken) {
+        throw new UnauthorizedException('리프레시 토큰이 일치하지 않습니다.');
       }
 
-      try {
-        const payload = await this.jwtService.verifyAsync<JwtPayload>(refreshToken, {
-          secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-        });
-
-        const user = await this.userService.findById(payload.id);
-        if (!user || user.refreshToken !== refreshToken) {
-          throw new UnauthorizedException('리프레시 토큰이 일치하지 않습니다.');
-        }
-
-        const newAccessToken = this.jwtService.sign(
-          { id: payload.id, username: payload.username, email: payload.email, group_name: payload.group_name },
-          { expiresIn: this.configService.get<string>('JWT_EXPIRES_IN') },
-        );
+      const newAccessToken = this.jwtService.sign(
+        {
+          id: payload.id,
+          username: payload.username,
+          email: payload.email,
+          group_name: payload.group_name,
+        },
+        { expiresIn: this.configService.get<string>('JWT_EXPIRES_IN') },
+      );
 
       const newRefreshToken = this.jwtService.sign(
-        { id: payload.id, username: payload.username, email: payload.email, group_name: payload.group_name },
+        {
+          id: payload.id,
+          username: payload.username,
+          email: payload.email,
+          group_name: payload.group_name,
+        },
         {
           expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRES_IN'),
           secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
         },
       );
-        await this.userService.updateRefreshToken(user.id, newRefreshToken);
+      await this.userService.updateRefreshToken(user.id, newRefreshToken);
 
-        return { accessToken: newAccessToken, refreshToken: newRefreshToken };
-      } catch (error) {
-        throw new UnauthorizedException('유효하지 않은 리프레시 토큰입니다.');
-      }
+      return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+    } catch (error) {
+      throw new UnauthorizedException('유효하지 않은 리프레시 토큰입니다.');
     }
+  }
 
   @Post('change-password')
   @ApiOperation({ summary: '비밀번호 변경', description: '비밀번호를 변경합니다.' })
@@ -274,7 +284,7 @@ export class AuthController {
     }
   }
 
-    // ✅ 이 부분이 빠져 있었던 거예요!
+  // ✅ 이 부분이 빠져 있었던 거예요!
   private extractTokenFromHeader(request: Request): string | undefined {
     const authHeader = request.headers.authorization;
     if (!authHeader) {

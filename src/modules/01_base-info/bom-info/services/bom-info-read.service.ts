@@ -24,13 +24,10 @@ export class BomInfoService {
     });
 
     // 재귀적으로 트리 구성 (순환 참조 방지)
-    const buildTree = (
-      parentCode: string,
-      visited: Set<string>
-    ): any[] => {
+    const buildTree = (parentCode: string, visited: Set<string>): any[] => {
       if (visited.has(parentCode)) {
         // 순환 참조 감지 → 해당 브랜치 중단
-        
+
         return [];
       }
 

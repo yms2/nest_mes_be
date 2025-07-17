@@ -15,12 +15,11 @@ export class ProductInfoCreateService {
     createdBy: string,
   ): Promise<ProductInfo> {
     const newProductCode = await this.generateProductCode();
-    const productEntity = this.createProductEntity(createProductInfoDto, newProductCode,createdBy);
-    
+    const productEntity = this.createProductEntity(createProductInfoDto, newProductCode, createdBy);
+
     return this.productInfoREpository.save(productEntity);
   }
 
-  
   private async generateProductCode(): Promise<string> {
     const [lastProduct] = await this.productInfoREpository.find({
       order: { productCode: 'DESC' },
@@ -34,15 +33,15 @@ export class ProductInfoCreateService {
     return `PRD${nextNumber.toString().padStart(3, '0')}`;
   }
 
-    private createProductEntity(
-      dto: CreateProductInfoDto,
-      productCode: string,
-      createdBy: string,
-    ): ProductInfo {
-      return this.productInfoREpository.create({
-        productCode,
-        ...dto,
-        createdBy,
-      });
-    }
+  private createProductEntity(
+    dto: CreateProductInfoDto,
+    productCode: string,
+    createdBy: string,
+  ): ProductInfo {
+    return this.productInfoREpository.create({
+      productCode,
+      ...dto,
+      createdBy,
+    });
+  }
 }

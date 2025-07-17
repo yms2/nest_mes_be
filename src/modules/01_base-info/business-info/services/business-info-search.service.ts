@@ -32,7 +32,11 @@ export class BusinessInfoSearchService {
   ) {}
 
   // 통합검색 - 가장 많이 사용되는 검색
-  async searchBusinessInfo(keyword: string, page: number = 1, limit: number = 10): Promise<SearchResult> {
+  async searchBusinessInfo(
+    keyword: string,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<SearchResult> {
     const trimmedKeyword = keyword.trim();
     const offset = (page - 1) * limit;
 
@@ -71,11 +75,11 @@ export class BusinessInfoSearchService {
     this.validateDateRange(startDate, endDate);
 
     const offset = (page - 1) * limit;
-    
+
     // 시작일은 00:00:00, 종료일은 23:59:59로 설정
     const startDateTime = new Date(startDate);
     startDateTime.setHours(0, 0, 0, 0);
-    
+
     const endDateTime = new Date(endDate);
     endDateTime.setHours(23, 59, 59, 999);
 
@@ -87,7 +91,6 @@ export class BusinessInfoSearchService {
       .orderBy('business.createdAt', 'DESC')
       .skip(offset)
       .take(limit);
-
 
     const [data, total] = await queryBuilder.getManyAndCount();
 

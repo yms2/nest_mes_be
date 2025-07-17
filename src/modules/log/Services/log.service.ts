@@ -40,7 +40,8 @@ export class logService {
 
   // 공용 상세 로그
   async createDetailedLog(params: DetailedLogParams): Promise<void> {
-    const { moduleName, action, username, details, targetId, targetName, ipAddress, userAgent } = params;
+    const { moduleName, action, username, details, targetId, targetName, ipAddress, userAgent } =
+      params;
 
     let logDetails = `${moduleName} - ${action}`;
 

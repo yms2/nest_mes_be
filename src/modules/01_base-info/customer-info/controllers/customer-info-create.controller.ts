@@ -1,6 +1,6 @@
 import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { logService } from "src/modules/log/Services/log.service";
+import { logService } from 'src/modules/log/Services/log.service';
 import { CustomerInfoCreateService } from '../services/customer-info-create.service';
 
 import { ApiResponseBuilder } from 'src/common/interfaces/api-response.interface';
@@ -8,14 +8,13 @@ import { CreateCustomerInfoDto } from '../dto/customer-info-create.dto';
 import { CustomerInfo } from '../entities/custmoer-info.entity';
 import { Auth } from 'src/common/decorators/auth.decorator';
 
-@ApiTags("CustomerInfo")
+@ApiTags('CustomerInfo')
 @Controller('customer-info')
 export class CustomerInfoCreateController {
   constructor(
     private readonly createCustomerInfoService: CustomerInfoCreateService,
     private readonly logService: logService,
   ) {}
-
 
   @Post()
   @Auth()
@@ -52,18 +51,19 @@ export class CustomerInfoCreateController {
     });
   }
 
-
   /**
    * 거래처 생성 실패 로그
    */
   private async writeCreateFailLog(dto: CreateCustomerInfoDto, username: string, error: Error) {
-    await this.logService.createDetailedLog({
-      moduleName: '거래처관리',
-      action: 'CREATE_FAIL',
-      username,
-      targetId: dto.customerNumber,
-      targetName: dto.customerName,
-      details: `생성 실패: ${error.message}`,
-    }).catch(() => {});
+    await this.logService
+      .createDetailedLog({
+        moduleName: '거래처관리',
+        action: 'CREATE_FAIL',
+        username,
+        targetId: dto.customerNumber,
+        targetName: dto.customerName,
+        details: `생성 실패: ${error.message}`,
+      })
+      .catch(() => {});
   }
 }

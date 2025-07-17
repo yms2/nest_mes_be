@@ -65,17 +65,17 @@ export class AuthService {
       },
     );
 
-      // ✅ 새 Refresh Token 발급
-      const newRefreshToken = this.jwtService.sign(
-        { id: user.id, username: user.username, email: user.email, group_name: user.group_name },
-        {
-          secret: this.configService.get('JWT_REFRESH_SECRET'),
-          expiresIn: this.configService.get('JWT_REFRESH_EXPIRES_IN'),
-        },
-      );
+    // ✅ 새 Refresh Token 발급
+    const newRefreshToken = this.jwtService.sign(
+      { id: user.id, username: user.username, email: user.email, group_name: user.group_name },
+      {
+        secret: this.configService.get('JWT_REFRESH_SECRET'),
+        expiresIn: this.configService.get('JWT_REFRESH_EXPIRES_IN'),
+      },
+    );
 
-      await this.userService.updateRefreshToken(user.id, newRefreshToken);
+    await this.userService.updateRefreshToken(user.id, newRefreshToken);
 
-      return { accessToken, refreshToken: newRefreshToken };
+    return { accessToken, refreshToken: newRefreshToken };
   }
 }

@@ -1,8 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, Repository, WhereExpressionBuilder } from 'typeorm';
-import { ProductInfo} from '../entities/product-info.entity'
-import { DateFormatter } from "../../../../common/utils/date-formatter.util";
+import { ProductInfo } from '../entities/product-info.entity';
+import { DateFormatter } from '../../../../common/utils/date-formatter.util';
 
 @Injectable()
 export class ProductInfoSearchService {
@@ -30,32 +30,34 @@ export class ProductInfoSearchService {
   ) {}
 
   //통합검색
-  async searchProductInfo(keyword: string, page: number = 1, limit: number = 10):
-  Promise<SearchResult> {
+  async searchProductInfo(
+    keyword: string,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<SearchResult> {
     const trimmedKeyword = keyword.trim();
     const offset = (page - 1) * limit;
 
     const queryBuilder = this.productInfoRepository
-    .createQueryBuilder('product')
-    .where(
-      new Brackets(qb => {
-     
-        // 텍스트 검색 조건 추가
-        this.addTextSearchConditions(qb, trimmedKeyword);
-                
-        // 날짜 검색 조건 추가
-        if (this.isDateSearch(trimmedKeyword)) {
-          this.addDateSearchConditions(qb, trimmedKeyword);
-        }
-      }),
-    )
-    .orderBy('customer.customerName', 'ASC')
-    .skip(offset)
-    .take(limit);
+      .createQueryBuilder('product')
+      .where(
+        new Brackets(qb => {
+          // 텍스트 검색 조건 추가
+          this.addTextSearchConditions(qb, trimmedKeyword);
+
+          // 날짜 검색 조건 추가
+          if (this.isDateSearch(trimmedKeyword)) {
+            this.addDateSearchConditions(qb, trimmedKeyword);
+          }
+        }),
+      )
+      .orderBy('customer.customerName', 'ASC')
+      .skip(offset)
+      .take(limit);
 
     const [data, total] = await queryBuilder.getManyAndCount();
 
-        return {
+    return {
       data: DateFormatter.formatBusinessInfoArrayDates(data),
       total,
       page,
@@ -63,42 +65,41 @@ export class ProductInfoSearchService {
     };
   }
 
-    // 날짜 범위 검색
-    async searchProductInfoByDateRange(
-      startDate: string,
-      endDate: string,
-      page: number = 1,
-      limit: number = 10,
-    ): Promise<SearchResult> {
-      this.validateDateRange(startDate, endDate);
+  // 날짜 범위 검색
+  async searchProductInfoByDateRange(
+    startDate: string,
+    endDate: string,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<SearchResult> {
+    this.validateDateRange(startDate, endDate);
 
-      const offset = (page - 1) * limit;
-      
-      // 시작일은 00:00:00, 종료일은 23:59:59로 설정
-      const startDateTime = new Date(startDate);
-      startDateTime.setHours(0, 0, 0, 0);
-      
-      const endDateTime = new Date(endDate);
-      endDateTime.setHours(23, 59, 59, 999);
+    const offset = (page - 1) * limit;
 
-  const queryBuilder = this.productInfoRepository
-    .createQueryBuilder('product')
-    .where('DATE(product.createdAt) >= DATE(:startDate)', { startDate })
-    .andWhere('DATE(product.createdAt) <= DATE(:endDate)', { endDate })
-    .orderBy('product.createdAt', 'DESC')
-    .skip(offset)
-    .take(limit);
+    // 시작일은 00:00:00, 종료일은 23:59:59로 설정
+    const startDateTime = new Date(startDate);
+    startDateTime.setHours(0, 0, 0, 0);
 
-      const [data, total] = await queryBuilder.getManyAndCount();
+    const endDateTime = new Date(endDate);
+    endDateTime.setHours(23, 59, 59, 999);
 
-      return {
-        data: DateFormatter.formatBusinessInfoArrayDates(data),
-        total,
-        page,
-        limit,
-      };
-    }
+    const queryBuilder = this.productInfoRepository
+      .createQueryBuilder('product')
+      .where('DATE(product.createdAt) >= DATE(:startDate)', { startDate })
+      .andWhere('DATE(product.createdAt) <= DATE(:endDate)', { endDate })
+      .orderBy('product.createdAt', 'DESC')
+      .skip(offset)
+      .take(limit);
 
+    const [data, total] = await queryBuilder.getManyAndCount();
+
+    return {
+      data: DateFormatter.formatBusinessInfoArrayDates(data),
+      total,
+      page,
+      limit,
+    };
+  }
 
   private addTextSearchConditions(qb: WhereExpressionBuilder, keyword: string): void {
     this.validFields.forEach(field => {

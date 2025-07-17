@@ -1,8 +1,8 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { ProductInfo } from "../entities/product-info.entity";
-import { Repository } from "typeorm";
-import { CreateProductInfoDto } from "../dto/product-info-create.dto";
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { ProductInfo } from '../entities/product-info.entity';
+import { Repository } from 'typeorm';
+import { CreateProductInfoDto } from '../dto/product-info-create.dto';
 
 @Injectable()
 export class ProductInfoUpdateService {
@@ -10,7 +10,7 @@ export class ProductInfoUpdateService {
     @InjectRepository(ProductInfo)
     private readonly productInfoRepository: Repository<ProductInfo>,
   ) {}
-  
+
   async updateProductInfo(
     id: number,
     createProductInfoDto: CreateProductInfoDto,
@@ -30,13 +30,13 @@ export class ProductInfoUpdateService {
 
   public async findProductInfoById(id: number): Promise<ProductInfo> {
     const productInfo = await this.productInfoRepository.findOne({
-      where: {id},
+      where: { id },
     });
 
-    if(!productInfo){
+    if (!productInfo) {
       throw new NotFoundException('품목 정보를 찾을 수 없습니다.');
     }
-    
+
     return productInfo;
   }
 }

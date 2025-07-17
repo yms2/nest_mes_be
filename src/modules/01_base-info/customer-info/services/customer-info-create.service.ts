@@ -17,12 +17,18 @@ export class CustomerInfoCreateService {
   ): Promise<CustomerInfo> {
     await this.checkCustomerNumberDuplicate(createCustomerInfoDto.customerNumber);
     const newCustomerCode = await this.generateCustomerCode();
-    const customerEntity = this.createCustomerEntity(createCustomerInfoDto, newCustomerCode, createdBy);
+    const customerEntity = this.createCustomerEntity(
+      createCustomerInfoDto,
+      newCustomerCode,
+      createdBy,
+    );
     return this.customerInfoRepository.save(customerEntity);
   }
 
   private async checkCustomerNumberDuplicate(customerNumber: string): Promise<void> {
-    const existingCustomer = await this.customerInfoRepository.findOne({ where: { customerNumber } });
+    const existingCustomer = await this.customerInfoRepository.findOne({
+      where: { customerNumber },
+    });
     if (existingCustomer) {
       throw new ConflictException(`사업자 등록번호가 이미 존재합니다.`);
     }

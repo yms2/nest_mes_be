@@ -15,7 +15,7 @@ export class BusinessInfoCreateService {
 
   async createBusinessInfo(
     createBusinessInfoDto: CreateBusinessInfoDto,
-    createdBy:string
+    createdBy: string,
   ): Promise<BusinessInfo> {
     await this.checkBusinessNumberDuplicate(createBusinessInfoDto.businessNumber);
     const newBusinessCode = await this.generateBusinessCode();

@@ -1,6 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsString, IsOptional, Matches, Length, IsNumberString, IsNotEmpty, ValidateIf, IsEmail } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  Matches,
+  Length,
+  IsNumberString,
+  IsNotEmpty,
+  ValidateIf,
+  IsEmail,
+} from 'class-validator';
 import { OptionalString } from 'src/common/decorators/optional-string.decorator';
 
 export class CreateBusinessInfoDto {
@@ -62,7 +71,6 @@ export class CreateBusinessInfoDto {
     required: false,
   })
   @OptionalString()
-
   @Matches(/^(\d{10,11}|\d{2,3}-\d{3,4}-\d{4})$/, {
     message: '전화번호는 숫자만 입력하거나 000-0000-0000 형식으로 입력해야 합니다.',
   })
@@ -74,7 +82,6 @@ export class CreateBusinessInfoDto {
     required: false,
   })
   @OptionalString()
-
   @Matches(/^(\d{10,11}|\d{2,3}-\d{3,4}-\d{4})$/, {
     message: '휴대폰번호는 숫자만 입력하거나 000-0000-0000 형식으로 입력해야 합니다.',
   })

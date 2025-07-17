@@ -75,12 +75,24 @@ export class BusinessInfo {
   @Column({ name: 'business_ceo_email', length: 100, nullable: true, comment: '대표자 이메일' })
   businessCeoEmail: string;
 
-  @ApiProperty({ example: 'admin'  , description: '계정 생성자' })
-  @Column({nullable: true, name: 'created_by', type: 'varchar', length: 50, comment: '계정 생성자' })
+  @ApiProperty({ example: 'admin', description: '계정 생성자' })
+  @Column({
+    nullable: true,
+    name: 'created_by',
+    type: 'varchar',
+    length: 50,
+    comment: '계정 생성자',
+  })
   createdBy: string;
 
   @ApiProperty({ example: 'admin', description: '계정 수정자' })
-  @Column({ nullable: true, name: 'updated_by', type: 'varchar', length: 50, comment: '계정 수정자' })
+  @Column({
+    nullable: true,
+    name: 'updated_by',
+    type: 'varchar',
+    length: 50,
+    comment: '계정 수정자',
+  })
   updatedBy: string;
 
   @ApiProperty({ example: '2025-07-02T09:00:00.000Z', description: '계정 생성일시 (자동 생성)' })

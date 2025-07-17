@@ -31,7 +31,11 @@ export class CustomerInfoSearchService {
   ) {}
 
   // 통합검색 - 가장 많이 사용되는 검색
-  async searchCustomerInfo(keyword: string, page: number = 1, limit: number = 10): Promise<SearchResult> {
+  async searchCustomerInfo(
+    keyword: string,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<SearchResult> {
     const trimmedKeyword = keyword.trim();
     const offset = (page - 1) * limit;
 
@@ -43,10 +47,10 @@ export class CustomerInfoSearchService {
           if (/^\d+$/.test(trimmedKeyword)) {
             qb.orWhere('customer.customerNumber = :exactNumber', { exactNumber: trimmedKeyword });
           }
-          
+
           // 텍스트 검색 조건 추가
           this.addTextSearchConditions(qb, trimmedKeyword);
-          
+
           // 날짜 검색 조건 추가
           if (this.isDateSearch(trimmedKeyword)) {
             this.addDateSearchConditions(qb, trimmedKeyword);
@@ -77,21 +81,21 @@ export class CustomerInfoSearchService {
     this.validateDateRange(startDate, endDate);
 
     const offset = (page - 1) * limit;
-    
+
     // 시작일은 00:00:00, 종료일은 23:59:59로 설정
     const startDateTime = new Date(startDate);
     startDateTime.setHours(0, 0, 0, 0);
-    
+
     const endDateTime = new Date(endDate);
     endDateTime.setHours(23, 59, 59, 999);
 
-const queryBuilder = this.customerInfoRepository
-  .createQueryBuilder('customer')
-  .where('DATE(customer.createdAt) >= DATE(:startDate)', { startDate })
-  .andWhere('DATE(customer.createdAt) <= DATE(:endDate)', { endDate })
-  .orderBy('customer.createdAt', 'DESC')
-  .skip(offset)
-  .take(limit);
+    const queryBuilder = this.customerInfoRepository
+      .createQueryBuilder('customer')
+      .where('DATE(customer.createdAt) >= DATE(:startDate)', { startDate })
+      .andWhere('DATE(customer.createdAt) <= DATE(:endDate)', { endDate })
+      .orderBy('customer.createdAt', 'DESC')
+      .skip(offset)
+      .take(limit);
 
     const [data, total] = await queryBuilder.getManyAndCount();
 
