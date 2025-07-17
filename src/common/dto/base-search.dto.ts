@@ -1,8 +1,9 @@
-import { IsOptional, IsNumber, IsString } from 'class-validator';
+// base-search.dto.ts
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { IsOptional, IsString } from 'class-validator';
+import { PaginationDto } from './pagination.dto';
 
-export class BaseSearchDto {
+export class BaseSearchDto extends PaginationDto {
   @ApiPropertyOptional({ description: '검색어' })
   @IsOptional()
   @IsString()
@@ -17,16 +18,4 @@ export class BaseSearchDto {
   @IsOptional()
   @IsString()
   endDate?: string;
-
-  @ApiPropertyOptional({ description: '페이지 번호', example: 1 })
-  @IsOptional()
-  @Type(() => Number) // 쿼리스트링 → 숫자 변환
-  @IsNumber()
-  page?: number;
-
-  @ApiPropertyOptional({ description: '페이지당 개수', example: 10 })
-  @IsOptional()
-  @Type(() => Number) // 쿼리스트링 → 숫자 변환
-  @IsNumber()
-  limit?: number;
 }

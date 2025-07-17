@@ -1,12 +1,18 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional } from 'class-validator';
+// pagination.dto.ts
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsOptional, IsNumber } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class PaginationDto {
-  @ApiProperty({ example: 1, required: false })
+  @ApiPropertyOptional({ example: 1, description: '페이지 번호' })
   @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
   page: number = 1;
 
-  @ApiProperty({ example: 10, required: false })
+  @ApiPropertyOptional({ example: 10, description: '페이지당 개수' })
   @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
   limit: number = 10;
 }

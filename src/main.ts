@@ -38,10 +38,11 @@ async function bootstrap() {
   );
   app.setGlobalPrefix('api');
   // ✅ Swagger 설정 추가 시작
+  const updatedAt = new Date().toISOString().replace('T', ' ').slice(0, 19);
   const config = new DocumentBuilder()
     .setTitle('Covonics API 문서')
     .setDescription(
-      `Covonics API Swagger 문서\n\n📅 최근 업데이트: ${new Date().toISOString().slice(0, 10)}`,
+      `Covonics API Swagger 문서\n\n📅 최근 업데이트: ${updatedAt}`,
     )
     .setVersion('1.0')
     .addBearerAuth(
