@@ -3,10 +3,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-
+import { CustomerInfo } from "@/modules/01_base-info/customer-info/entities/customer-info.entity";
 @Entity()
 export class BaseProduct {
   @ApiProperty({ example: 1, description: "기본 제품 고유 ID (자동 생성)" })
@@ -41,10 +44,10 @@ export class BaseProduct {
   @Column({name: "product_size", type: "varchar", comment: "제품 사이즈", nullable: true })
   productSize: string;
 
-  //거래처
-  @ApiProperty({ example: "거래처코드", description: "거래처 코드"})
-  @Column({ name: "product_customer_code", type: "varchar", length: 100, comment: "거래처 코드", nullable: true })
-  productCustomerCode: string;
+  @ManyToOne(() => CustomerInfo)
+  @JoinColumn({ name : 'product_customer_code', referencedColumnName: 'customerCode'})
+  customer: CustomerInfo;
+
 
   @ApiProperty({ example: "kg", description: "발주단위"})
   @Column({ name: "product_order_unit", type: "varchar", length: 20, comment: "발주단위", nullable: true})

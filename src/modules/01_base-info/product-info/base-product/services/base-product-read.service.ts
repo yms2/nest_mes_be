@@ -15,7 +15,10 @@ export class BaseProductReadService {
   async findAll(searchDto: BaseProductReadDto): Promise<{ data: BaseProduct[]; total: number }> {
     const { page = 1, limit = 10, search, startDate, endDate, productCode } = searchDto;
     
-    const queryBuilder = this.baseProductRepository.createQueryBuilder('baseProduct');
+    const queryBuilder = this.baseProductRepository
+    .createQueryBuilder('baseProduct')
+    .leftJoinAndSelect('baseProduct.customer', 'customer');
+    ;
 
     // 제품 코드 검색
     if (productCode) {
@@ -47,7 +50,6 @@ export class BaseProductReadService {
             'baseProduct.productCode',
             'baseProduct.productCategory',
             'baseProduct.productSize',
-            'baseProduct.productCustomerCode',
             'baseProduct.productOrderUnit',
             'baseProduct.productInventoryUnit',
             'baseProduct.productQuantityPerQuantity',
@@ -60,6 +62,7 @@ export class BaseProductReadService {
             'baseProduct.productBigo',
             'baseProduct.createdBy',
             'baseProduct.updatedBy',
+            'customer.customerName',
           ];
 
           searchableFields.forEach((field, index) => {
