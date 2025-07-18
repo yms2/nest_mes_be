@@ -17,6 +17,9 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
-    "strict": false
+    "strict": false,
+    "paths": {
+      "@/*": ["src/*"]
+    }
   }
 }

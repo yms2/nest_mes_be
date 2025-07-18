@@ -19,9 +19,14 @@ import {
   ProductInfoQrCodeService,
 } from './product_sample/services';
 import { Module } from '@nestjs/common';
+import { BaseProductModule } from './base-product/base-product.module';
 
 @Module({
-  imports: [CommonModule, LogModule, TypeOrmModule.forFeature([ProductInfo])],
+  imports: [
+    CommonModule, 
+    LogModule, 
+    BaseProductModule,
+    TypeOrmModule.forFeature([ProductInfo])],
   controllers: [
     ProductInfoReadController,
     ProductInfoCreateController,
