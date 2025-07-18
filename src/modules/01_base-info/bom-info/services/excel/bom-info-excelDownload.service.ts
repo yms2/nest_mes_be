@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
-import { ProductInfo } from '../../../product-info/entities/product-info.entity';
+import { ProductInfo } from '../../../product-info/product_sample/entities/product-info.entity';
 import { BomInfo } from '../../entities/bom-info.entity';
 import * as ExcelJS from 'exceljs';
 import { logService } from 'src/modules/log/Services/log.service';
-import { CreateProductInfoDto } from 'src/modules/01_base-info/product-info/dto/product-info-create.dto';
+import { CreateProductInfoDto } from 'src/modules/01_base-info/product-info/product_sample/dto/product-info-create.dto';
 
 @Injectable()
 export class BomInfoExcelDownloadService {

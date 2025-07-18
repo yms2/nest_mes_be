@@ -1,15 +1,15 @@
 import { LogModule } from 'src/modules/log/log.module';
-import { ProductInfoHandler } from './handlers/product-info.handler';
+import { ProductInfoHandler } from './product_sample/handlers/product-info.handler';
 import { CommonModule } from 'src/common/common.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ProductInfo } from './entities/product-info.entity';
+import { ProductInfo } from './product_sample/entities/product-info.entity';
 import {
   ProductInfoReadController,
   ProductInfoCreateController,
   ProductInfoUpdateController,
   ProductInfoDeleteController,
   ProductInfoQrCodeController,
-} from './controllers';
+} from './product_sample/controllers';
 import {
   ProductInfoSearchService,
   ProductInfoReadService,
@@ -17,7 +17,7 @@ import {
   ProductInfoUpdateService,
   ProductInfoDeleteService,
   ProductInfoQrCodeService,
-} from './services';
+} from './product_sample/services';
 import { Module } from '@nestjs/common';
 
 @Module({

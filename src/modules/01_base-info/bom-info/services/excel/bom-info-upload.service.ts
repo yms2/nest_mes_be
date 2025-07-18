@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import * as XLSX from 'xlsx';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ProductInfo } from '../../../product-info/entities/product-info.entity';
+import { ProductInfo } from '../../../product-info/product_sample/entities/product-info.entity';
 import { BomInfo } from '../../entities/bom-info.entity';
 
 @Injectable()
