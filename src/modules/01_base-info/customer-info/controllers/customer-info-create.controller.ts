@@ -5,7 +5,7 @@ import { CustomerInfoCreateService } from '../services/customer-info-create.serv
 
 import { ApiResponseBuilder } from 'src/common/interfaces/api-response.interface';
 import { CreateCustomerInfoDto } from '../dto/customer-info-create.dto';
-import { CustomerInfo } from '../entities/custmoer-info.entity';
+import { CustomerInfo } from '../entities/customer-info.entity';
 import { Auth } from 'src/common/decorators/auth.decorator';
 
 @ApiTags('CustomerInfo')

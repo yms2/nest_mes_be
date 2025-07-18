@@ -1,7 +1,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, Repository, WhereExpressionBuilder } from 'typeorm';
-import { CustomerInfo } from '../entities/custmoer-info.entity';
+import { CustomerInfo } from '../entities/customer-info.entity';
 import { DateFormatter } from '../../../../common/utils/date-formatter.util';
 
 @Injectable()

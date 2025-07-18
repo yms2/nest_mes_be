@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CustomerInfo } from '../entities/custmoer-info.entity';
+import { CustomerInfo } from '../entities/customer-info.entity';
 
 @Injectable()
 export class CustomerInfoDeleteService {

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CustomerInfo } from './entities/custmoer-info.entity';
+import { CustomerInfo } from './entities/customer-info.entity';
 import {
   CustomerInfoCreateService,
   CustomerInfoReadService,
