@@ -1,4 +1,4 @@
-import { Controller, Query, Get, UseInterceptors, Param } from '@nestjs/common';
+import { Controller, Query, Get, UseInterceptors } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { ClassSerializerInterceptor } from '@nestjs/common';
 import { BaseProductReadDto } from '../dto/base-product-read.dto';
@@ -31,7 +31,17 @@ export class BaseProductReadController {
       return await this.baseProductHandler.handleProductCodeSearch(query.productCode, pagination);
     }
 
-    // 날짜 범위 검색
+    // 날짜 범위 + 검색어 (둘 다 있을 때)
+    if (query.startDate && query.endDate && query.search && query.search.trim() !== '') {
+      return await this.baseProductHandler.handleDateRangeWithSearch(
+        query.startDate,
+        query.endDate,
+        query.search,
+        pagination,
+      );
+    }
+
+    // 날짜 범위 검색 (검색어 없을 때)
     if (query.startDate && query.endDate) {
       return await this.baseProductHandler.handleDateRangeSearch(
         query.startDate,
@@ -40,7 +50,7 @@ export class BaseProductReadController {
       );
     }
 
-    // 통합 검색
+    // 통합 검색 (날짜 범위 없을 때)
     if (query.search && query.search.trim() !== '') {
       return await this.baseProductHandler.handleSearch(query.search, pagination);
     }

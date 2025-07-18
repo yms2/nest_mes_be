@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Brackets } from 'typeorm';
 import { BaseProduct } from '../entities/base-product.entity';
 import { BaseProductReadDto } from '../dto/base-product-read.dto';
 import { DateFormatter } from '../../../../../common/utils/date-formatter.util';
@@ -24,32 +24,6 @@ export class BaseProductReadService {
       });
     }
 
-    // 키워드 검색 (모든 필드에서 통합 검색)
-    if (search) {
-      queryBuilder.andWhere(
-        `(
-          baseProduct.productName LIKE :search OR 
-          baseProduct.productCode LIKE :search OR 
-          baseProduct.productCategory LIKE :search OR 
-          baseProduct.productSize LIKE :search OR 
-          baseProduct.productCustomerCode LIKE :search OR 
-          baseProduct.productOrderUnit LIKE :search OR 
-          baseProduct.productInventoryUnit LIKE :search OR 
-          baseProduct.productQuantityPerQuantity LIKE :search OR 
-          baseProduct.productSafeInventory LIKE :search OR 
-          baseProduct.productIncomingTax LIKE :search OR 
-          baseProduct.productIncomingPrice LIKE :search OR 
-          baseProduct.productForwardingTax LIKE :search OR 
-          baseProduct.productForwardingPrice LIKE :search OR 
-          baseProduct.productHomepage LIKE :search OR 
-          baseProduct.productBigo LIKE :search OR 
-          baseProduct.createdBy LIKE :search OR 
-          baseProduct.updatedBy LIKE :search
-        )`,
-        { search: `%${search}%` }
-      );
-    }
-
     // 날짜 범위 검색
     if (startDate && endDate) {
       const startDateTime = new Date(startDate);
@@ -62,6 +36,41 @@ export class BaseProductReadService {
         startDate: startDateTime,
         endDate: endDateTime,
       });
+    }
+
+    // 키워드 검색 (모든 필드에서 통합 검색)
+    if (search) {
+      queryBuilder.andWhere(
+        new Brackets(qb => {
+          const searchableFields = [
+            'baseProduct.productName',
+            'baseProduct.productCode',
+            'baseProduct.productCategory',
+            'baseProduct.productSize',
+            'baseProduct.productCustomerCode',
+            'baseProduct.productOrderUnit',
+            'baseProduct.productInventoryUnit',
+            'baseProduct.productQuantityPerQuantity',
+            'baseProduct.productSafeInventory',
+            'baseProduct.productIncomingTax',
+            'baseProduct.productIncomingPrice',
+            'baseProduct.productForwardingTax',
+            'baseProduct.productForwardingPrice',
+            'baseProduct.productHomepage',
+            'baseProduct.productBigo',
+            'baseProduct.createdBy',
+            'baseProduct.updatedBy',
+          ];
+
+          searchableFields.forEach((field, index) => {
+            if (index === 0) {
+              qb.where(`${field} LIKE :search`, { search: `%${search}%` });
+            } else {
+              qb.orWhere(`${field} LIKE :search`, { search: `%${search}%` });
+            }
+          });
+        }),
+      );
     }
 
     // 정렬 및 페이지네이션

@@ -45,6 +45,25 @@ export class BaseProductHandler {
     );
   }
 
+  async handleDateRangeWithSearch(startDate: string, endDate: string, search: string, pagination: PaginationDto) {
+    const searchDto: BaseProductReadDto = {
+      ...pagination,
+      startDate,
+      endDate,
+      search,
+    };
+
+    const result = await this.baseProductReadService.findAll(searchDto);
+    
+    return buildPaginatedResponse(
+      result.data,
+      pagination.page,
+      pagination.limit,
+      result.total,
+      '기본 제품 정보 날짜 범위 내 검색이 완료되었습니다.',
+    );
+  }
+
   async handleListRead(pagination: PaginationDto) {
     const searchDto: BaseProductReadDto = {
       ...pagination,
