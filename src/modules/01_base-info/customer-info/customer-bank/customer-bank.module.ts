@@ -3,15 +3,18 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CustomerBank } from './entities/customer-bank.entity';
 import {
   CustomerBankReadService,
-  CustomerBankCreateService
+  CustomerBankCreateService,
+  CustomerBankUpdateService
 } from './services';
 import {
   CustomerBankReadController,
-  CustomerBankCreateController 
+  CustomerBankCreateController,
+  CustomerBankUpdateController
 } from './controllers';
 import { CommonModule } from '../../../../common/common.module';
 import { LogModule } from '../../../log/log.module';
 import { CustomerBankHandler } from './handlers/customer-bank.handler';
+import { CustomerBankCreateHandler } from './handlers/customer-bank-create.handler';
 
 @Module({
   imports: [
@@ -21,18 +24,22 @@ import { CustomerBankHandler } from './handlers/customer-bank.handler';
   ],
   controllers: [
     CustomerBankReadController,
-    CustomerBankCreateController
+    CustomerBankCreateController,
+    CustomerBankUpdateController,
   ],
   providers: [
     CustomerBankReadService,
     CustomerBankCreateService,
+    CustomerBankUpdateService,
     // ✅ 핸들러 추가
     CustomerBankHandler,
-
+    // ✅ DTO 추가
+    CustomerBankCreateHandler,
   ],
   exports: [
     CustomerBankReadService,
     CustomerBankCreateService,
+    CustomerBankUpdateService,
   ],
 })
 export class CustomerBankModule {}
