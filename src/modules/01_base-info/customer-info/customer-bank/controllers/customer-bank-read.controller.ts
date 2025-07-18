@@ -1,7 +1,7 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiTags, ApiParam } from '@nestjs/swagger';
 import { Auth } from 'src/common/decorators/auth.decorator';
-import { CustomerBankHandler } from '../handlers/customer-bank-handler';
+import { CustomerBankHandler } from '../handlers/customer-bank.handler';
 import { ReadCustomerBankDto } from '../dto/customer-bank-read.dto';
 
 @ApiTags('CustomerBank')
