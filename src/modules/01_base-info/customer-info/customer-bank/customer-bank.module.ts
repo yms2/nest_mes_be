@@ -4,12 +4,14 @@ import { CustomerBank } from './entities/customer-bank.entity';
 import {
   CustomerBankReadService,
   CustomerBankCreateService,
-  CustomerBankUpdateService
+  CustomerBankUpdateService,
+  CustomerBankDeleteService
 } from './services';
 import {
   CustomerBankReadController,
   CustomerBankCreateController,
-  CustomerBankUpdateController
+  CustomerBankUpdateController,
+  CustomerBankDeleteController
 } from './controllers';
 import { CommonModule } from '../../../../common/common.module';
 import { LogModule } from '../../../log/log.module';
@@ -26,11 +28,13 @@ import { CustomerBankCreateHandler } from './handlers/customer-bank-create.handl
     CustomerBankReadController,
     CustomerBankCreateController,
     CustomerBankUpdateController,
+    CustomerBankDeleteController,
   ],
   providers: [
     CustomerBankReadService,
     CustomerBankCreateService,
     CustomerBankUpdateService,
+    CustomerBankDeleteService,
     // ✅ 핸들러 추가
     CustomerBankHandler,
     // ✅ DTO 추가
@@ -40,6 +44,7 @@ import { CustomerBankCreateHandler } from './handlers/customer-bank-create.handl
     CustomerBankReadService,
     CustomerBankCreateService,
     CustomerBankUpdateService,
+    CustomerBankDeleteService,
   ],
 })
 export class CustomerBankModule {}

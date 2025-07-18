@@ -9,17 +9,17 @@ import {
 
 @Entity()
 export class CustomerInfo {
-  @ApiProperty({ example: 1, description: '고객 고유 ID (자동 생성)' })
-  @PrimaryGeneratedColumn({ comment: '고객 고유 ID (자동 생성)' })
+  @ApiProperty({ example: 1, description: '거래처 고유 ID (자동 생성)' })
+  @PrimaryGeneratedColumn({ comment: '거래처 고유 ID (자동 생성)' })
   id: number;
 
-  @ApiProperty({ example: 'CUS001', description: '고객 코드 (자동 생성)' })
+  @ApiProperty({ example: 'CUS001', description: '거래처 코드 (자동 생성)' })
   @Column({
     name: 'customer_code',
     type: 'varchar',
     length: 20,
     unique: true,
-    comment: '고객 코드 (자동 생성)',
+    comment: '거래처 코드 (자동 생성)',
   })
   customerCode: string;
 
