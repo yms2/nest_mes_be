@@ -6,11 +6,15 @@ import { CustomerInfo } from '../../customer-info/entities/customer-info.entity'
 import {
   BaseProductCreateController,
   BaseProductReadController,
+  BaseProductUpdateController,
+  BaseProductDeleteController,
 } from './controllers';
 
 import {
   BaseProductReadService,
   BaseProductCreateService,
+  BaseProductUpdateService,
+  BaseProductDeleteService,
 } from './services';
 import { BaseProductHandler } from './handlers/base-product.handler';
 import { Module } from '@nestjs/common';
@@ -20,15 +24,21 @@ import { Module } from '@nestjs/common';
   controllers: [
     BaseProductCreateController,
     BaseProductReadController,
+    BaseProductUpdateController,
+    BaseProductDeleteController,
   ],
   providers: [
     BaseProductCreateService,
     BaseProductReadService,
+    BaseProductUpdateService,
+    BaseProductDeleteService,
     BaseProductHandler,
   ],
   exports: [
     BaseProductCreateService,
     BaseProductReadService,
+    BaseProductDeleteService,
+    BaseProductUpdateService,
   ],
 })
 export class BaseProductModule {}
