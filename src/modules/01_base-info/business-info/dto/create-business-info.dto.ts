@@ -46,7 +46,7 @@ export class CreateBusinessInfoDto {
     required: false,
   })
   @OptionalString()
-  @Matches(/^\d{10}$/, { message: '법인번호는 10자리 숫자여야 합니다.' })
+  @Matches(/^\d{13}$/, { message: '법인번호는 13자리 숫자여야 합니다.' })
   corporateRegistrationNumber?: string;
 
   @ApiProperty({

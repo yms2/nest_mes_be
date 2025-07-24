@@ -1,4 +1,9 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
+if (search) {
+  queryBuilder.andWhere(
+    '(baseProduct.productName LIKE :search OR baseProduct.productCode LIKE :search OR baseProduct.description LIKE :search)',
+    { search: `%${search}%` }
+  );
+}import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 import { BaseSearchDto } from 'src/common/dto/base-search.dto';
 
