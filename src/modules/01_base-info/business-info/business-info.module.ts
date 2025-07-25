@@ -13,6 +13,8 @@ import {
   BusinessUploadValidationService,
   BusinessUploadProcessingService,
   BusinessUploadSessionService,
+  ExcelTemplateService,
+  ExcelExportService
 } from './services';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 
@@ -23,6 +25,8 @@ import {
   BusinessInfoUpdateController,
   BusinessInfoDeleteController,
   BusinessUploadController,
+  ExcelTemplateController,
+  BusinessExcelDownloadController
 } from './controllers';
 import { BusinessInfoHandler } from './handlers/business-info.handler';
 import { BusinessBankModule } from './business-bank/business-bank.module';
@@ -47,6 +51,8 @@ import { BusinessBankModule } from './business-bank/business-bank.module';
     BusinessInfoUpdateController,
     BusinessInfoDeleteController,
     BusinessUploadController,
+    ExcelTemplateController,
+    BusinessExcelDownloadController
   ],
   providers: [
     BusinessInfoHandler,
@@ -59,6 +65,8 @@ import { BusinessBankModule } from './business-bank/business-bank.module';
     BusinessUploadValidationService,
     BusinessUploadProcessingService,
     BusinessUploadSessionService,
+    ExcelTemplateService,
+    ExcelExportService
   ],
   exports: [
     BusinessInfoCreateService,
@@ -67,6 +75,8 @@ import { BusinessBankModule } from './business-bank/business-bank.module';
     BusinessInfoUpdateService,
     BusinessInfoDeleteService,
     BusinessUploadService,
+    ExcelTemplateService,
+    ExcelExportService
   ],
 })
 export class BusinessInfoModule {}

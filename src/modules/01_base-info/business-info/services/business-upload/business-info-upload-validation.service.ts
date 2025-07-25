@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as XLSX from 'xlsx';
-import { BusinessInfo } from '../entities/business-info.entity';
+import { BusinessInfo } from '../../entities/business-info.entity';
 
 export interface BusinessExcelRow {
   사업자등록번호: string;

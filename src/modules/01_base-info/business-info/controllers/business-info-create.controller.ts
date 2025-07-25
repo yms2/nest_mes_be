@@ -30,9 +30,10 @@ export class BusinessInfoCreateController {
 
       await this.writeCreateLog(result, req.user.username);
 
-      return ApiResponseBuilder.success(result, '거래처 정보 등록되었습니다.');
+      return ApiResponseBuilder.success(result, '사업장 정보 등록되었습니다.');
     } catch (error) {
       await this.writeCreateFailLog(createBusinessInfoDto, req.user.username, error);
+      
       throw error;
     }
   }
@@ -51,7 +52,7 @@ export class BusinessInfoCreateController {
   private async writeCreateFailLog(dto: CreateBusinessInfoDto, username: string, error: Error) {
     await this.logService
       .createDetailedLog({
-        moduleName: '거래처관리',
+        moduleName: '사업장관리',
         action: 'CREATE_FAIL',
         username,
         targetId: dto.businessNumber,

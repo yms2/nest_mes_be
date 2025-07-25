@@ -1,9 +1,9 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { BusinessInfo } from '../entities/business-info.entity';
-import { CreateBusinessInfoDto } from '../dto/create-business-info.dto';
-import { BusinessUtils } from '../utils/business.utils';
+import { BusinessInfo } from '../../entities/business-info.entity';
+import { CreateBusinessInfoDto } from '../../dto/create-business-info.dto';
+import { BusinessUtils } from '../../utils/business.utils';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { BusinessExcelRow } from './business-info-upload-validation.service';
