@@ -17,7 +17,7 @@ import {
   BomInfoService,
 } from './services';
 import { Module } from '@nestjs/common';
-import { ProductInfo } from '../product-info/entities/product-info.entity';
+import { ProductInfo } from '../product-info/product_sample/entities/product-info.entity';
 import { BomInfo } from './entities/bom-info.entity';
 
 @Module({

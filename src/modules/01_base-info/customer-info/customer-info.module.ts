@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CustomerInfo } from './entities/custmoer-info.entity';
+import { CustomerInfo } from './entities/customer-info.entity';
 import {
   CustomerInfoCreateService,
   CustomerInfoReadService,
@@ -17,8 +17,10 @@ import {
 import { CommonModule } from '../../../common/common.module'; // ✅ 공통 모듈 import
 import { LogModule } from '../../log/log.module';
 import { CustomerInfoHandler } from './handlers/customer-info.handler';
+import { CustomerBankModule } from './customer-bank/customer-bank.module'; // ✅ 모듈 import
 @Module({
   imports: [
+    CustomerBankModule,
     CommonModule, // ✅ 공통 모듈 하나만 import
     LogModule, // ✅ 로그 모듈 import
     TypeOrmModule.forFeature([CustomerInfo]), // forFeature는 모듈별로 추가

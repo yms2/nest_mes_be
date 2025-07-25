@@ -6,7 +6,7 @@ import { ApiResponseBuilder } from 'src/common/interfaces/api-response.interface
 import { CustomerInfoUpdateService } from '../services/customer-info-update.service';
 import { logService } from 'src/modules/log/Services/log.service';
 import { Auth } from 'src/common/decorators/auth.decorator';
-import { CustomerInfo } from '../entities/custmoer-info.entity';
+import { CustomerInfo } from '../entities/customer-info.entity';
 
 @ApiTags('CustomerInfo')
 @Controller('customer-info')

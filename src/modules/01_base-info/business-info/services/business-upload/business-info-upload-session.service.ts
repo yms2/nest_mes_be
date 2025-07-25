@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { BusinessInfo } from '../entities/business-info.entity';
+import { BusinessInfo } from '../../entities/business-info.entity';
 import { BusinessExcelRow, ValidationResult } from './business-info-upload-validation.service';
-import { BusinessUtils } from '../utils/business.utils';
+import { BusinessUtils } from '../../utils/business.utils';
 
 interface ValidationSession {
   id: string;

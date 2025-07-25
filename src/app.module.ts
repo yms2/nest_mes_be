@@ -11,13 +11,14 @@ import { RegisterModule } from './modules/register/register.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { BaseInfoModule } from './modules/01_base-info/base-info.module';
 import { LogModule } from './modules/log/log.module';
+import { salesMoudule } from './modules/02_sales/sales.module';
 @Module({
   imports: [
     RegisterModule,
     AuthModule,
     BaseInfoModule,
     LogModule,
-
+    salesMoudule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',

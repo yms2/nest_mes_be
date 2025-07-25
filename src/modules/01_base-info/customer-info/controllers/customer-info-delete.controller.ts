@@ -35,7 +35,7 @@ export class CustomerInfoDeleteController {
         details: '거래처 정보 영구 삭제',
       });
 
-      return ApiResponseBuilder.success(null, '거래처 정보가 영구 삭제되었습니다.');
+      return ApiResponseBuilder.success(null, '거래처 정보가 삭제되었습니다.');
     } catch (error) {
       await this.logService
         .createDetailedLog({

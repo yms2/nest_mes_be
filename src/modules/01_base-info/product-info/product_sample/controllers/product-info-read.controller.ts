@@ -1,7 +1,7 @@
 import { Controller, Query, Get, UseInterceptors } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { ClassSerializerInterceptor } from '@nestjs/common';
-import { Auth } from '../../../../common/decorators/auth.decorator';
+import { Auth } from '../../../../../common/decorators/auth.decorator';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { ProductInfoHandler } from '../handlers/product-info.handler';
 import { SearchProductInfoDto } from '../dto/product-info-read.dto';

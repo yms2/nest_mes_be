@@ -32,6 +32,7 @@ export class BusinessInfoReadService {
   /**
    * 전체 목록 조회
    */
+  
   async getAllBusinessInfo(
     page: number = 1,
     limit: number = 10,

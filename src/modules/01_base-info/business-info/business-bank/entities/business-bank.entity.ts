@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { BaseEntity } from 'src/common/entities/base.entity';
 @Entity()
 export class BusinessBank extends BaseEntity {
-  @ApiProperty({ example: 'BPLC001', description: '사업장 코드' })
+  @ApiProperty({ example: 'BUS001', description: '사업장 코드' })
   @Column({ name: 'business_code', length: 20, comment: '사업장 코드' })
   businessCode: string;
 

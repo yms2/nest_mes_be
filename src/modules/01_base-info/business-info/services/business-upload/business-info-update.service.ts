@@ -1,9 +1,9 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { BusinessInfo } from '../entities/business-info.entity';
-import { CreateBusinessInfoDto } from '../dto/create-business-info.dto';
-import { BusinessUtils, ValidationError } from '../utils/business.utils';
+import { BusinessInfo } from '../../entities/business-info.entity';
+import { CreateBusinessInfoDto } from '../../dto/create-business-info.dto';
+import { BusinessUtils, ValidationError } from '../../utils/business.utils';
 
 @Injectable()
 export class BusinessInfoUpdateService {
