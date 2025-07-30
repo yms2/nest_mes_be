@@ -1,15 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import {
-  IsString,
-  IsOptional,
-  Matches,
-  Length,
-  IsNumberString,
-  IsNotEmpty,
-  ValidateIf,
-  IsEmail,
-} from 'class-validator';
+import { IsString, Matches, Length, IsNumberString, IsNotEmpty, IsEmail, ValidateIf } from 'class-validator';
 import { OptionalString } from 'src/common/decorators/optional-string.decorator';
 
 export class UploadBusinessInfoDto {
@@ -46,7 +37,7 @@ export class UploadBusinessInfoDto {
     required: false,
   })
   @OptionalString()
-  @Matches(/^\d{10}$/, { message: '법인번호는 10자리 숫자여야 합니다.' })
+  @Matches(/^\d{13}$/, { message: '법인번호는 13자리 숫자여야 합니다.' })
   corporateRegistrationNumber?: string;
 
   @ApiProperty({
@@ -102,7 +93,6 @@ export class UploadBusinessInfoDto {
     required: false,
   })
   @OptionalString()
-  @Matches(/^\d{5}$/, { message: '우편번호는 5자리 숫자여야 합니다.' })
   businessZipcode?: string;
 
   @ApiProperty({
