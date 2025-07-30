@@ -1,15 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
-import {
-  IsString,
-  IsOptional,
-  Matches,
-  Length,
-  IsNumberString,
-  IsNotEmpty,
-  ValidateIf,
-  IsEmail,
-} from 'class-validator';
+import { IsString, Matches, Length, IsNumberString, IsNotEmpty, IsEmail } from 'class-validator';
 import { OptionalString } from 'src/common/decorators/optional-string.decorator';
 
 export class CreateBusinessInfoDto {
@@ -101,7 +91,7 @@ export class CreateBusinessInfoDto {
     description: '우편번호 (선택)',
     required: false,
   })
-  @Matches(/^\d{5}$/, { message: '우편번호는 5자리 숫자여야 합니다.' })
+  @OptionalString()
   businessZipcode?: string;
 
   @ApiProperty({
