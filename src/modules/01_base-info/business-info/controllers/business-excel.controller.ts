@@ -1,7 +1,7 @@
 import { Controller, Get, Query, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { Auth } from '../../../../common/decorators/auth.decorator';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { BusinessInfoReadService } from '../services/business-info-read.service';
 import { ExcelExportService } from '../services/business-download.service';
 import { ExcelTemplateService } from '../services/business-template.service';
@@ -30,23 +30,22 @@ export class BusinessExcelController {
   }
 
   @Get('download-excel')
-  @ApiOperation({ summary: '사업장 정보 엑셀 전체 다운로드' })
+  @ApiOperation({ summary: '사업장 정보 엑셀 다운로드 (키워드 있으면 검색 결과, 없으면 전체)' })
+  @ApiQuery({ name: 'keyword', required: false, description: '검색 키워드 (선택사항)' })
   async downloadExcel(
-    @Query() query: ReadBusinessInfoDto,
     @Res() res: Response,
+    @Query('keyword') keyword?: string,
   ) {
-    const result = await this.businessInfoService.getAllBusinessInfo();
-    await this.excelExportService.exportBusinessInfos(result.data, res);
-  }
-
-  @Get('download-search-excel')
-  @ApiOperation({ summary: '검색 조건 엑셀 다운로드' })
-  async downloadSearchExcel(
-    @Query('keyword') keyword: string,
-    @Res() res: Response,
-  ) {
-    // 전체 검색을 위해 limit을 매우 큰 수로 지정
-    const result = await this.businessInfoSearchService.searchBusinessInfo(keyword || '', 1, 99999);
+    let result;
+    
+    if (keyword && keyword.trim()) {
+      // 키워드가 있으면 검색 결과 다운로드
+      result = await this.businessInfoSearchService.searchBusinessInfo(keyword.trim(), 1, 99999);
+    } else {
+      // 키워드가 없으면 전체 다운로드
+      result = await this.businessInfoService.getAllBusinessInfo();
+    }
+    
     await this.excelExportService.exportBusinessInfos(result.data, res);
   }
 } 
