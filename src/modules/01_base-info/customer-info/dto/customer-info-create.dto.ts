@@ -16,7 +16,7 @@ export class CreateCustomerInfoDto {
   //필수값
   @ApiProperty({
     example: '6743001715',
-    description: '사업자 번호 (숫자 10자리, 필수)',
+    description: '사업자등록번호 (숫자 10자리, 필수)',
     required: true,
   })
   @IsNumberString({}, { message: '사업자등록번호는 숫자만 입력하세요.' })
@@ -100,6 +100,14 @@ export class CreateCustomerInfoDto {
   @Transform(({ value }) => (value === '' ? undefined : value)) // 빈 문자열이면 undefined 처리
   @ValidateIf((obj, value) => value !== undefined) // 값이 있을 때만 아래 검증 수행
   customerMobile?: string;
+
+  @ApiProperty({
+    example: '010-1234-5678',
+    description: '거래처 펙스번호 (선택)',
+    required: false,
+  })
+  @OptionalString()
+  customerFax?: string;
 
   @ApiProperty({
     example: 'test@naver.com',

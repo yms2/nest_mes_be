@@ -145,7 +145,7 @@ describe('CustomerInfoExcelController', () => {
         limit: 10,
       };
 
-      mockSearchService.searchCustomerInfo.mockResolvedValue(mockSearchResult);
+      mockSearchService.searchCustomerInfo.mockResolvedValue(mockSearchResult as any);
       mockDownloadService.exportCustomerInfos.mockResolvedValue(undefined);
 
       await controller.downloadExcel(mockResponse, keyword, '1', '10');
@@ -162,7 +162,7 @@ describe('CustomerInfoExcelController', () => {
         limit: 99999,
       };
 
-      mockReadService.getAllCustomerInfo.mockResolvedValue(mockAllDataResult);
+      mockReadService.getAllCustomerInfo.mockResolvedValue(mockAllDataResult as any);
       mockDownloadService.exportCustomerInfos.mockResolvedValue(undefined);
 
       await controller.downloadExcel(mockResponse);
@@ -179,7 +179,7 @@ describe('CustomerInfoExcelController', () => {
         limit: 5,
       };
 
-      mockSearchService.searchCustomerInfo.mockResolvedValue(mockSearchResult);
+      mockSearchService.searchCustomerInfo.mockResolvedValue(mockSearchResult as any);
       mockDownloadService.exportCustomerInfos.mockResolvedValue(undefined);
 
       await controller.downloadExcel(mockResponse, '테스트', '2', '5');
@@ -196,7 +196,7 @@ describe('CustomerInfoExcelController', () => {
         limit: 99999,
       };
 
-      mockReadService.getAllCustomerInfo.mockResolvedValue(mockAllDataResult);
+      mockReadService.getAllCustomerInfo.mockResolvedValue(mockAllDataResult as any);
       mockDownloadService.exportCustomerInfos.mockResolvedValue(undefined);
 
       await controller.downloadExcel(mockResponse, '', '1', '10');
@@ -213,7 +213,7 @@ describe('CustomerInfoExcelController', () => {
         limit: 99999,
       };
 
-      mockReadService.getAllCustomerInfo.mockResolvedValue(mockAllDataResult);
+      mockReadService.getAllCustomerInfo.mockResolvedValue(mockAllDataResult as any);
       mockDownloadService.exportCustomerInfos.mockResolvedValue(undefined);
 
       await controller.downloadExcel(mockResponse, '   ', '1', '10');
@@ -246,7 +246,7 @@ describe('CustomerInfoExcelController', () => {
         limit: 10,
       };
 
-      mockSearchService.searchCustomerInfo.mockResolvedValue(mockSearchResult);
+      mockSearchService.searchCustomerInfo.mockResolvedValue(mockSearchResult as any);
       const error = new Error('Download failed');
       mockDownloadService.exportCustomerInfos.mockRejectedValue(error);
 
