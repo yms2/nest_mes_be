@@ -50,6 +50,14 @@ export class CreateCustomerInfoDto {
   @IsNotEmpty({ message: '거래처 CEO는 필수 입력값입니다.' })
   customerCeo: string;
 
+  @ApiProperty({
+    example: '매출처',
+    description: '거래구분 (선택)',
+    required: false,
+  })
+  @OptionalString()
+  customerType?: string;
+
   //선택값
   @ApiProperty({
     example: '기계업',

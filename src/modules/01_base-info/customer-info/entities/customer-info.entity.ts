@@ -47,6 +47,10 @@ export class CustomerInfo {
   })
   customerCorporateRegistrationNumber: string;
 
+  @ApiProperty({ example: '매출처', description: '거래구분' })
+  @Column({ name: 'customer_type', type: 'varchar', length: 50, comment: '거래구분' })
+  customerType: string;
+
   @ApiProperty({ example: '정영기', description: '거래처CEO' })
   @Column({ name: 'customer_ceo', type: 'varchar', length: 50, comment: '거래처 CEO' })
   customerCeo: string;

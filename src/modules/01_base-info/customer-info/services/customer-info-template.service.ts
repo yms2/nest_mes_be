@@ -13,7 +13,7 @@ export class CustomerInfoTemplateService {
             { header: '대표자명', key: 'customerCeo', width: 20, style: { numFmt: '@' } },
             { header: '사업자등록번호', key: 'customerBusinessNumber', width: 20, style: { numFmt: '@' } },
             { header: '법인번호', key: 'customerCorporateRegistrationNumber', width: 20, style: { numFmt: '@' } },
-            { header: '거래구분', key: 'customerTradeType', width: 20, style: { numFmt: '@' } },
+            { header: '거래구분', key: 'customerType', width: 20, style: { numFmt: '@' } },
             { header: '업태', key: 'customerBusinessType', width: 20, style: { numFmt: '@' } },
             { header: '종목', key: 'customerBusinessItem', width: 20, style: { numFmt: '@' } },
             { header: '전화번호', key: 'customerTel', width: 20, style: { numFmt: '@' } },
