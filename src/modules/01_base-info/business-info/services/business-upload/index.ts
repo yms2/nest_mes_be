@@ -1,4 +1,4 @@
-export * from './business-info-update.service'
+export * from '../business-info-update.service'
 export * from './business-info-upload-processing.service'
 export * from './business-info-upload-session.service'
 export * from './business-info-upload-validation.service'

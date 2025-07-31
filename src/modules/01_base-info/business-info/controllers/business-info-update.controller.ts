@@ -3,7 +3,7 @@ import { ApiTags, ApiOperation, ApiParam } from '@nestjs/swagger';
 
 import { CreateBusinessInfoDto } from '../dto/create-business-info.dto';
 import { ApiResponseBuilder } from 'src/common/interfaces/api-response.interface';
-import { BusinessInfoUpdateService } from '../services/business-upload/business-info-update.service';
+import { BusinessInfoUpdateService } from '../services/business-info-update.service';
 import { logService } from 'src/modules/log/Services/log.service';
 import { Auth } from 'src/common/decorators/auth.decorator';
 import { BusinessInfo } from '../entities/business-info.entity';

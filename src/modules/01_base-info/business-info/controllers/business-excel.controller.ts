@@ -48,7 +48,5 @@ export class BusinessExcelController {
     // 전체 검색을 위해 limit을 매우 큰 수로 지정
     const result = await this.businessInfoSearchService.searchBusinessInfo(keyword || '', 1, 99999);
     await this.excelExportService.exportBusinessInfos(result.data, res);
-
-    console.log(result.data);
   }
 } 

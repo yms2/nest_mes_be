@@ -1,10 +1,10 @@
 import { Body, Post, Controller, UseGuards, Req } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateBusinessInfoDto } from '../dto/create-business-info.dto';
-import { ApiResponseBuilder } from 'src/common/interfaces/api-response.interface';
+import { ApiResponseBuilder } from '../../../../common/interfaces/api-response.interface';
 import { BusinessInfoCreateService } from '../services';
-import { logService } from 'src/modules/log/Services/log.service';
-import { Auth } from 'src/common/decorators/auth.decorator';
+import { logService } from '../../../log/Services/log.service';
+import { Auth } from '../../../../common/decorators/auth.decorator';
 import { BusinessInfo } from '../entities/business-info.entity';
 
 @ApiTags('BusinessInfo')

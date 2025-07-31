@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, Matches, Length, IsNumberString, IsNotEmpty, IsEmail } from 'class-validator';
-import { OptionalString } from 'src/common/decorators/optional-string.decorator';
+import { OptionalString } from '../../../../common/decorators/optional-string.decorator';
 
 export class CreateBusinessInfoDto {
   @ApiProperty({
