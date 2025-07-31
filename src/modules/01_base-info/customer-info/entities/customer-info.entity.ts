@@ -37,6 +37,16 @@ export class CustomerInfo {
   })
   customerNumber: string;
 
+  @ApiProperty({ example: '112332-1323333', description: '법인 번호' })
+  @Column({
+    name: 'customer_corporate_registration_number',
+    type: 'varchar',
+    length: 20,
+    nullable: true,
+    comment: '법인 번호',
+  })
+  customerCorporateRegistrationNumber: string;
+
   @ApiProperty({ example: '정영기', description: '거래처CEO' })
   @Column({ name: 'customer_ceo', type: 'varchar', length: 50, comment: '거래처 CEO' })
   customerCeo: string;
@@ -90,6 +100,16 @@ export class CustomerInfo {
     comment: '거래처 이메일',
   })
   customerEmail: string;
+
+  @ApiProperty({ example: 'test@naver.com', description: '거래처 계산서 이메일' })
+  @Column({
+    name: 'customer_invoice_email',
+    type: 'varchar',
+    length: 100,
+    nullable: true,
+    comment: '거래처 계산서 이메일',
+  })
+  customerInvoiceEmail: string;
 
   @ApiProperty({ example: '42520', description: '거래처 우편번호' })
   @Column({

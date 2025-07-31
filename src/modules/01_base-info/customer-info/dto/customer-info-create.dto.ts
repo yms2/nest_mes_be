@@ -8,6 +8,7 @@ import {
   IsNotEmpty,
   Matches,
   ValidateIf,
+  IsEmail,
 } from 'class-validator';
 import { OptionalString } from 'src/common/decorators/optional-string.decorator';
 
@@ -30,6 +31,15 @@ export class CreateCustomerInfoDto {
   @IsString({ message: '거래처 명은 필수값입니다.' })
   @IsNotEmpty({ message: '거래처 명은 필수 입력값입니다.' })
   customerName: string;
+
+  @ApiProperty({
+    example: '112332-1323333',
+    description: '법인 번호 (선택)',
+    required: false,
+  })
+  @OptionalString()
+  @Length(13, 13, { message: '법인번호는 13자리 숫자여야 합니다.' })
+  customerCorporateRegistrationNumber?: string;
 
   @ApiProperty({
     example: '김대호',
@@ -89,7 +99,17 @@ export class CreateCustomerInfoDto {
     required: false,
   })
   @OptionalString()
+  @IsEmail({}, { message: '이메일 형식이 잘못되었습니다.' })
   customerEmail?: string;
+
+  @ApiProperty({
+    example: 'test@naver.com',
+    description: '거래처 계산서 이메일 (선택)',
+    required: false,
+  })
+  @OptionalString()
+  @IsEmail({}, { message: '이메일 형식이 잘못되었습니다.' })
+  customerInvoiceEmail?: string;
 
   @ApiProperty({
     example: '42520',
@@ -97,9 +117,6 @@ export class CreateCustomerInfoDto {
     required: false,
   })
   @OptionalString()
-  @Matches(/^\d{5}$/, { message: '우편번호는 5자리 숫자여야 합니다.' })
-  @Transform(({ value }) => (value === '' ? undefined : value)) // 빈 문자열이면 undefined 처리
-  @ValidateIf((obj, value) => value !== undefined) // 값이 있을 때만 아래 검증 수행
   customerZipcode?: string;
 
   @ApiProperty({
