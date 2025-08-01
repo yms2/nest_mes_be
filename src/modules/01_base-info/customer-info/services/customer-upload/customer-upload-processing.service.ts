@@ -80,7 +80,7 @@ export class CustomerUploadProcessingService {
         customerNumberMap: Map<string, CustomerInfo>,
         nextCodeNumber: number,
         mode: 'add' | 'overwrite',
-        userId: string, // 현재 로그인한 사용자 ID
+        username: string, // 현재 로그인한 사용자 ID
     ): Promise<ProcessedData> {
         const toCreate: CustomerInfo[] = [];
         const toUpdate: CustomerInfo[] = [];
@@ -98,7 +98,7 @@ export class CustomerUploadProcessingService {
 
         for (let i = 0; i < rows.length; i++) {
             try {
-                const result = await this.processRow(rows[i], customerNumberMap, currentCodeNumber, mode, userId);
+                const result = await this.processRow(rows[i], customerNumberMap, currentCodeNumber, mode, username);
 
                 if (result.type === 'create') {
                     toCreate.push(result.data);
@@ -154,18 +154,18 @@ export class CustomerUploadProcessingService {
         customerNumberMap: Map<string, CustomerInfo>,
         codeNumber: number,
         mode: 'add' | 'overwrite',
-        userId: string, // 현재 로그인한 사용자 ID
+        username: string, // 현재 로그인한 사용자 ID
     ): Promise<{ type: 'create' | 'update'; data: CustomerInfo }> {
         const dto = await this.createDtoFromRow(row);
         const existing = customerNumberMap.get(dto.customerNumber);
 
         if (existing) {
             if (mode === 'add') {
-                throw new BadRequestException(`고객번호 ${dto.customerNumber}는 이미 존재합니다.`);
+                throw new BadRequestException(`거래처번호 ${dto.customerNumber}는 이미 존재합니다.`);
             }
             this.customerInfoRepository.merge(existing, {
                 ...dto,
-                updatedBy: userId, // 현재 로그인한 사용자 ID
+                updatedBy: username, // 현재 로그인한 사용자 ID
             });
             return { type: 'update', data: existing };
         } else {
@@ -173,7 +173,7 @@ export class CustomerUploadProcessingService {
             const newCustomer = this.customerInfoRepository.create({
                 customerCode,
                 ...dto,
-                createdBy: userId, // 현재 로그인한 사용자 ID
+                createdBy: username, // 현재 로그인한 사용자 ID
             });
             return { type: 'create', data: newCustomer };
         }

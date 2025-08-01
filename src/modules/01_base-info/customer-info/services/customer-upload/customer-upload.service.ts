@@ -14,6 +14,7 @@ interface ValidationSession {
         nextCodeNumber: number;
     };
     validationResult: ValidationResult;
+    createdBy: string;
     createdAt: Date;
 }
 
@@ -60,7 +61,7 @@ export class CustomerUploadService {
     async processValidatedData(
         sessionId: string,
         mode: 'add' | 'overwrite',
-        userId: string = 'system', // 현재 로그인한 사용자 ID (기본값: system)
+        createBy: string = 'system', // 현재 로그인한 사용자 ID (기본값: system)
     ): Promise<ProcessingResult> {
         const session = this.getSession(sessionId);
         if (!session) {
@@ -74,7 +75,7 @@ export class CustomerUploadService {
             customerNumberMap,
             nextCodeNumber,
             mode,
-            userId,
+            createBy,
         );
         await this.processingService.saveData(processedData);
 
@@ -88,6 +89,7 @@ export class CustomerUploadService {
         rows: CustomerExcelRow[],
         customerNumberMap: Map<string, CustomerInfo>,
         validationResult: ValidationResult,
+        createBy: string = 'system', // 현재 로그인한 사용자 ID (기본값: system)
     ): string {
         const sessionId = `validation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
@@ -102,6 +104,7 @@ export class CustomerUploadService {
             id: sessionId,
             data: { rows, customerNumberMap, nextCodeNumber },
             validationResult,
+            createdBy: createBy,
             createdAt: new Date(),
         });
 
