@@ -12,7 +12,6 @@ import {
   BusinessUploadService,
   BusinessUploadValidationService,
   BusinessUploadProcessingService,
-  BusinessUploadSessionService,
   ExcelTemplateService,
   ExcelExportService
 } from './services';
@@ -62,7 +61,6 @@ import { BusinessBankModule } from './business-bank/business-bank.module';
     BusinessUploadService,
     BusinessUploadValidationService,
     BusinessUploadProcessingService,
-    BusinessUploadSessionService,
     ExcelTemplateService,
     ExcelExportService
   ],
