@@ -158,11 +158,12 @@ describe('CustomerUploadController', () => {
 
       jest.spyOn(uploadService, 'processValidatedData').mockResolvedValue(mockUploadResponse);
 
-      const result = await controller.uploadConfirmed(requestBody);
+      const result = await controller.uploadConfirmed(requestBody, { user: { id: 'test-user' } } as any);
 
       expect(uploadService.processValidatedData).toHaveBeenCalledWith(
         requestBody.validationId,
-        requestBody.mode
+        requestBody.mode,
+        'test-user'
       );
       expect(result).toEqual(mockUploadResponse);
       expect(result.result.successCount).toBe(1);
@@ -192,11 +193,12 @@ describe('CustomerUploadController', () => {
 
       jest.spyOn(uploadService, 'processValidatedData').mockResolvedValue(mockOverwriteResponse);
 
-      const result = await controller.uploadConfirmed(requestBody);
+      const result = await controller.uploadConfirmed(requestBody, { user: { id: 'test-user' } } as any);
 
       expect(uploadService.processValidatedData).toHaveBeenCalledWith(
         requestBody.validationId,
-        requestBody.mode
+        requestBody.mode,
+        'test-user'
       );
       expect(result).toEqual(mockOverwriteResponse);
       expect(result.result.summary.updated).toBe(1);
@@ -205,8 +207,8 @@ describe('CustomerUploadController', () => {
     it('should throw error when request body is missing', async () => {
       const requestBody = null as any;
 
-      await expect(controller.uploadConfirmed(requestBody)).rejects.toThrow(BadRequestException);
-      await expect(controller.uploadConfirmed(requestBody)).rejects.toThrow('요청 본문이 없습니다.');
+      await expect(controller.uploadConfirmed(requestBody, { user: { id: 'test-user' } } as any)).rejects.toThrow(BadRequestException);
+      await expect(controller.uploadConfirmed(requestBody, { user: { id: 'test-user' } } as any)).rejects.toThrow('요청 본문이 없습니다.');
     });
 
     it('should throw error when validationId is missing', async () => {
@@ -214,8 +216,8 @@ describe('CustomerUploadController', () => {
         mode: 'add' as const,
       } as any;
 
-      await expect(controller.uploadConfirmed(requestBody)).rejects.toThrow(BadRequestException);
-      await expect(controller.uploadConfirmed(requestBody)).rejects.toThrow('검증 ID가 필요합니다.');
+      await expect(controller.uploadConfirmed(requestBody, { user: { id: 'test-user' } } as any)).rejects.toThrow(BadRequestException);
+      await expect(controller.uploadConfirmed(requestBody, { user: { id: 'test-user' } } as any)).rejects.toThrow('검증 ID가 필요합니다.');
     });
 
     it('should throw error when validationId is empty', async () => {
@@ -224,8 +226,8 @@ describe('CustomerUploadController', () => {
         mode: 'add' as const,
       };
 
-      await expect(controller.uploadConfirmed(requestBody)).rejects.toThrow(BadRequestException);
-      await expect(controller.uploadConfirmed(requestBody)).rejects.toThrow('검증 ID가 필요합니다.');
+      await expect(controller.uploadConfirmed(requestBody, { user: { id: 'test-user' } } as any)).rejects.toThrow(BadRequestException);
+      await expect(controller.uploadConfirmed(requestBody, { user: { id: 'test-user' } } as any)).rejects.toThrow('검증 ID가 필요합니다.');
     });
 
     it('should throw error when mode is missing', async () => {
@@ -233,8 +235,8 @@ describe('CustomerUploadController', () => {
         validationId: 'validation_1234567890_abc123def',
       } as any;
 
-      await expect(controller.uploadConfirmed(requestBody)).rejects.toThrow(BadRequestException);
-      await expect(controller.uploadConfirmed(requestBody)).rejects.toThrow('유효한 모드(add 또는 overwrite)가 필요합니다.');
+      await expect(controller.uploadConfirmed(requestBody, { user: { id: 'test-user' } } as any)).rejects.toThrow(BadRequestException);
+      await expect(controller.uploadConfirmed(requestBody, { user: { id: 'test-user' } } as any)).rejects.toThrow('유효한 모드(add 또는 overwrite)가 필요합니다.');
     });
 
     it('should throw error when mode is invalid', async () => {
@@ -243,8 +245,8 @@ describe('CustomerUploadController', () => {
         mode: 'invalid' as any,
       };
 
-      await expect(controller.uploadConfirmed(requestBody)).rejects.toThrow(BadRequestException);
-      await expect(controller.uploadConfirmed(requestBody)).rejects.toThrow('유효한 모드(add 또는 overwrite)가 필요합니다.');
+      await expect(controller.uploadConfirmed(requestBody, { user: { id: 'test-user' } } as any)).rejects.toThrow(BadRequestException);
+      await expect(controller.uploadConfirmed(requestBody, { user: { id: 'test-user' } } as any)).rejects.toThrow('유효한 모드(add 또는 overwrite)가 필요합니다.');
     });
 
     it('should throw error when mode is empty string', async () => {
@@ -253,8 +255,8 @@ describe('CustomerUploadController', () => {
         mode: '' as any,
       };
 
-      await expect(controller.uploadConfirmed(requestBody)).rejects.toThrow(BadRequestException);
-      await expect(controller.uploadConfirmed(requestBody)).rejects.toThrow('유효한 모드(add 또는 overwrite)가 필요합니다.');
+      await expect(controller.uploadConfirmed(requestBody, { user: { id: 'test-user' } } as any)).rejects.toThrow(BadRequestException);
+      await expect(controller.uploadConfirmed(requestBody, { user: { id: 'test-user' } } as any)).rejects.toThrow('유효한 모드(add 또는 overwrite)가 필요합니다.');
     });
 
     it('should handle processing service errors', async () => {
@@ -265,21 +267,22 @@ describe('CustomerUploadController', () => {
 
       jest.spyOn(uploadService, 'processValidatedData').mockRejectedValue(new Error('Processing failed'));
 
-      await expect(controller.uploadConfirmed(requestBody)).rejects.toThrow('Processing failed');
+      await expect(controller.uploadConfirmed(requestBody, { user: { id: 'test-user' } } as any)).rejects.toThrow('Processing failed');
     });
 
     it('should handle session not found errors', async () => {
       const requestBody = {
         validationId: 'invalid_session_id',
         mode: 'add' as const,
+        username: 'testuser',
       };
 
       jest.spyOn(uploadService, 'processValidatedData').mockRejectedValue(
         new BadRequestException('유효하지 않은 세션입니다.')
       );
 
-      await expect(controller.uploadConfirmed(requestBody)).rejects.toThrow(BadRequestException);
-      await expect(controller.uploadConfirmed(requestBody)).rejects.toThrow('유효하지 않은 세션입니다.');
+      await expect(controller.uploadConfirmed(requestBody, { user: { id: 'test-user' } } as any)).rejects.toThrow(BadRequestException);
+      await expect(controller.uploadConfirmed(requestBody, { user: { id: 'test-user' } } as any)).rejects.toThrow('유효하지 않은 세션입니다.');
     });
   });
 
@@ -364,7 +367,7 @@ describe('CustomerUploadController', () => {
 
       // 타입 체크는 TypeScript에서 처리되므로 런타임에서는 정상 동작할 수 있음
       // 실제로는 validationId가 string이 아니면 다른 에러가 발생할 수 있음
-      expect(() => controller.uploadConfirmed(malformedBody as any)).not.toThrow();
+      expect(() => controller.uploadConfirmed(malformedBody as any, { user: { id: 'test-user' } } as any)).not.toThrow();
     });
 
     it('should handle undefined file properties', async () => {
