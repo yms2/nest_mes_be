@@ -22,9 +22,17 @@ export class ProductInfo extends BaseEntity {
   @Column({ name: 'product_type', type: 'varchar', length: 10, comment: '품목구분' })
   productType: string;
 
-  @ApiProperty({ example: '15', description: '규격' })
-  @Column({ name: 'product_size', type: 'varchar', length: 50, comment: '규격', nullable: true })
-  productSize: string;
+  @ApiProperty({ example: '15', description: '규격1' })
+  @Column({ name: 'product_size1', type: 'varchar', length: 50, comment: '규격1', nullable: true })
+  productSize1: string;
+
+  @ApiProperty({ example: '15', description: '규격2' })
+  @Column({ name: 'product_size2', type: 'varchar', length: 50, comment: '규격2', nullable: true })
+  productSize2: string;
+
+  @ApiProperty({ example: '거래처', description: '거래처' })
+  @Column({ name: 'customer_code', type: 'varchar', length: 20, comment: '거래처', nullable: true })
+  customerCode: string;
 
   @ApiProperty({ example: 'kg', description: '발주단위' })
   @Column({
@@ -66,13 +74,25 @@ export class ProductInfo extends BaseEntity {
   })
   safeInventory: string;
 
-  @ApiProperty({ example: 20, description: '과세구분' })
-  @Column({ name: 'tax_type', type: 'varchar', length: 10, comment: '과세구분', nullable: true })
+  @ApiProperty({ example: '과세', description: '입고/과세' })
+  @Column({ name: 'tax_type', type: 'varchar', length: 10, comment: '입고/과세', nullable: true })
   taxType: string;
 
-  @ApiProperty({ example: 20, description: '단가' })
-  @Column({ name: 'price', type: 'varchar', length: 10, comment: '단가', nullable: true })
+  @ApiProperty({ example: 20, description: '매입단가' })
+  @Column({ name: 'product_price', type: 'varchar', length: 10, comment: '매입단가', nullable: true })
   productPrice: string;
+
+  @ApiProperty({ example: '과세', description: '출고/과세' })
+  @Column({ name: 'tax_type_sale', type: 'varchar', length: 10, comment: '출고/과세', nullable: true })
+  taxTypeSale: string;
+
+  @ApiProperty({ example: 20, description: '매출단가' })
+  @Column({ name: 'product_price_sale', type: 'varchar', length: 10, comment: '매출단가', nullable: true })
+  productPriceSale: string;
+
+  @ApiProperty({ example: '홈페이지', description: '홈페이지' })
+  @Column({ name: 'product_homepage', type: 'varchar', length: 100, comment: '홈페이지', nullable: true })
+  productHomepage: string;
 
   @ApiProperty({ example: '비고내용', description: '비고' })
   @Column({ name: 'product_bigo', type: 'varchar', length: 100, comment: '비고', nullable: true })

@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brackets, Repository, WhereExpressionBuilder } from 'typeorm';
 import { ProductInfo } from '../entities/product-info.entity';
+import { CustomerInfo } from '../../../customer-info/entities/customer-info.entity';
 import { DateFormatter } from '../../../../../common/utils/date-formatter.util';
 
 @Injectable()
@@ -27,6 +28,8 @@ export class ProductInfoSearchService {
   constructor(
     @InjectRepository(ProductInfo)
     private readonly productInfoRepository: Repository<ProductInfo>,
+    @InjectRepository(CustomerInfo)
+    private readonly customerInfoRepository: Repository<CustomerInfo>,
   ) {}
 
   //통합검색
@@ -40,6 +43,11 @@ export class ProductInfoSearchService {
 
     const queryBuilder = this.productInfoRepository
       .createQueryBuilder('product')
+      .leftJoin('customer_info', 'customer', 'customer.customer_code = product.customer_code')
+      .select([
+        'product.*',
+        'customer.customer_name as customerName',
+      ])
       .where(
         new Brackets(qb => {
           // 텍스트 검색 조건 추가
@@ -51,14 +59,24 @@ export class ProductInfoSearchService {
           }
         }),
       )
-      .orderBy('customer.customerName', 'ASC')
+      .orderBy('product.product_name', 'ASC')
       .skip(offset)
       .take(limit);
 
-    const [data, total] = await queryBuilder.getManyAndCount();
+    const [data, total] = await Promise.all([
+      queryBuilder.getRawMany(),
+      this.productInfoRepository.count(),
+    ]);
+
+    // 날짜 포맷팅 적용
+    const formattedData = data.map(item => ({
+      ...item,
+      createdAt: DateFormatter.formatDate(item.created_at),
+      updatedAt: DateFormatter.formatDate(item.updated_at),
+    }));
 
     return {
-      data: DateFormatter.formatBusinessInfoArrayDates(data),
+      data: formattedData,
       total,
       page,
       limit,
@@ -85,16 +103,31 @@ export class ProductInfoSearchService {
 
     const queryBuilder = this.productInfoRepository
       .createQueryBuilder('product')
-      .where('DATE(product.createdAt) >= DATE(:startDate)', { startDate })
-      .andWhere('DATE(product.createdAt) <= DATE(:endDate)', { endDate })
-      .orderBy('product.createdAt', 'DESC')
+      .leftJoin('customer_info', 'customer', 'customer.customer_code = product.customer_code')
+      .select([
+        'product.*',
+        'customer.customer_name as customerName',
+      ])
+      .where('DATE(product.created_at) >= DATE(:startDate)', { startDate })
+      .andWhere('DATE(product.created_at) <= DATE(:endDate)', { endDate })
+      .orderBy('product.created_at', 'DESC')
       .skip(offset)
       .take(limit);
 
-    const [data, total] = await queryBuilder.getManyAndCount();
+    const [data, total] = await Promise.all([
+      queryBuilder.getRawMany(),
+      this.productInfoRepository.count(),
+    ]);
+
+    // 날짜 포맷팅 적용
+    const formattedData = data.map(item => ({
+      ...item,
+      createdAt: DateFormatter.formatDate(item.created_at),
+      updatedAt: DateFormatter.formatDate(item.updated_at),
+    }));
 
     return {
-      data: DateFormatter.formatBusinessInfoArrayDates(data),
+      data: formattedData,
       total,
       page,
       limit,

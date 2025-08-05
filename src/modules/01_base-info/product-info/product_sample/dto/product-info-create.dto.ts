@@ -32,11 +32,27 @@ export class CreateProductInfoDto {
 
   @ApiProperty({
     example: '15',
-    description: '규격',
+    description: '규격1',
     required: false,
   })
   @OptionalString()
-  productSize: string;
+  productSize1: string;
+
+  @ApiProperty({
+    example: '15',
+    description: '규격2',
+    required: false,
+  })
+  @OptionalString()
+  productSize2: string; 
+
+  @ApiProperty({
+    example: '거래처',
+    description: '거래처',
+    required: false,
+  })
+  @OptionalString()
+  customerCode: string;
 
   @ApiProperty({
     example: 'kg',
@@ -78,7 +94,7 @@ export class CreateProductInfoDto {
 
   @ApiProperty({
     example: '과세',
-    description: '과세구분',
+    description: '입고/과세',
     required: false,
   })
   @OptionalString()
@@ -86,11 +102,41 @@ export class CreateProductInfoDto {
 
   @ApiProperty({
     example: '2500',
-    description: '단가',
+    description: '매입단가',
+    required: false,
+  })
+  @Transform(({ value }) => (value === '' ? undefined : value))
+  @ValidateIf((obj, value) => value !== undefined)
+  @IsNumberString({}, { message: '매입단가는 숫자만 입력 가능합니다.' })
+  @OptionalString()
+  productPrice: string;
+
+  @ApiProperty({
+    example: '과세',
+    description: '출고/과세',
     required: false,
   })
   @OptionalString()
-  productPrice: string;
+  taxTypeSale: string;
+
+  @ApiProperty({
+    example: '2500',
+    description: '매출단가',
+    required: false,
+  })
+  @Transform(({ value }) => (value === '' ? undefined : value))
+  @ValidateIf((obj, value) => value !== undefined)
+  @IsNumberString({}, { message: '매출단가는 숫자만 입력 가능합니다.' })
+  @OptionalString()
+  productPriceSale: string;
+
+  @ApiProperty({
+    example: '홈페이지',
+    description: '홈페이지',
+    required: false,
+  })
+  @OptionalString()
+  productHomepage: string;
 
   @ApiProperty({
     example: '비고내용',

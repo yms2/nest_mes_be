@@ -3,6 +3,7 @@ import { ProductInfoHandler } from './product_sample/handlers/product-info.handl
 import { CommonModule } from 'src/common/common.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductInfo } from './product_sample/entities/product-info.entity';
+import { CustomerInfo } from '../customer-info/entities/customer-info.entity';
 import {
   ProductInfoReadController,
   ProductInfoCreateController,
@@ -26,7 +27,7 @@ import { BaseProductModule } from './base-product/base-product.module';
     CommonModule, 
     LogModule, 
     BaseProductModule,
-    TypeOrmModule.forFeature([ProductInfo])],
+    TypeOrmModule.forFeature([ProductInfo, CustomerInfo])],
   controllers: [
     ProductInfoReadController,
     ProductInfoCreateController,
