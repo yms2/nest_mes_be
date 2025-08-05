@@ -13,6 +13,7 @@ import {
   ProductInfoQrCodeController,
   ProductInfoExcelController,
   ProductFileController,
+  ProductUploadController,
 } from './product_sample/controllers';
 import {
   ProductInfoSearchService,
@@ -23,6 +24,10 @@ import {
   ProductInfoQrCodeService,
   ProductInfoTemplateService,
   ProductFileService,
+  ProductUploadValidationService,
+  ProductUploadProcessingService,
+  ProductUploadSessionService,
+  ProductUploadService,
 } from './product_sample/services';
 import { Module } from '@nestjs/common';
 
@@ -39,6 +44,7 @@ import { Module } from '@nestjs/common';
     ProductInfoQrCodeController,
     ProductInfoExcelController,
     ProductFileController,
+    ProductUploadController,
   ],
   providers: [
     ProductInfoSearchService,
@@ -50,6 +56,11 @@ import { Module } from '@nestjs/common';
     ProductInfoHandler,
     ProductInfoTemplateService,
     ProductFileService,
+    ProductUploadValidationService,
+    ProductUploadProcessingService,
+    ProductUploadSessionService,
+    ProductUploadService,
+    ProductInfoTemplateService,
   ],
   exports: [
     ProductInfoSearchService,
@@ -60,6 +71,8 @@ import { Module } from '@nestjs/common';
     ProductInfoQrCodeService,
     ProductInfoTemplateService,
     ProductFileService,
+    ProductUploadService,
+    ProductInfoTemplateService,
   ],
 })
 export class ProductInfoModule {}

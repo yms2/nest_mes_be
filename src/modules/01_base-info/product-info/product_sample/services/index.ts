@@ -6,3 +6,4 @@ export * from './product-info-delete.service';
 export * from './product-info-qrcode.service';
 export * from './product-info-template.service';
 export * from './product-file.service';
+export * from './product-upload';
