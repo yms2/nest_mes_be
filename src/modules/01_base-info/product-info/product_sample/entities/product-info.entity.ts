@@ -22,6 +22,10 @@ export class ProductInfo extends BaseEntity {
   @Column({ name: 'product_type', type: 'varchar', length: 10, comment: '품목구분' })
   productType: string;
 
+  @ApiProperty({ example: '원재료', description: '분류' })
+  @Column({ name: 'product_category', type: 'varchar', length: 10, comment: '분류' })
+  productCategory: string;
+
   @ApiProperty({ example: '15', description: '규격1' })
   @Column({ name: 'product_size1', type: 'varchar', length: 50, comment: '규격1', nullable: true })
   productSize1: string;

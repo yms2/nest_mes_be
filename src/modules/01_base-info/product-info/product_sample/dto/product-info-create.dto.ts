@@ -31,6 +31,14 @@ export class CreateProductInfoDto {
   productType: string;
 
   @ApiProperty({
+    example: '원재료',
+    description: '분류',
+    required: false,
+  })
+  @OptionalString()
+  productCategory: string;
+
+  @ApiProperty({
     example: '15',
     description: '규격1',
     required: false,

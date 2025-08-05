@@ -10,6 +10,7 @@ import {
   ProductInfoUpdateController,
   ProductInfoDeleteController,
   ProductInfoQrCodeController,
+  ProductInfoExcelController,
 } from './product_sample/controllers';
 import {
   ProductInfoSearchService,
@@ -18,15 +19,14 @@ import {
   ProductInfoUpdateService,
   ProductInfoDeleteService,
   ProductInfoQrCodeService,
+  ProductInfoTemplateService,
 } from './product_sample/services';
 import { Module } from '@nestjs/common';
-import { BaseProductModule } from './base-product/base-product.module';
 
 @Module({
   imports: [
     CommonModule, 
     LogModule, 
-    BaseProductModule,
     TypeOrmModule.forFeature([ProductInfo, CustomerInfo])],
   controllers: [
     ProductInfoReadController,
@@ -34,6 +34,7 @@ import { BaseProductModule } from './base-product/base-product.module';
     ProductInfoUpdateController,
     ProductInfoDeleteController,
     ProductInfoQrCodeController,
+    ProductInfoExcelController,
   ],
   providers: [
     ProductInfoSearchService,
@@ -43,6 +44,7 @@ import { BaseProductModule } from './base-product/base-product.module';
     ProductInfoDeleteService,
     ProductInfoQrCodeService,
     ProductInfoHandler,
+    ProductInfoTemplateService,
   ],
   exports: [
     ProductInfoSearchService,
@@ -51,6 +53,7 @@ import { BaseProductModule } from './base-product/base-product.module';
     ProductInfoUpdateService,
     ProductInfoDeleteService,
     ProductInfoQrCodeService,
+    ProductInfoTemplateService,
   ],
 })
 export class ProductInfoModule {}

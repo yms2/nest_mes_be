@@ -4,3 +4,4 @@ export * from './product-info-create.service';
 export * from './product-info-update.service';
 export * from './product-info-delete.service';
 export * from './product-info-qrcode.service';
+export * from './product-info-template.service';
