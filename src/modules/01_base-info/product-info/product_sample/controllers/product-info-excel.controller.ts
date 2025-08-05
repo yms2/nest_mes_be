@@ -5,6 +5,7 @@ import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { ProductInfoReadService } from '../services/product-info-read.service';
 import { ProductInfoTemplateService } from '../services/product-info-template.service';
 import { ProductInfoSearchService } from '../services/product-info-search.service';
+import { ProductDownloadService } from '../services/product-download.service';
 
 @Auth()
 @ApiTags('ProductInfo')
@@ -14,6 +15,7 @@ export class ProductInfoExcelController {
         private readonly productInfoService: ProductInfoReadService,
         private readonly productInfoTemplateService: ProductInfoTemplateService,
         private readonly productInfoSearchService: ProductInfoSearchService,
+        private readonly productDownloadService: ProductDownloadService,
     ) {}
 
     @Get('download-template')
@@ -26,5 +28,28 @@ export class ProductInfoExcelController {
         res.end(buffer);
     }
     
-    
+    @Get('download-excel')
+    @ApiOperation({ summary: '품목정보 엑셀 다운로드 (키워드 있으면 검색 결과, 없으면 전체)' })
+    @ApiQuery({ name: 'keyword', required: false, description: '검색 키워드 (선택사항)' })
+    @ApiQuery({ name: 'page', required: false, description: '페이지 번호 (기본값: 1)' })
+    @ApiQuery({ name: 'limit', required: false, description: '페이지당 개수 (기본값: 99999)' })
+    async downloadExcel(
+        @Res() res: Response,
+        @Query('keyword') keyword?: string,
+        @Query('page') page?: string,
+        @Query('limit') limit?: string,
+    ) {
+        let result;
+
+        const pageNum = page ? parseInt(page) : 1;
+        const limitNum = limit ? parseInt(limit) : 99999;
+
+        if (keyword && keyword.trim()) {
+            result = await this.productInfoSearchService.searchProductInfo(keyword.trim(), pageNum, limitNum);
+        } else {
+            result = await this.productInfoService.getAllProductInfo(pageNum, limitNum);
+        }
+
+        await this.productDownloadService.exportProductInfos(result.data, res); 
+    }
 }

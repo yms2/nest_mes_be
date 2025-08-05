@@ -28,6 +28,7 @@ import {
   ProductUploadProcessingService,
   ProductUploadSessionService,
   ProductUploadService,
+  ProductDownloadService,
 } from './product_sample/services';
 import { Module } from '@nestjs/common';
 
@@ -61,6 +62,7 @@ import { Module } from '@nestjs/common';
     ProductUploadSessionService,
     ProductUploadService,
     ProductInfoTemplateService,
+    ProductDownloadService,
   ],
   exports: [
     ProductInfoSearchService,
@@ -73,6 +75,7 @@ import { Module } from '@nestjs/common';
     ProductFileService,
     ProductUploadService,
     ProductInfoTemplateService,
+    ProductDownloadService,
   ],
 })
 export class ProductInfoModule {}

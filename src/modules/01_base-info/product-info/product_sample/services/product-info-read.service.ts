@@ -20,32 +20,37 @@ export class ProductInfoReadService {
   ): Promise<{ data: any[]; total: number; page: number; limit: number }> {
     const offset = (page - 1) * limit;
 
-    // LEFT JOIN으로 거래처 정보와 함께 조회
-    const queryBuilder = this.productInfoRepository
-      .createQueryBuilder('product')
-      .leftJoin('customer_info', 'customer', 'customer.customer_code = product.customer_code')
-      .select([
-        'product.*',
-        'customer.customer_name as customerName',
-      ])
-      .orderBy('product.product_name', 'ASC')
-      .skip(offset)
-      .take(limit);
+    // 기본 품목 정보 조회
+    const [products, total] = await this.productInfoRepository.findAndCount({
+      order: { productName: 'ASC' },
+      skip: offset,
+      take: limit,
+    });
 
-    const [data, total] = await Promise.all([
-      queryBuilder.getRawMany(),
-      this.productInfoRepository.count(),
-    ]);
+    // 거래처 정보와 함께 데이터 구성
+    const data = await Promise.all(
+      products.map(async (product) => {
+        let customerName = '';
+        
+        if (product.customerCode) {
+          const customer = await this.customerInfoRepository.findOne({
+            where: { customerCode: product.customerCode },
+            select: ['customerName'],
+          });
+          customerName = customer?.customerName || '';
+        }
 
-    // 날짜 포맷팅 적용
-    const formattedData = data.map(item => ({
-      ...item,
-      createdAt: DateFormatter.formatDate(item.created_at),
-      updatedAt: DateFormatter.formatDate(item.updated_at),
-    }));
+        return {
+          ...product,
+          customerName,
+          createdAt: DateFormatter.formatDate(product.createdAt),
+          updatedAt: DateFormatter.formatDate(product.updatedAt),
+        };
+      })
+    );
 
     return {
-      data: formattedData,
+      data,
       total,
       page,
       limit,

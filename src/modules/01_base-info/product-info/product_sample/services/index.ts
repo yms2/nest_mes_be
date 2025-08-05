@@ -7,3 +7,4 @@ export * from './product-info-qrcode.service';
 export * from './product-info-template.service';
 export * from './product-file.service';
 export * from './product-upload';
+export * from './product-download.service';
