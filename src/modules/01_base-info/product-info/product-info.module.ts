@@ -3,6 +3,7 @@ import { ProductInfoHandler } from './product_sample/handlers/product-info.handl
 import { CommonModule } from 'src/common/common.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductInfo } from './product_sample/entities/product-info.entity';
+import { ProductFile } from './product_sample/entities/product-file.entity';
 import { CustomerInfo } from '../customer-info/entities/customer-info.entity';
 import {
   ProductInfoReadController,
@@ -11,6 +12,7 @@ import {
   ProductInfoDeleteController,
   ProductInfoQrCodeController,
   ProductInfoExcelController,
+  ProductFileController,
 } from './product_sample/controllers';
 import {
   ProductInfoSearchService,
@@ -20,6 +22,7 @@ import {
   ProductInfoDeleteService,
   ProductInfoQrCodeService,
   ProductInfoTemplateService,
+  ProductFileService,
 } from './product_sample/services';
 import { Module } from '@nestjs/common';
 
@@ -27,7 +30,7 @@ import { Module } from '@nestjs/common';
   imports: [
     CommonModule, 
     LogModule, 
-    TypeOrmModule.forFeature([ProductInfo, CustomerInfo])],
+    TypeOrmModule.forFeature([ProductInfo, ProductFile, CustomerInfo])],
   controllers: [
     ProductInfoReadController,
     ProductInfoCreateController,
@@ -35,6 +38,7 @@ import { Module } from '@nestjs/common';
     ProductInfoDeleteController,
     ProductInfoQrCodeController,
     ProductInfoExcelController,
+    ProductFileController,
   ],
   providers: [
     ProductInfoSearchService,
@@ -45,6 +49,7 @@ import { Module } from '@nestjs/common';
     ProductInfoQrCodeService,
     ProductInfoHandler,
     ProductInfoTemplateService,
+    ProductFileService,
   ],
   exports: [
     ProductInfoSearchService,
@@ -54,6 +59,7 @@ import { Module } from '@nestjs/common';
     ProductInfoDeleteService,
     ProductInfoQrCodeService,
     ProductInfoTemplateService,
+    ProductFileService,
   ],
 })
 export class ProductInfoModule {}

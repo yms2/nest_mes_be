@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from 'src/common/entities/base.entity';
+import { ProductFile } from './product-file.entity';
 
 @Entity()
 export class ProductInfo extends BaseEntity {
@@ -101,4 +102,8 @@ export class ProductInfo extends BaseEntity {
   @ApiProperty({ example: '비고내용', description: '비고' })
   @Column({ name: 'product_bigo', type: 'varchar', length: 100, comment: '비고', nullable: true })
   productBigo: string;
+
+  // 파일 관계
+  @OneToMany(() => ProductFile, file => file.product)
+  files: ProductFile[];
 }
