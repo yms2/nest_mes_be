@@ -23,7 +23,7 @@ export interface ProcessedData {
     failCount: number;
 }
 
-// 처리 결과 타입
+// 처리 결과 타입   (클라이언트에 반환할 데이터)
 export interface ProcessingResult {
     message: string;
     result: {
