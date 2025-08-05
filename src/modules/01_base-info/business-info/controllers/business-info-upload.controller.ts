@@ -18,65 +18,8 @@ import {
   ApiResponse,
 } from '@nestjs/swagger';
 import { Auth } from 'src/common/decorators/auth.decorator';
+import { UploadResponse, ValidationResponse } from '../dto/upload-business-info.dto';
 
-interface UploadResponse {
-  message: string;
-  result: {
-    successCount: number;
-    failCount: number;
-    totalCount: number;
-    errors: Array<{
-      row: number;
-      businessNumber?: string;
-      businessName?: string;
-      error: string;
-      details?: string;
-    }>;
-    summary: {
-      created: number;
-      updated: number;
-      skipped: number;
-    };
-  };
-}
-
-interface ValidationResponse {
-  message: string;
-  sessionId?: string; // 검증 세션 ID
-  result: {
-    totalCount: number;
-    duplicateCount: number;
-    newCount: number;
-    errorCount: number;
-    hasDuplicates: boolean; // 중복 데이터 존재 여부
-    hasErrors: boolean; // 오류 데이터 존재 여부
-    duplicates: Array<{
-      row: number;
-      businessNumber: string;
-      businessName: string;
-      existingBusinessName: string;
-    }>;
-    errors: Array<{
-      row: number;
-      businessNumber?: string;
-      businessName?: string;
-      error: string;
-    }>;
-    preview: {
-      toCreate: Array<{
-        businessNumber: string;
-        businessName: string;
-        businessCeo: string;
-      }>;
-      toUpdate: Array<{
-        businessNumber: string;
-        businessName: string;
-        businessCeo: string;
-        existingBusinessName: string;
-      }>;
-    };
-  };
-}
 
 @ApiTags('BusinessInfo')
 @Controller('business-info')
@@ -120,8 +63,16 @@ export class BusinessUploadController {
   async uploadConfirmed(
     @Body() body: { validationId: string; mode: 'add' | 'overwrite' },
   ): Promise<UploadResponse> {
+    if (!body) {
+      throw new BadRequestException('요청 본문이 없습니다.');
+    }
+    
     if (!body.validationId) {
       throw new BadRequestException('검증 ID가 필요합니다.');
+    }
+
+    if (!body.mode || !['add', 'overwrite'].includes(body.mode)) {
+      throw new BadRequestException('유효한 모드(add 또는 overwrite)가 필요합니다.');
     }
 
     return await this.uploadService.processValidatedData(body.validationId, body.mode);

@@ -12,7 +12,6 @@ import {
   BusinessUploadService,
   BusinessUploadValidationService,
   BusinessUploadProcessingService,
-  BusinessUploadSessionService,
   ExcelTemplateService,
   ExcelExportService
 } from './services';
@@ -25,8 +24,7 @@ import {
   BusinessInfoUpdateController,
   BusinessInfoDeleteController,
   BusinessUploadController,
-  ExcelTemplateController,
-  BusinessExcelDownloadController
+  BusinessExcelController
 } from './controllers';
 import { BusinessInfoHandler } from './handlers/business-info.handler';
 import { BusinessBankModule } from './business-bank/business-bank.module';
@@ -51,8 +49,7 @@ import { BusinessBankModule } from './business-bank/business-bank.module';
     BusinessInfoUpdateController,
     BusinessInfoDeleteController,
     BusinessUploadController,
-    ExcelTemplateController,
-    BusinessExcelDownloadController
+    BusinessExcelController
   ],
   providers: [
     BusinessInfoHandler,
@@ -64,7 +61,6 @@ import { BusinessBankModule } from './business-bank/business-bank.module';
     BusinessUploadService,
     BusinessUploadValidationService,
     BusinessUploadProcessingService,
-    BusinessUploadSessionService,
     ExcelTemplateService,
     ExcelExportService
   ],

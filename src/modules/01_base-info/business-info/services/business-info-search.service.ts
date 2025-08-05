@@ -70,7 +70,7 @@ export class BusinessInfoSearchService {
     startDate: string,
     endDate: string,
     page: number = 1,
-    limit: number = 10,
+    limit: number = 99999,
   ): Promise<SearchResult> {
     this.validateDateRange(startDate, endDate);
 

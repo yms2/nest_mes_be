@@ -34,8 +34,8 @@ export class BusinessInfoReadService {
    */
   
   async getAllBusinessInfo(
-    page: number = 1,
-    limit: number = 10,
+    page: number,
+    limit: number,
   ): Promise<{ data: BusinessInfo[]; total: number; page: number; limit: number }> {
     const offset = (page - 1) * limit;
 

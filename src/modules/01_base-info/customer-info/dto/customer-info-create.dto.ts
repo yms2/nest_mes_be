@@ -8,6 +8,7 @@ import {
   IsNotEmpty,
   Matches,
   ValidateIf,
+  IsEmail,
 } from 'class-validator';
 import { OptionalString } from 'src/common/decorators/optional-string.decorator';
 
@@ -15,7 +16,7 @@ export class CreateCustomerInfoDto {
   //필수값
   @ApiProperty({
     example: '6743001715',
-    description: '사업자 번호 (숫자 10자리, 필수)',
+    description: '사업자등록번호 (숫자 10자리, 필수)',
     required: true,
   })
   @IsNumberString({}, { message: '사업자등록번호는 숫자만 입력하세요.' })
@@ -32,6 +33,15 @@ export class CreateCustomerInfoDto {
   customerName: string;
 
   @ApiProperty({
+    example: '112332-1323333',
+    description: '법인 번호 (선택)',
+    required: false,
+  })
+  @OptionalString()
+  @Length(13, 13, { message: '법인번호는 13자리 숫자여야 합니다.' })
+  customerCorporateRegistrationNumber?: string;
+
+  @ApiProperty({
     example: '김대호',
     description: '거래처 CEO (필수)',
     required: true,
@@ -39,6 +49,14 @@ export class CreateCustomerInfoDto {
   @IsString({ message: '거래처 CEO는 필수값입니다.' })
   @IsNotEmpty({ message: '거래처 CEO는 필수 입력값입니다.' })
   customerCeo: string;
+
+  @ApiProperty({
+    example: '매출처',
+    description: '거래구분 (선택)',
+    required: false,
+  })
+  @OptionalString()
+  customerType?: string;
 
   //선택값
   @ApiProperty({
@@ -84,12 +102,30 @@ export class CreateCustomerInfoDto {
   customerMobile?: string;
 
   @ApiProperty({
+    example: '010-1234-5678',
+    description: '거래처 펙스번호 (선택)',
+    required: false,
+  })
+  @OptionalString()
+  customerFax?: string;
+
+  @ApiProperty({
     example: 'test@naver.com',
     description: '거래처 이메일 (선택)',
     required: false,
   })
   @OptionalString()
+  @IsEmail({}, { message: '이메일 형식이 잘못되었습니다.' })
   customerEmail?: string;
+
+  @ApiProperty({
+    example: 'test@naver.com',
+    description: '거래처 계산서 이메일 (선택)',
+    required: false,
+  })
+  @OptionalString()
+  @IsEmail({}, { message: '이메일 형식이 잘못되었습니다.' })
+  customerInvoiceEmail?: string;
 
   @ApiProperty({
     example: '42520',
@@ -97,9 +133,6 @@ export class CreateCustomerInfoDto {
     required: false,
   })
   @OptionalString()
-  @Matches(/^\d{5}$/, { message: '우편번호는 5자리 숫자여야 합니다.' })
-  @Transform(({ value }) => (value === '' ? undefined : value)) // 빈 문자열이면 undefined 처리
-  @ValidateIf((obj, value) => value !== undefined) // 값이 있을 때만 아래 검증 수행
   customerZipcode?: string;
 
   @ApiProperty({
