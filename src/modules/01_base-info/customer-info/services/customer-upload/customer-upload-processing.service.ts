@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CustomerInfo } from '../../entities/customer-info.entity';
@@ -161,7 +161,7 @@ export class CustomerUploadProcessingService {
 
         if (existing) {
             if (mode === 'add') {
-                throw new BadRequestException(`거래처번호 ${dto.customerNumber}는 이미 존재합니다.`);
+                throw new BadRequestException(`사업자등록번호 ${dto.customerNumber}는 이미 존재합니다.`);
             }
             this.customerInfoRepository.merge(existing, {
                 ...dto,
@@ -244,7 +244,7 @@ export class CustomerUploadProcessingService {
         };
     }
 
-    // 거래처번호 정리
+    // 사업자등록번호 정리
     private cleanCustomerNumber(value: string): string {
         if (!value) return '';
         return String(value).replace(/[^\d]/g, '');

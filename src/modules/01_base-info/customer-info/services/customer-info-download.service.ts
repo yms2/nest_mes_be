@@ -11,7 +11,7 @@ export class CustomerInfoDownloadService {
     // 1) 컬럼 정의 (텍스트 서식 고정: numFmt: '@')
     worksheet.columns = [
       { header: '거래처명', key: 'customerName', width: 20, style: { numFmt: '@' } },
-      { header: '거래처번호', key: 'customerNumber', width: 20, style: { numFmt: '@' } },
+      { header: '사업자등록번호', key: 'customerNumber', width: 20, style: { numFmt: '@' } },
       { header: '대표자명', key: 'customerCeo', width: 20, style: { numFmt: '@' } },
       { header: '거래구분', key: 'customerType', width: 20, style: { numFmt: '@' } },
       { header: '법인번호', key: 'customerCorporateRegistrationNumber', width: 20, style: { numFmt: '@' } },
