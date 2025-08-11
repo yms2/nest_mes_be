@@ -30,12 +30,21 @@ export class ProcessCreateService {
           take: 1,
         });
     
-        const nextNumber = lastProcess?.processCode
-          ? parseInt(lastProcess.processCode.slice(1), 10) + 1
-          : 1;
+        let nextNumber = 1;
+        
+        if (lastProcess?.processCode) {
+          // PRC 접두사 제거 후 숫자 추출
+          const numberPart = lastProcess.processCode.replace(/^PRC/i, '');
+          const parsedNumber = parseInt(numberPart, 10);
+          
+          // 유효한 숫자인지 확인
+          if (!isNaN(parsedNumber) && parsedNumber > 0) {
+            nextNumber = parsedNumber + 1;
+          }
+        }
     
         return `PRC${nextNumber.toString().padStart(3, '0')}`;
-      }
+    }
     
     private createProcessEntity(
         dto: CreateProcessInfoDto,
