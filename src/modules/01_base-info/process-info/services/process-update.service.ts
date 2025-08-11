@@ -18,13 +18,6 @@ export class ProcessUpdateService {
     ): Promise<ProcessInfo> {
         const existingProcessInfo = await this.findProcessInfoById(id);
 
-        if (
-            createProcessInfoDto.processCode &&
-            createProcessInfoDto.processCode !== existingProcessInfo.processCode
-        ) {
-            await this.checkProcessCodeDuplicate(createProcessInfoDto.processCode, id);
-        }
-
         const updatedProcessInfo = {
             ...existingProcessInfo,
             ...createProcessInfoDto,
@@ -35,7 +28,7 @@ export class ProcessUpdateService {
         return this.processInfoRepository.save(updatedProcessInfo);
     }
 
-    private async findProcessInfoById(id: number): Promise<ProcessInfo> {
+    public async findProcessInfoById(id: number): Promise<ProcessInfo> {
         const processInfo = await this.processInfoRepository.findOne({
             where: { id },
         });

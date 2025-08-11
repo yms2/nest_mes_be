@@ -56,7 +56,7 @@ export class ProcessUpdateController {
             moduleName: '공정관리',
             action: 'UPDATE_FAIL',
             username,
-            targetId: dto.processCode,
+            targetId: dto.processName,
             targetName: dto.processName,
             details: `수정 실패: ${error.message}`,
         });

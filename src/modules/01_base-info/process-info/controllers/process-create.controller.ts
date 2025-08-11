@@ -38,7 +38,7 @@ export class ProcessCreateController {
             throw error;
         }
     }
-
+    
     private async writeCreateLog(result: ProcessInfo, username: string) {
         await this.logService.createDetailedLog({
             moduleName: '공정관리',
@@ -46,6 +46,7 @@ export class ProcessCreateController {
             username,
             targetId: result.processCode,
             targetName: result.processName,
+            details: '새로운 공정 정보 생성',
         });
     }
 
@@ -54,8 +55,9 @@ export class ProcessCreateController {
             moduleName: '공정관리',
             action: 'CREATE_FAIL',
             username,
-            targetId: dto.processCode,
+            targetId: dto.processName,
             targetName: dto.processName,
+            details: `생성 실패: ${error.message}`,
         });
     }
 }

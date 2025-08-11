@@ -34,7 +34,7 @@ export class ProcessCreateService {
           ? parseInt(lastProcess.processCode.slice(1), 10) + 1
           : 1;
     
-        return `P${nextNumber.toString().padStart(3, '0')}`;
+        return `PRC${nextNumber.toString().padStart(3, '0')}`;
       }
     
     private createProcessEntity(
@@ -42,10 +42,16 @@ export class ProcessCreateService {
         processCode: string,
         createdBy: string,
     ): ProcessInfo {
-        return this.processInfoRepository.create({
-            ...dto,
+        const entityData: Partial<ProcessInfo> = {
             processCode,
+            processName: dto.processName,
             createdBy,
-        });
+        };
+        
+        if (dto.description !== undefined) {
+            entityData.description = dto.description;
+        }
+        
+        return this.processInfoRepository.create(entityData);
     }
 }
