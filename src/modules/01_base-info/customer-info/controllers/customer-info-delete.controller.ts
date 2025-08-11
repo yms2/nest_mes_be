@@ -26,28 +26,35 @@ export class CustomerInfoDeleteController {
   ) {
     try {
       await this.customerInfoDeleteService.hardDeleteCustomerInfo(Number(id));
+      await this.writeDeleteLog(id, req.user.username);
+      return ApiResponseBuilder.success(null, '거래처 정보가 삭제되었습니다.');
+    } catch (error) {
+      await this.writeDeleteFailLog(id, req.user.username, error);
+      throw error;
+    }
+  }
 
+  private async writeDeleteLog(id: string, username: string) {  
       await this.logService.createDetailedLog({
         moduleName: '거래처관리',
         action: 'HARD_DELETE',
-        username: req.user.username,
+        username,
         targetId: id,
+        targetName: id,
         details: '거래처 정보 영구 삭제',
       });
+    }
 
-      return ApiResponseBuilder.success(null, '거래처 정보가 삭제되었습니다.');
-    } catch (error) {
+    private async writeDeleteFailLog(id: string, username: string, error: Error) {
       await this.logService
         .createDetailedLog({
           moduleName: '거래처관리',
           action: 'HARD_DELETE_FAIL',
-          username: req.user.username,
+          username,
           targetId: id,
-          details: `영구 삭제 실패: ${(error as Error).message}`,
+          targetName: id,
+          details: `거래처 정보 영구 삭제 실패: ${error.message}`,
         })
         .catch(() => {});
-
-      throw error;
     }
-  }
 }
