@@ -211,6 +211,20 @@ export class EmployeeUploadValidationService {
                     hasErrors = true;
                     continue;
                 }
+                
+                // 휴대폰번호 형식 검증 (숫자, 하이픈만 허용)
+                const phoneRegex = /^[0-9-]+$/;
+                if (!phoneRegex.test(employeePhone)) {
+                    errors.push({
+                        row: i + 1,
+                        employeeName,
+                        department,
+                        error: '휴대폰번호는 숫자와 하이픈(-)만 입력 가능합니다.',
+                    });
+                    errorCount++;
+                    hasErrors = true;
+                    continue;
+                }
                 if (!employeeEmail) {
                     errors.push({
                         row: i + 1,
@@ -239,6 +253,20 @@ export class EmployeeUploadValidationService {
                         employeeName,
                         department,
                         error: '우편번호는 필수 필드입니다.',
+                    });
+                    errorCount++;
+                    hasErrors = true;
+                    continue;
+                }
+                
+                // 우편번호 형식 검증 (숫자만 허용)
+                const postalRegex = /^[0-9]+$/;
+                if (!postalRegex.test(postalCode)) {
+                    errors.push({
+                        row: i + 1,
+                        employeeName,
+                        department,
+                        error: '우편번호는 숫자만 입력 가능합니다.',
                     });
                     errorCount++;
                     hasErrors = true;
