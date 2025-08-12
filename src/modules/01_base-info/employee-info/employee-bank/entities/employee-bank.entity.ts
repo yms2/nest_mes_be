@@ -3,10 +3,10 @@ import { ApiProperty } from '@nestjs/swagger';
 import { BaseEntity } from 'src/common/entities/base.entity';
 
 @Entity()
-export class CustomerBank extends BaseEntity {
-  @ApiProperty({ example: 'CUST001', description: '거래처 코드' })
-  @Column({ name: 'customer_code', length: 20, comment: '거래처 코드' })
-  customerCode: string;
+export class EmployeeBank extends BaseEntity {
+  @ApiProperty({ example: 'EMP001', description: '직원 코드' })
+  @Column({ name: 'employee_code', length: 20, comment: '직원 코드' })
+  employeeCode: string;
 
   @ApiProperty({ example: '001', description: '은행 코드' })
   @Column({ name: 'bank_code', length: 10, comment: '은행 코드' })

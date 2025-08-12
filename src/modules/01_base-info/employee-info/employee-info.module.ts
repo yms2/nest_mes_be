@@ -7,11 +7,13 @@ import { CommonModule } from 'src/common/common.module';
 import { LogModule } from '../../log/log.module';
 import { EmployeeInfoHandler } from './handlers/employee-info.handler';
 import { EmployeeUploadService } from './services/employee-upload/employee-upload.service';
+import { EmployeeBankModule } from './employee-bank/employee-bank.module';
 const serviceArray = Object.values(services);
 const controllerArray = Object.values(controllers);
 
 @Module({
     imports: [
+        EmployeeBankModule,
         CommonModule,
         LogModule,
         TypeOrmModule.forFeature([Employee]),

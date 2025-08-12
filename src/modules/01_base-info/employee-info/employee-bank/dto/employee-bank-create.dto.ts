@@ -1,14 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsNotEmpty, Length, IsOptional, Matches } from 'class-validator';
 
-export class CreateCustomerBankDto {
+export class CreateEmployeeBankDto {
   @ApiProperty({
-    example: 'CUS001',
-    description: '거래처 코드 (필수)',
+    example: 'EMP001',
+    description: '직원 코드 (필수)',
     required: true,
   })
-  @IsString({ message: '거래처 코드는 필수값입니다.' })
-  customerCode: string;
+  @IsString({ message: '직원 코드는 필수값입니다.' })
+  employeeCode: string;
 
   @ApiProperty({
     example: '001',
