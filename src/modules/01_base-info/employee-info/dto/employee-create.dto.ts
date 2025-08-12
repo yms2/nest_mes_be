@@ -1,15 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
 import { 
     IsString, 
     IsNotEmpty, 
-    IsOptional, 
     IsDateString, 
-    IsEnum, 
-    IsNumberString, 
     IsEmail, 
-    IsPhoneNumber, 
-    IsDate,
 } from 'class-validator';
 import { OptionalString } from 'src/common/decorators/optional-string.decorator';
 
@@ -107,19 +101,21 @@ export class CreateEmployeeDto {
 
     @ApiProperty({
         example: '12345',
-        description: '우편번호 (선택)',
-        required: false,
+        description: '우편번호 (필수)',
+        required: true,
     })
-    @OptionalString()
-    zipcode?: string;
+    @IsString({ message: '우편번호는 필수값입니다.' })
+    @IsNotEmpty({ message: '우편번호는 필수 입력값입니다.' })
+    zipcode: string;
 
     @ApiProperty({
         example: '서울시 강남구 역삼동',
-        description: '주소 (선택)',
-        required: false,
+        description: '주소 (필수)',
+        required: true,
     })
-    @OptionalString()
-    address?: string;
+    @IsString({ message: '주소는 필수값입니다.' })
+    @IsNotEmpty({ message: '주소는 필수 입력값입니다.' })
+    address: string;
 
     @ApiProperty({
         example: '아파트 3층',
