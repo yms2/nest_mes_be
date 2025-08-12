@@ -3,12 +3,17 @@ import { ProductInfoHandler } from './product_sample/handlers/product-info.handl
 import { CommonModule } from 'src/common/common.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductInfo } from './product_sample/entities/product-info.entity';
+import { ProductFile } from './product_sample/entities/product-file.entity';
+import { CustomerInfo } from '../customer-info/entities/customer-info.entity';
 import {
   ProductInfoReadController,
   ProductInfoCreateController,
   ProductInfoUpdateController,
   ProductInfoDeleteController,
   ProductInfoQrCodeController,
+  ProductInfoExcelController,
+  ProductFileController,
+  ProductUploadController,
 } from './product_sample/controllers';
 import {
   ProductInfoSearchService,
@@ -17,22 +22,30 @@ import {
   ProductInfoUpdateService,
   ProductInfoDeleteService,
   ProductInfoQrCodeService,
+  ProductInfoTemplateService,
+  ProductFileService,
+  ProductUploadValidationService,
+  ProductUploadProcessingService,
+  ProductUploadSessionService,
+  ProductUploadService,
+  ProductDownloadService,
 } from './product_sample/services';
 import { Module } from '@nestjs/common';
-import { BaseProductModule } from './base-product/base-product.module';
 
 @Module({
   imports: [
     CommonModule, 
     LogModule, 
-    BaseProductModule,
-    TypeOrmModule.forFeature([ProductInfo])],
+    TypeOrmModule.forFeature([ProductInfo, ProductFile, CustomerInfo])],
   controllers: [
     ProductInfoReadController,
     ProductInfoCreateController,
     ProductInfoUpdateController,
     ProductInfoDeleteController,
     ProductInfoQrCodeController,
+    ProductInfoExcelController,
+    ProductFileController,
+    ProductUploadController,
   ],
   providers: [
     ProductInfoSearchService,
@@ -42,6 +55,14 @@ import { BaseProductModule } from './base-product/base-product.module';
     ProductInfoDeleteService,
     ProductInfoQrCodeService,
     ProductInfoHandler,
+    ProductInfoTemplateService,
+    ProductFileService,
+    ProductUploadValidationService,
+    ProductUploadProcessingService,
+    ProductUploadSessionService,
+    ProductUploadService,
+    ProductInfoTemplateService,
+    ProductDownloadService,
   ],
   exports: [
     ProductInfoSearchService,
@@ -50,6 +71,11 @@ import { BaseProductModule } from './base-product/base-product.module';
     ProductInfoUpdateService,
     ProductInfoDeleteService,
     ProductInfoQrCodeService,
+    ProductInfoTemplateService,
+    ProductFileService,
+    ProductUploadService,
+    ProductInfoTemplateService,
+    ProductDownloadService,
   ],
 })
 export class ProductInfoModule {}

@@ -1,5 +1,5 @@
 import { Put, Controller, Param, Body, Req } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
 import { CreateCustomerInfoDto } from '../dto/customer-info-create.dto';
 import { ApiResponseBuilder } from 'src/common/interfaces/api-response.interface';

@@ -20,15 +20,25 @@ export class ProductInfoCreateService {
     return this.productInfoREpository.save(productEntity);
   }
 
+  // 품목 코드 생성
   private async generateProductCode(): Promise<string> {
     const [lastProduct] = await this.productInfoREpository.find({
       order: { productCode: 'DESC' },
       take: 1,
     });
 
-    const nextNumber = lastProduct?.productCode
-      ? parseInt(lastProduct.productCode.slice(1), 10) + 1
-      : 1;
+    let nextNumber = 1;
+    
+    if (lastProduct?.productCode) {
+      // PRD 접두사 제거 후 숫자 추출
+      const numberPart = lastProduct.productCode.replace(/^PRD/i, '');
+      const parsedNumber = parseInt(numberPart, 10);
+      
+      // 유효한 숫자인지 확인
+      if (!isNaN(parsedNumber) && parsedNumber > 0) {
+        nextNumber = parsedNumber + 1;
+      }
+    }
 
     return `PRD${nextNumber.toString().padStart(3, '0')}`;
   }
