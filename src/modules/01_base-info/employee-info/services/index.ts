@@ -5,3 +5,7 @@ export * from './employee-update.service';
 export * from './employee-delete.service';
 export * from './employee-template.service';
 export * from './employee-download.service';
+export * from './employee-upload/employee-upload.service';
+export * from './employee-upload/employee-upload-validation.service';
+export * from './employee-upload/employee-upload-processing.service';
+export * from './employee-upload/employee-upload-session.service';

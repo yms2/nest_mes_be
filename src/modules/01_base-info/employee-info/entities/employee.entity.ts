@@ -51,8 +51,8 @@ export class Employee extends BaseEntity {
     hireDate: Date;
 
     @ApiProperty({ example: '2025-01-01', description: '퇴사일' })
-    @Column({ name: 'resignation_date', type: 'date', comment: '퇴사일' })
-    resignationDate: Date;
+    @Column({ name: 'resignation_date', type: 'date', comment: '퇴사일', nullable: true })
+    resignationDate?: Date;
 
     @ApiProperty({ example: '12345', description: '우편번호' })
     @Column({ name: 'zipcode', type: 'varchar', length: 20, comment: '우편번호' })

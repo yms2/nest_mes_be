@@ -6,6 +6,7 @@ import * as controllers from './controllers';
 import { CommonModule } from 'src/common/common.module';
 import { LogModule } from '../../log/log.module';
 import { EmployeeInfoHandler } from './handlers/employee-info.handler';
+import { EmployeeUploadService } from './services/employee-upload/employee-upload.service';
 const serviceArray = Object.values(services);
 const controllerArray = Object.values(controllers);
 
@@ -16,7 +17,7 @@ const controllerArray = Object.values(controllers);
         TypeOrmModule.forFeature([Employee]),
     ],
     controllers: controllerArray,
-    providers: [...serviceArray, EmployeeInfoHandler],
+    providers: [...serviceArray, EmployeeInfoHandler, EmployeeUploadService],
     exports: serviceArray,
 })
 export class EmployeeInfoModule {}
