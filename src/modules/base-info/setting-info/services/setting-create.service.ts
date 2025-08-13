@@ -49,7 +49,7 @@ export class SettingCreateService {
             createdBy,
         });
         
-        console.log('Creating SubCode entity:', entity); // 디버깅용
+     
         return entity;
     }
 }

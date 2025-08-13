@@ -27,7 +27,7 @@ export class SettingCreateController {
             await this.writeCreateLog(result, req.user.username);
             return ApiResponseBuilder.success(result, '서브 코드가 생성되었습니다.');
         } catch (error) {
-            console.error('Error creating SubCode:', error); // 디버깅용
+           
             await this.writeCreateFailLog(createSubCodeDto, req.user.username, error);
             throw error;
         }
