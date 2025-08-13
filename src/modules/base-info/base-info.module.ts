@@ -6,9 +6,10 @@ import { BomInfoModule } from './bom-info/bom-info.module';
 import { ProcessInfoModule } from './process-info/process-info.module';
 import { EmployeeInfoModule } from './employee-info/employee-info.module';
 import { PermissionInfoModule } from './permission-info/permission-info.module';  
+import { SettingInfoModule } from './setting-info/setting-info.module';
 
 @Module({
-  imports: [BusinessInfoModule, CustomerInfoModule, ProductInfoModule, BomInfoModule, ProcessInfoModule, EmployeeInfoModule, PermissionInfoModule],
-  exports: [BusinessInfoModule, CustomerInfoModule, ProductInfoModule, BomInfoModule, ProcessInfoModule, EmployeeInfoModule, PermissionInfoModule],
+  imports: [BusinessInfoModule, CustomerInfoModule, ProductInfoModule, BomInfoModule, ProcessInfoModule, EmployeeInfoModule, PermissionInfoModule, SettingInfoModule],
+  exports: [BusinessInfoModule, CustomerInfoModule, ProductInfoModule, BomInfoModule, ProcessInfoModule, EmployeeInfoModule, PermissionInfoModule, SettingInfoModule],
 })
 export class BaseInfoModule {}

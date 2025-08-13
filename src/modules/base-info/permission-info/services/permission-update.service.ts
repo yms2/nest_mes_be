@@ -18,14 +18,7 @@ export class PermissionUpdateService {
     ): Promise<AuthorityManages> {
         const existingPermission = await this.findPermissionById(id);
 
-        // 디버깅: 기존 데이터 로그
-        console.log('기존 권한 데이터:', {
-            id: existingPermission.id,
-            allGrant: existingPermission.allGrant,
-            groupName: existingPermission.groupName,
-            mainMenu: existingPermission.mainMenu,
-            subMenu: existingPermission.subMenu,
-        });
+
 
         // 디버깅: 업데이트할 데이터 로그
         console.log('업데이트할 데이터:', updateDto);
@@ -43,25 +36,10 @@ export class PermissionUpdateService {
             updatedAt: new Date(),
         };
 
-        // 디버깅: 최종 업데이트 데이터 로그
-        console.log('최종 업데이트 데이터:', {
-            id: updatedPermission.id,
-            allGrant: updatedPermission.allGrant,
-            groupName: updatedPermission.groupName,
-            mainMenu: updatedPermission.mainMenu,
-            subMenu: updatedPermission.subMenu,
-        });
 
         const result = await this.permissionRepository.save(updatedPermission);
         
-        // 디버깅: 저장된 결과 로그
-        console.log('저장된 결과:', {
-            id: result.id,
-            allGrant: result.allGrant,
-            groupName: result.groupName,
-            mainMenu: result.mainMenu,
-            subMenu: result.subMenu,
-        });
+
 
         return result;
     }
