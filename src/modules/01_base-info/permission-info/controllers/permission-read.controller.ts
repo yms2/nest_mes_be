@@ -1,8 +1,7 @@
-import { Controller, Query, Get, Param, ParseIntPipe, UseInterceptors } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiQuery, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { Controller, Get, Param, UseInterceptors } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { ClassSerializerInterceptor } from '@nestjs/common';
 import { PermissionReadService } from '../services/permission-read.service';
-import { AuthorityManages, SubMenu, mainMenu } from '../entities/permission.entity';
 import { Auth } from '@/common/decorators/auth.decorator';
 
 @ApiTags('권한관리')
