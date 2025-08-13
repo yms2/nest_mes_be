@@ -1,6 +1,6 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { authoritymanages } from './entity/GroupPermission.entity';
+import { AuthorityManages } from './entity/GroupPermission.entity';
 import { MainMenus } from './entity/MainMenu.entity';
 import { SubMenus } from './entity/SubMenu.entity';
 import { In, Repository } from 'typeorm';
@@ -13,8 +13,8 @@ import {
 @Injectable()
 export class GroupPermissionService {
   constructor(
-    @InjectRepository(authoritymanages)
-    private readonly permissionRepository: Repository<authoritymanages>,
+    @InjectRepository(AuthorityManages)
+    private readonly permissionRepository: Repository<AuthorityManages>,
     @InjectRepository(MainMenus)
     private readonly mainMenuRepository: Repository<MainMenus>,
     @InjectRepository(SubMenus)
@@ -63,7 +63,7 @@ export class GroupPermissionService {
     return groupPermission;
   }
 
-  private parsePermissionData(groupPermission: authoritymanages) {
+  private parsePermissionData(groupPermission: AuthorityManages) {
     let mainMenuData: MenuPermission[] = [];
     let subMenuData: SubMenuPermission[] = [];
 
@@ -157,7 +157,7 @@ export class GroupPermissionService {
   }
 
   private buildPermissionResponse(
-    groupPermission: authoritymanages,
+    groupPermission: AuthorityManages,
     mainMenuData: MenuPermission[],
     subMenuData: SubMenuPermission[],
     mainMenuMap: Map<string, string>,

@@ -1,7 +1,8 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiExtraModels } from '@nestjs/swagger';
 import { BaseEntity } from 'src/common/entities/base.entity';
 import { Column, CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn, Entity } from 'typeorm';
 
+@ApiExtraModels()
 @Entity('authoritymanages')
 export class AuthorityManages {
     @ApiProperty({ example: 1, description: '권한 고유 ID (자동 생성)' })

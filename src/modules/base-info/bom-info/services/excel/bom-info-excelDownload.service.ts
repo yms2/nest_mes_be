@@ -5,7 +5,6 @@ import { ProductInfo } from '../../../product-info/product_sample/entities/produ
 import { BomInfo } from '../../entities/bom-info.entity';
 import * as ExcelJS from 'exceljs';
 import { logService } from 'src/modules/log/Services/log.service';
-import { CreateProductInfoDto } from 'src/modules/01_base-info/product-info/product_sample/dto/product-info-create.dto';
 
 @Injectable()
 export class BomInfoExcelDownloadService {

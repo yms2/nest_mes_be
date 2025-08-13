@@ -5,10 +5,11 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiExtraModels } from '@nestjs/swagger';
 
-@Entity()
-export class authoritymanages {
+@ApiExtraModels()
+@Entity('authoritymanages')
+export class AuthorityManages {
   @ApiProperty({ example: 1, description: '권한 고유 ID (자동 생성)' })
   @PrimaryGeneratedColumn()
   id: number;

@@ -1,7 +1,8 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiExtraModels } from '@nestjs/swagger';
 import { BaseEntity } from 'src/common/entities/base.entity';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 
+@ApiExtraModels()
 @Entity('basecode')
 export class BaseCode extends BaseEntity {
     @ApiProperty({ example: 'basecode', description: '기본 코드' })
@@ -21,6 +22,7 @@ export class BaseCode extends BaseEntity {
     subCodes: SubCode[];
 }
     
+@ApiExtraModels()
 @Entity('subcode')
 export class SubCode extends BaseEntity {
     @ApiProperty({ example: 1, description: '기본 코드 ID' })

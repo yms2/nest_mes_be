@@ -23,7 +23,7 @@ export class PermissionCreateController {
     @ApiResponse({ 
         status: 201, 
         description: '권한 등록 성공',
-        schema: { $ref: '#/components/schemas/AuthorityManages' }
+        type: AuthorityManages
     })
     @ApiResponse({ status: 400, description: '잘못된 요청' })
     @ApiResponse({ status: 409, description: '이미 존재하는 권한 그룹명' })
