@@ -12,7 +12,6 @@ import { AuthModule } from './modules/auth/auth.module';
 import { BaseInfoModule } from './modules/01_base-info/base-info.module';
 import { LogModule } from './modules/log/log.module';
 import { salesMoudule } from './modules/02_sales/sales.module';
-import { EmployeeInfoModule } from './modules/01_base-info/employee-info/employee-info.module';
 @Module({
   imports: [
     RegisterModule,
@@ -20,7 +19,6 @@ import { EmployeeInfoModule } from './modules/01_base-info/employee-info/employe
     BaseInfoModule,
     LogModule,
     salesMoudule,
-    EmployeeInfoModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',

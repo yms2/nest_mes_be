@@ -18,6 +18,33 @@ import { GroupPermissionService } from './GroupPermission.service';
 export class GroupPermissionController {
   constructor(private readonly groupPermissionService: GroupPermissionService) {}
 
+  @Get('debug/all-groups')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access-token')
+  @ApiOperation({
+    summary: '모든 그룹명 조회 (디버깅용)',
+    description: '데이터베이스에 존재하는 모든 그룹명을 조회합니다.',
+  })
+  async getAllGroups() {
+    try {
+      const allGroups = await this.groupPermissionService.getAllGroups();
+      return {
+        result: true,
+        message: '모든 그룹명 조회 성공',
+        data: allGroups,
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: '그룹명 조회 실패',
+          error: error instanceof Error ? error.message : 'Unknown error',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   @Get(':group_name')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access-token')
@@ -29,76 +56,10 @@ export class GroupPermissionController {
   @ApiResponse({
     status: 200,
     description: '그룹 권한 조회 성공',
-    schema: {
-      type: 'object',
-      properties: {
-        result: { type: 'boolean', example: true },
-        message: {
-          type: 'string',
-          example: 'GET /groupauthority/admin::Get AuthorityManage Success',
-        },
-        data: {
-          type: 'object',
-          properties: {
-            id: { type: 'number', example: 30 },
-            all_grant: { type: 'string', example: 'allow' },
-            group_name: { type: 'string', example: 'admin' },
-            main_menu: {
-              type: 'object',
-              properties: {
-                data: {
-                  type: 'array',
-                  items: {
-                    type: 'object',
-                    properties: {
-                      menu_id: { type: 'string', example: 'M001' },
-                      menu_name: { type: 'string', example: '기준정보' },
-                      view: { type: 'string', example: 't' },
-                      key: { type: 'string', example: 'referenceInfo' },
-                    },
-                  },
-                },
-              },
-            },
-            sub_menu: {
-              type: 'object',
-              properties: {
-                data: {
-                  type: 'array',
-                  items: {
-                    type: 'object',
-                    properties: {
-                      upper_menu_id: { type: 'string', example: 'M001' },
-                      upper_menu_name: { type: 'string', example: '기준정보' },
-                      menu_id: { type: 'string', example: 'S001' },
-                      menu_name: { type: 'string', example: '사업장정보' },
-                      create: { type: 'string', example: 't' },
-                      read: { type: 'string', example: 't' },
-                      update: { type: 'string', example: 't' },
-                      delete: { type: 'string', example: 't' },
-                      rowCount: { type: 'number', example: 9 },
-                      key: { type: 'string', example: 'businessInfo' },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
   })
   @ApiResponse({
     status: 401,
     description: '인증 실패',
-    schema: {
-      type: 'object',
-      properties: {
-        message: { type: 'string', example: '토큰이 제공되지 않았습니다.' },
-        error: { type: 'string', example: 'Unauthorized' },
-        statusCode: { type: 'number', example: 401 },
-      },
-    },
   })
   async getGroupAuthority(
     @Req() req: Request & { user: Record<string, unknown> },
