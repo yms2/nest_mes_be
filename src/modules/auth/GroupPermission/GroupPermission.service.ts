@@ -1,8 +1,8 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { authoritymanages } from './GroupPermission.entity';
-import { MainMenus } from './MainMenu.entity';
-import { SubMenus } from './SubMenu.entity';
+import { authoritymanages } from './entity/GroupPermission.entity';
+import { MainMenus } from './entity/MainMenu.entity';
+import { SubMenus } from './entity/SubMenu.entity';
 import { In, Repository } from 'typeorm';
 import {
   GroupPermissionResponse,
