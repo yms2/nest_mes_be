@@ -96,8 +96,8 @@ export class CreateEmployeeDto {
         description: '퇴사일 (선택)',
         required: false,
     })
-    @IsDateString({}, { message: '퇴사일은 날짜 형식이어야 합니다.' })
-    resignationDate?: Date;
+    @IsString({ message: '퇴사일은 날짜 형식이어야 합니다.' })
+    resignationDate?: string;
 
     @ApiProperty({
         example: '12345',
