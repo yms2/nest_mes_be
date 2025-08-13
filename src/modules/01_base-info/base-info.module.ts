@@ -5,8 +5,10 @@ import { ProductInfoModule } from './product-info/product-info.module';
 import { BomInfoModule } from './bom-info/bom-info.module';
 import { ProcessInfoModule } from './process-info/process-info.module';
 import { EmployeeInfoModule } from './employee-info/employee-info.module';
+import { PermissionInfoModule } from './permission-info/permission-info.module';  
+
 @Module({
-  imports: [BusinessInfoModule, CustomerInfoModule, ProductInfoModule, BomInfoModule, ProcessInfoModule, EmployeeInfoModule],
-  exports: [BusinessInfoModule, CustomerInfoModule, ProductInfoModule, BomInfoModule, ProcessInfoModule, EmployeeInfoModule],
+  imports: [BusinessInfoModule, CustomerInfoModule, ProductInfoModule, BomInfoModule, ProcessInfoModule, EmployeeInfoModule, PermissionInfoModule],
+  exports: [BusinessInfoModule, CustomerInfoModule, ProductInfoModule, BomInfoModule, ProcessInfoModule, EmployeeInfoModule, PermissionInfoModule],
 })
 export class BaseInfoModule {}
