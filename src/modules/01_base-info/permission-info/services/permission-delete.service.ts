@@ -1,14 +1,14 @@
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { authoritymanages } from '../entities/permission.entity';
+import { AuthorityManages } from '../entities/permission.entity';
 import { PermissionDeleteDto, BatchPermissionDeleteDto } from '../dto/permission-delete.dto';
 
 @Injectable()
 export class PermissionDeleteService {
     constructor(
-        @InjectRepository(authoritymanages)
-        private readonly permissionRepository: Repository<authoritymanages>,
+        @InjectRepository(AuthorityManages)
+        private readonly permissionRepository: Repository<AuthorityManages>,
     ) {}
 
     async deletePermission(
@@ -77,7 +77,7 @@ export class PermissionDeleteService {
         await this.permissionRepository.save(deletedPermission);
     }
 
-    private async findPermissionById(id: number): Promise<authoritymanages> {
+    private async findPermissionById(id: number): Promise<AuthorityManages> {
         const permission = await this.permissionRepository.findOne({
             where: { id },
         });
@@ -89,7 +89,7 @@ export class PermissionDeleteService {
         return permission;
     }
 
-    private async validatePermissionDeletion(permission: authoritymanages): Promise<void> {
+    private async validatePermissionDeletion(permission: AuthorityManages): Promise<void> {
         // 시스템 기본 권한인지 확인 (삭제 방지)
         if (permission.groupName === 'admin' || permission.groupName === 'system') {
             throw new ForbiddenException('시스템 기본 권한은 삭제할 수 없습니다.');

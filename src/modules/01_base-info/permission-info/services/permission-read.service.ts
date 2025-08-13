@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { authoritymanages, SubMenu } from '../entities/permission.entity';
+import { AuthorityManages, SubMenu } from '../entities/permission.entity';
 import { mainMenu } from '../entities/permission.entity';
 
 @Injectable()
 export class PermissionReadService {
     constructor(
-        @InjectRepository(authoritymanages)
-        private readonly authoritymanagesRepository: Repository<authoritymanages>,
+        @InjectRepository(AuthorityManages)
+        private readonly authoritymanagesRepository: Repository<AuthorityManages>,
         @InjectRepository(SubMenu)
         private readonly subMenuRepository: Repository<SubMenu>,
         @InjectRepository(mainMenu)
@@ -37,7 +37,7 @@ export class PermissionReadService {
      * @param authorityManage 권한 관리 정보
      * @returns 처리된 권한 관리 정보
      */
-    private processAuthorityManage(authorityManage: authoritymanages): any {
+    private processAuthorityManage(authorityManage: AuthorityManages): any {
         return {
             ...authorityManage,
             mainMenu: this.safeJsonParse(authorityManage.mainMenu),

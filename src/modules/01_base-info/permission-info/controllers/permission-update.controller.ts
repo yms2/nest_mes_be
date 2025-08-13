@@ -2,7 +2,7 @@ import { Controller, Put, Param, Body, UseGuards, Request } from '@nestjs/common
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { PermissionUpdateService } from '../services/permission-update.service';
 import { PermissionUpdateDto } from '../dto/permission-update.dto';
-import { authoritymanages } from '../entities/permission.entity';
+import { AuthorityManages } from '../entities/permission.entity';
 import { ApiResponse as ApiResponseInterface } from 'src/common/interfaces/api-response.interface';
 import { Auth } from '@/common/decorators/auth.decorator';
 
@@ -24,7 +24,7 @@ export class PermissionUpdateController {
         @Param('id') id: number,
         @Body() updateDto: PermissionUpdateDto,
         @Request() req: any,
-    ): Promise<ApiResponseInterface<authoritymanages>> {
+    ): Promise<ApiResponseInterface<AuthorityManages>> {
         const result = await this.permissionUpdateService.updatePermission(
             id,
             updateDto,

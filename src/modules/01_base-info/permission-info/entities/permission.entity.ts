@@ -3,7 +3,7 @@ import { BaseEntity } from 'src/common/entities/base.entity';
 import { Column, CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn, Entity } from 'typeorm';
 
 @Entity('authoritymanages')
-export class authoritymanages {
+export class AuthorityManages {
     @ApiProperty({ example: 1, description: '권한 고유 ID (자동 생성)' })
     @PrimaryGeneratedColumn({ comment: '권한 고유 ID (자동 생성)' })
     id: number;

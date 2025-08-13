@@ -1,21 +1,21 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { authoritymanages } from '../entities/permission.entity';
+import { AuthorityManages } from '../entities/permission.entity';
 import { PermissionUpdateDto, MenuPermissionUpdateDto } from '../dto/permission-update.dto';
 
 @Injectable()
 export class PermissionUpdateService {
     constructor(
-        @InjectRepository(authoritymanages)
-        private readonly permissionRepository: Repository<authoritymanages>,
+        @InjectRepository(AuthorityManages)
+        private readonly permissionRepository: Repository<AuthorityManages>,
     ) {}
 
     async updatePermission(
         id: number,
         updateDto: PermissionUpdateDto,
         updatedBy: string,
-    ): Promise<authoritymanages> {
+    ): Promise<AuthorityManages> {
         const existingPermission = await this.findPermissionById(id);
 
         // 디버깅: 기존 데이터 로그
@@ -85,7 +85,7 @@ export class PermissionUpdateService {
         await this.permissionRepository.save(updatedPermission);
     }
 
-    private async findPermissionById(id: number): Promise<authoritymanages> {
+    private async findPermissionById(id: number): Promise<AuthorityManages> {
         const permission = await this.permissionRepository.findOne({
             where: { id },
         });

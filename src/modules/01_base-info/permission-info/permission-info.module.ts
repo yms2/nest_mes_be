@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { authoritymanages, SubMenu, mainMenu } from './entities/permission.entity';
+import { AuthorityManages, SubMenu, mainMenu } from './entities/permission.entity';
 import { PermissionReadService } from './services/permission-read.service';
 import { PermissionReadController } from './controllers/permission-read.controller';
 import { PermissionUpdateService } from './services/permission-update.service';
@@ -17,7 +17,7 @@ import { LogModule } from '../../log/log.module';
     CommonModule,
     LogModule,
     TypeOrmModule.forFeature([
-      authoritymanages,  // 권한 관리 정보 엔티티
+      AuthorityManages,  // 권한 관리 정보 엔티티
       SubMenu,           // 서브 메뉴 엔티티
       mainMenu,          // 메인 메뉴 엔티티
     ]),

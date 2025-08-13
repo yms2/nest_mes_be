@@ -2,7 +2,7 @@ import { Controller, Query, Get, Param, ParseIntPipe, UseInterceptors } from '@n
 import { ApiTags, ApiOperation, ApiQuery, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { ClassSerializerInterceptor } from '@nestjs/common';
 import { PermissionReadService } from '../services/permission-read.service';
-import { authoritymanages, SubMenu, mainMenu } from '../entities/permission.entity';
+import { AuthorityManages, SubMenu, mainMenu } from '../entities/permission.entity';
 import { Auth } from '@/common/decorators/auth.decorator';
 
 @ApiTags('권한관리')
@@ -24,7 +24,7 @@ export class PermissionReadController {
     description: '권한 관리 정보 조회 성공',
     schema: { 
       type: 'array', 
-      items: { $ref: '#/components/schemas/authoritymanages' } 
+      items: { $ref: '#/components/schemas/AuthorityManages' } 
     }
   })
   async getAllAuthorityManages() {
@@ -42,7 +42,7 @@ export class PermissionReadController {
     description: '권한 관리 정보 조회 성공',
     schema: { 
       type: 'array', 
-      items: { $ref: '#/components/schemas/authoritymanages' } 
+      items: { $ref: '#/components/schemas/AuthorityManages' } 
     }
   })
   async getAuthorityManagesByGroupName(@Param('groupName') groupName: string) {

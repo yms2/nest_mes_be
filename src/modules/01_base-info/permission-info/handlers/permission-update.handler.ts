@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PermissionUpdateService } from '../services/permission-update.service';
 import { PermissionUpdateDto } from '../dto/permission-update.dto';
-import { authoritymanages } from '../entities/permission.entity';
+import { AuthorityManages } from '../entities/permission.entity';
 
 export class UpdatePermissionCommand {
     constructor(
@@ -17,7 +17,7 @@ export class PermissionUpdateHandler {
         private readonly permissionUpdateService: PermissionUpdateService,
     ) {}
 
-    async handle(command: UpdatePermissionCommand): Promise<authoritymanages> {
+    async handle(command: UpdatePermissionCommand): Promise<AuthorityManages> {
         return this.permissionUpdateService.updatePermission(
             command.id,
             command.updateDto,
