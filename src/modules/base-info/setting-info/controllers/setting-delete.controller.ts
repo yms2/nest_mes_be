@@ -26,7 +26,7 @@ export class SettingDeleteController {
     ) {
         try {
             await this.settingDeleteService.deleteSubCode(id);
-            return ApiResponseBuilder.success(null, '서브 코드 삭제 성공');
+            return ApiResponseBuilder.success(null, '서브 코드가 삭제되었습니다.');
         } catch (error) {
             return ApiResponseBuilder.error(error.message);
         } finally {
