@@ -31,6 +31,4 @@ export class SettingReadService {
           order: { id: 'ASC' },
         });
       }
-
-
     }

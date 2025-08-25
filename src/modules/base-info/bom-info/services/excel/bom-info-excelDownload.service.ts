@@ -55,7 +55,7 @@ export class BomInfoExcelDownloadService {
       for (const parentCode of topParents) {
         const productType = productMap.get(parentCode)?.type;
         const targetRows = productType === '완제품' ? completeRows : semiRows;
-        this.processBom(bomList, productMap, parentCode, `${topIndex}`, targetRows);
+        this.processBom(bomList, productMap, parentCode, `${topIndex}`, targetRows, 1, new Set());
         topIndex++;
       }
 
@@ -135,7 +135,23 @@ export class BomInfoExcelDownloadService {
     codePrefix: string,
     rows: (string | number)[][],
     level: number = 1,
+    visited: Set<string> = new Set(),
   ) {
+    // 재귀 깊이 제한 (안전장치)
+    if (level > 100) {
+      console.warn(`BOM 처리 중 최대 깊이 제한에 도달했습니다: ${parentCode}`);
+      return;
+    }
+
+    // 순환 참조 방지
+    if (visited.has(parentCode)) {
+      console.warn(`순환 참조가 감지되었습니다: ${parentCode}`);
+      return;
+    }
+
+    // 현재 노드를 방문한 것으로 표시
+    visited.add(parentCode);
+
     const childBoms = bomList
       .filter(b => b.parentProductCode === parentCode)
       .sort((a, b) => a.childProductCode.localeCompare(b.childProductCode));
@@ -149,7 +165,9 @@ export class BomInfoExcelDownloadService {
 
       rows.push([parentName, `${bomCode}-${childName}`, `${bom.quantity}`, bom.unit]);
 
-      this.processBom(bomList, productMap, bom.childProductCode, bomCode, rows, level + 1);
+      // 새로운 visited Set을 생성하여 각 분기에서 독립적으로 추적
+      const newVisited = new Set(visited);
+      this.processBom(bomList, productMap, bom.childProductCode, bomCode, rows, level + 1, newVisited);
       childIndex++;
     }
   }
