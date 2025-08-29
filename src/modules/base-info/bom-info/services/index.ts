@@ -6,3 +6,5 @@ export * from './bom-info-read.service';
 export * from './bom-info-create.service';
 export * from './bom-info-update.service';
 export * from './bom-info-delete.service';
+export * from './bom-process-create.service';
+export * from './bom-process-delete.service';

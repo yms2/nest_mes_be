@@ -11,6 +11,8 @@ import {
   BomInfoCreateController,
   BomInfoUpdateController,
   BomInfoDeleteController,
+  BomProcessCreateController,
+  BomProcessDeleteController,
 } from './controllers';
 import {
   BomExcelService,
@@ -21,16 +23,19 @@ import {
   BomInfoCreateService,
   BomInfoUpdateService,
   BomInfoDeleteService,
+  BomProcessCreateService,
+  BomProcessDeleteService,
 } from './services';
 import { Module } from '@nestjs/common';
 import { ProductInfo } from '../product-info/product_sample/entities/product-info.entity';
 import { BomInfo } from './entities/bom-info.entity';
+import { BomProcess } from './entities/bom-process.entity';
 
 @Module({
   imports: [
     CommonModule,
     LogModule,
-    TypeOrmModule.forFeature([ProductInfo, BomInfo]), // BomInfo 추가!
+    TypeOrmModule.forFeature([ProductInfo, BomInfo, BomProcess]), // BomInfo 추가!
   ],
   controllers: [
     BomExcelController,
@@ -41,6 +46,8 @@ import { BomInfo } from './entities/bom-info.entity';
     BomInfoCreateController,
     BomInfoUpdateController,
     BomInfoDeleteController,
+    BomProcessCreateController,
+    BomProcessDeleteController,
   ],
   providers: [
     BomExcelService,
@@ -51,6 +58,8 @@ import { BomInfo } from './entities/bom-info.entity';
     BomInfoCreateService,
     BomInfoUpdateService,
     BomInfoDeleteService,
+    BomProcessCreateService,
+    BomProcessDeleteService,
   ],
   exports: [
     BomExcelService,
@@ -61,6 +70,8 @@ import { BomInfo } from './entities/bom-info.entity';
     BomInfoCreateService,
     BomInfoUpdateService,
     BomInfoDeleteService,
+    BomProcessCreateService,
+    BomProcessDeleteService,
   ],
 })
 export class BomInfoModule {}
