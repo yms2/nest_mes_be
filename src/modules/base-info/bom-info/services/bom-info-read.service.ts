@@ -27,7 +27,6 @@ export class BomInfoService {
     const buildTree = (parentCode: string, visited: Set<string>): any[] => {
       if (visited.has(parentCode)) {
         // 순환 참조 감지 → 해당 브랜치 중단
-
         return [];
       }
 
@@ -43,6 +42,7 @@ export class BomInfoService {
             productName: product?.productName || null,
             quantity: b.quantity,
             unit: b.unit,
+            level: b.level, // 레벨 정보 추가
             children: buildTree(b.childProductCode, new Set(visited)), // 방문기록 복사
           };
         });
@@ -53,6 +53,7 @@ export class BomInfoService {
     return {
       productCode: rootProductCode,
       productName: rootProduct?.productName || null,
+      level: 0, // 루트 제품은 레벨 0
       children: buildTree(rootProductCode, new Set()),
     };
   }

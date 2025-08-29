@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNumber, IsNotEmpty, Min, MaxLength } from 'class-validator';
+import { IsString, IsNumber, IsNotEmpty, Min, MaxLength, IsOptional, IsInt } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
 
 export class CreateBomDto {
   @ApiProperty({
@@ -29,7 +30,8 @@ export class CreateBomDto {
     example: 5,
     minimum: 1,
   })
-  @IsNumber()
+  @Type(() => Number)
+  @IsInt()
   @Min(1)
   quantity: number;
 
@@ -43,4 +45,14 @@ export class CreateBomDto {
   @IsNotEmpty()
   @MaxLength(10)
   unit: string;
+
+  @ApiProperty({
+    description: 'BOM 레벨',
+    example: 1,
+    minimum: 1,
+  })
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  level: number;
 }

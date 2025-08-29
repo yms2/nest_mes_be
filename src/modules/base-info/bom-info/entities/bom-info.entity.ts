@@ -5,6 +5,9 @@ export class BomInfo {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ name: 'level', type: 'int' })
+  level: number;
+
   @Column({ name: 'parent_product_code', type: 'varchar', length: 20 })
   parentProductCode: string;
 

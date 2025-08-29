@@ -30,7 +30,7 @@ export class BomInfoCreateService {
       // 중복 BOM 검증
       await this.checkDuplicateBom(createBomDto);
 
-      // BOM 생성
+      // BOM 생성 (프론트에서 전달받은 레벨 사용)
       const bom = this.bomRepository.create(createBomDto);
       const savedBom = await this.bomRepository.save(bom);
 
@@ -41,7 +41,7 @@ export class BomInfoCreateService {
         username,
         targetId: savedBom.id.toString(),
         targetName: `${createBomDto.parentProductCode} → ${createBomDto.childProductCode}`,
-        details: `BOM 등록 성공: ${createBomDto.parentProductCode} → ${createBomDto.childProductCode} (수량: ${createBomDto.quantity} ${createBomDto.unit})`,
+        details: `BOM 등록 성공: ${createBomDto.parentProductCode} → ${createBomDto.childProductCode} (수량: ${createBomDto.quantity} ${createBomDto.unit}, 레벨: ${createBomDto.level})`,
       });
 
       return savedBom;
