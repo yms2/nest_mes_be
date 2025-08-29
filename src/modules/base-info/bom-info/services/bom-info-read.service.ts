@@ -38,6 +38,7 @@ export class BomInfoService {
           const product = productMap.get(b.childProductCode);
 
           return {
+            id: b.id,
             productCode: b.childProductCode,
             productName: product?.productName || null,
             quantity: b.quantity,
@@ -51,6 +52,7 @@ export class BomInfoService {
     const rootProduct = productMap.get(rootProductCode);
 
     return {
+      id: rootProduct?.id,
       productCode: rootProductCode,
       productName: rootProduct?.productName || null,
       level: 0, // 루트 제품은 레벨 0
