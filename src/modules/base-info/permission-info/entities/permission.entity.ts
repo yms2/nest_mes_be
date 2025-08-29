@@ -1,7 +1,8 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiExtraModels } from '@nestjs/swagger';
 import { BaseEntity } from 'src/common/entities/base.entity';
 import { Column, CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn, Entity } from 'typeorm';
 
+@ApiExtraModels()
 @Entity('authoritymanages')
 export class AuthorityManages {
     @ApiProperty({ example: 1, description: '권한 고유 ID (자동 생성)' })
@@ -33,52 +34,52 @@ export class AuthorityManages {
     updatedAt: Date;
 }
 
-@Entity('sub_menu')
-export class SubMenu {
-    @ApiProperty({ example: 1, description: '서브 메뉴 고유 ID (자동 생성)' })
-    @PrimaryGeneratedColumn({ comment: '서브 메뉴 고유 ID (자동 생성)' })
-    id: number;
+// @Entity('sub_menu')
+// export class SubMenu {
+//     @ApiProperty({ example: 1, description: '서브 메뉴 고유 ID (자동 생성)' })
+//     @PrimaryGeneratedColumn({ comment: '서브 메뉴 고유 ID (자동 생성)' })
+//     id: number;
     
-    @ApiProperty({ example: 1, description: '메인 메뉴 고유 ID' })
-    @Column({ name: 'menu_id', type: 'int', comment: '메인 메뉴 고유 ID' })
-    menuId: number;
+//     @ApiProperty({ example: 1, description: '메인 메뉴 고유 ID' })
+//     @Column({ name: 'menu_id', type: 'int', comment: '메인 메뉴 고유 ID' })
+//     menuId: number;
     
-    @ApiProperty({ example: 'admin', description: '메인 메뉴명' })
-    @Column({ name: 'menu_name', type: 'varchar', length: 50, comment: '메인 메뉴명' })
-    menuName: string;
+//     @ApiProperty({ example: 'admin', description: '메인 메뉴명' })
+//     @Column({ name: 'menu_name', type: 'varchar', length: 50, comment: '메인 메뉴명' })
+//     menuName: string;
 
-    @ApiProperty({ example: 'admin', description: '상위 메뉴 고유 ID' })
-    @Column({ name: 'upper_menu_id', type: 'int', comment: '상위 메뉴 고유 ID' })
-    upperMenuId: number;
+//     @ApiProperty({ example: 'admin', description: '상위 메뉴 고유 ID' })
+//     @Column({ name: 'upper_menu_id', type: 'int', comment: '상위 메뉴 고유 ID' })
+//     upperMenuId: number;
 
-    @ApiProperty({ example: 'admin', description: '생성일시 (자동 생성)' })
-    @CreateDateColumn({ comment: '생성일시' })
-    createdAt: Date;
+//     @ApiProperty({ example: 'admin', description: '생성일시 (자동 생성)' })
+//     @CreateDateColumn({ comment: '생성일시' })
+//     createdAt: Date;
 
-    @ApiProperty({ example: 'admin', description: '수정일시 (자동 생성)' })
-    @UpdateDateColumn({ comment: '수정일시' })
-    updatedAt: Date;
-}
+//     @ApiProperty({ example: 'admin', description: '수정일시 (자동 생성)' })
+//     @UpdateDateColumn({ comment: '수정일시' })
+//     updatedAt: Date;
+// }
 
-@Entity('main_menu')
-export class mainMenu {
-    @ApiProperty({ example: 1, description: '메인 메뉴 고유 ID (자동 생성)' })
-    @PrimaryGeneratedColumn({ comment: '메인 메뉴 고유 ID (자동 생성)' })
-    id: number;
+// @Entity('main_menu')
+// export class mainMenu {
+//     @ApiProperty({ example: 1, description: '메인 메뉴 고유 ID (자동 생성)' })
+//     @PrimaryGeneratedColumn({ comment: '메인 메뉴 고유 ID (자동 생성)' })
+//     id: number;
 
-    @ApiProperty({ example: 1, description: '메인 메뉴 고유 ID' })
-    @Column({ name: 'menu_id', type: 'int', comment: '메인 메뉴 고유 ID' })
-    menuId: number;
+//     @ApiProperty({ example: 1, description: '메인 메뉴 고유 ID' })
+//     @Column({ name: 'menu_id', type: 'int', comment: '메인 메뉴 고유 ID' })
+//     menuId: number;
 
-    @ApiProperty({ example: 'admin', description: '메인 메뉴명' })
-    @Column({ name: 'menu_name', type: 'varchar', length: 50, comment: '메인 메뉴명' })
-    menuName: string;
+//     @ApiProperty({ example: 'admin', description: '메인 메뉴명' })
+//     @Column({ name: 'menu_name', type: 'varchar', length: 50, comment: '메인 메뉴명' })
+//     menuName: string;
 
-    @ApiProperty({ example: 'admin', description: '생성일시 (자동 생성)' })
-    @CreateDateColumn({ comment: '생성일시' })
-    createdAt: Date;
+//     @ApiProperty({ example: 'admin', description: '생성일시 (자동 생성)' })
+//     @CreateDateColumn({ comment: '생성일시' })
+//     createdAt: Date;
 
-    @ApiProperty({ example: 'admin', description: '수정일시 (자동 생성)' })
-    @UpdateDateColumn({ comment: '수정일시' })
-    updatedAt: Date;
-}
+//     @ApiProperty({ example: 'admin', description: '수정일시 (자동 생성)' })
+//     @UpdateDateColumn({ comment: '수정일시' })
+//     updatedAt: Date;
+// }

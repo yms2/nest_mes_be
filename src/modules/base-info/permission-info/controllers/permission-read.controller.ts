@@ -3,6 +3,7 @@ import { ApiTags, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { ClassSerializerInterceptor } from '@nestjs/common';
 import { PermissionReadService } from '../services/permission-read.service';
 import { Auth } from '@/common/decorators/auth.decorator';
+import { AuthorityManages } from '../entities/permission.entity';
 
 @ApiTags('권한관리')
 @Controller('permission-info')
@@ -21,10 +22,7 @@ export class PermissionReadController {
   @ApiResponse({ 
     status: 200, 
     description: '권한 관리 정보 조회 성공',
-    schema: { 
-      type: 'array', 
-      items: { $ref: '#/components/schemas/AuthorityManages' } 
-    }
+    type: [AuthorityManages]
   })
   async getAllAuthorityManages() {
     return this.permissionReadService.getAuthorityManages();
@@ -39,10 +37,7 @@ export class PermissionReadController {
   @ApiResponse({ 
     status: 200, 
     description: '권한 관리 정보 조회 성공',
-    schema: { 
-      type: 'array', 
-      items: { $ref: '#/components/schemas/AuthorityManages' } 
-    }
+    type: [AuthorityManages]
   })
   async getAuthorityManagesByGroupName(@Param('groupName') groupName: string) {
     return this.permissionReadService.getAuthorityManagesByGroupName(groupName);

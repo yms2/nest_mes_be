@@ -1,9 +1,9 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { authoritymanages } from './entity/GroupPermission.entity';
+import { Repository, In } from 'typeorm';
+import { AuthorityManages } from '../../base-info/permission-info/entities/permission.entity';
 import { MainMenus } from './entity/MainMenu.entity';
 import { SubMenus } from './entity/SubMenu.entity';
-import { In, Repository } from 'typeorm';
 import {
   GroupPermissionResponse,
   MenuPermission,
@@ -13,8 +13,8 @@ import {
 @Injectable()
 export class GroupPermissionService {
   constructor(
-    @InjectRepository(authoritymanages)
-    private readonly permissionRepository: Repository<authoritymanages>,
+    @InjectRepository(AuthorityManages)
+    private readonly permissionRepository: Repository<AuthorityManages>,
     @InjectRepository(MainMenus)
     private readonly mainMenuRepository: Repository<MainMenus>,
     @InjectRepository(SubMenus)
@@ -53,7 +53,7 @@ export class GroupPermissionService {
 
   private async findGroupPermission(groupName: string) {
     const groupPermission = await this.permissionRepository.findOne({
-      where: { group_name: groupName },
+      where: { groupName: groupName },
     });
 
     if (!groupPermission) {
@@ -63,26 +63,26 @@ export class GroupPermissionService {
     return groupPermission;
   }
 
-  private parsePermissionData(groupPermission: authoritymanages) {
+  private parsePermissionData(groupPermission: AuthorityManages) {
     let mainMenuData: MenuPermission[] = [];
     let subMenuData: SubMenuPermission[] = [];
 
     try {
       // main_menu 파싱
-      if (groupPermission.main_menu && groupPermission.main_menu.trim() !== '' && groupPermission.main_menu !== 'null') {
+      if (groupPermission.mainMenu && groupPermission.mainMenu.trim() !== '' && groupPermission.mainMenu !== 'null') {
         try {
-          mainMenuData = JSON.parse(groupPermission.main_menu) as MenuPermission[];
+          mainMenuData = JSON.parse(groupPermission.mainMenu) as MenuPermission[];
         } catch (parseError) {
-          console.warn('main_menu 파싱 실패:', parseError, '원본:', groupPermission.main_menu);
+          console.warn('main_menu 파싱 실패:', parseError, '원본:', groupPermission.mainMenu);
           mainMenuData = [];
         }
       }
 
       // sub_menu 파싱
-      if (groupPermission.sub_menu && groupPermission.sub_menu.trim() !== '' && groupPermission.sub_menu !== 'null') {
+      if (groupPermission.subMenu && groupPermission.subMenu.trim() !== '' && groupPermission.subMenu !== 'null') {
         try {
           // JSON 문자열 정리
-          let cleanSubMenu = groupPermission.sub_menu
+          let cleanSubMenu = groupPermission.subMenu
             .replace(/\r\n/g, '')  // 캐리지 리턴과 라인 피드 제거
             .replace(/\n/g, '')    // 라인 피드 제거
             .replace(/\r/g, '')    // 캐리지 리턴 제거
@@ -148,16 +148,16 @@ export class GroupPermissionService {
   async getAllGroups(): Promise<string[]> {
     try {
       const allGroups = await this.permissionRepository.find({
-        select: ['group_name'],
+        select: ['groupName'],
       });
-      return allGroups.map(g => g.group_name);
+      return allGroups.map(g => g.groupName);
     } catch (error) {
       throw error;
     }
   }
 
   private buildPermissionResponse(
-    groupPermission: authoritymanages,
+    groupPermission: AuthorityManages,
     mainMenuData: MenuPermission[],
     subMenuData: SubMenuPermission[],
     mainMenuMap: Map<string, string>,
@@ -191,8 +191,8 @@ export class GroupPermissionService {
 
     return {
       id: groupPermission.id,
-      all_grant: groupPermission.all_grant,
-      group_name: groupPermission.group_name,
+      all_grant: groupPermission.allGrant,
+      group_name: groupPermission.groupName,
       main_menu: { data: mainMenuResult },
       sub_menu: { data: subMenuResult },
     };

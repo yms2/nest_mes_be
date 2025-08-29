@@ -3,3 +3,6 @@ export * from './excel/bom-info-upload.controller';
 export * from './excel/bom-info-excelDown.controller';
 export * from './excel/bom-info-copy.controller';
 export * from './bom-info-read.controller';
+export * from './bom-info-create.controller';
+export * from './bom-info-update.controller';
+export * from './bom-info-delete.controller';

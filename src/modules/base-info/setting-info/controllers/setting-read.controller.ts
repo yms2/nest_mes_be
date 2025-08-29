@@ -3,7 +3,7 @@ import { ApiTags, ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { ClassSerializerInterceptor } from '@nestjs/common';
 import { SettingReadService } from '../services/setting-read.service';
 import { Auth } from '@/common/decorators/auth.decorator';
-import { BaseCode } from '../entities/setting.entity';
+import { BaseCode, SubCode } from '../entities/setting.entity';
 
 @ApiTags('설정관리')
 @Controller('setting-info')
@@ -41,5 +41,13 @@ export class SettingReadController {
             return this.settingReadService.getBaseCodeWithSubs();
         }
         return this.settingReadService.getBaseCode();
+    }
+
+    @Get('sub-codes')
+    @Auth()
+    @ApiOperation({ summary: '서브 코드 조회' })
+    @ApiQuery({ name: 'baseCodeId', description: '기본 코드 ID', required: true, type: Number })
+    async getSubCodes(@Query('baseCodeId') baseCodeId: number): Promise<SubCode[]> {
+        return this.settingReadService.getSubCodesByBase(baseCodeId);
     }
 }

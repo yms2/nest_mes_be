@@ -8,6 +8,9 @@ import {
   BomInfoDownloadController,
   BomCopyController,
   BomInfoController,
+  BomInfoCreateController,
+  BomInfoUpdateController,
+  BomInfoDeleteController,
 } from './controllers';
 import {
   BomExcelService,
@@ -15,6 +18,9 @@ import {
   BomInfoExcelDownloadService,
   BomCopyService,
   BomInfoService,
+  BomInfoCreateService,
+  BomInfoUpdateService,
+  BomInfoDeleteService,
 } from './services';
 import { Module } from '@nestjs/common';
 import { ProductInfo } from '../product-info/product_sample/entities/product-info.entity';
@@ -32,6 +38,9 @@ import { BomInfo } from './entities/bom-info.entity';
     BomInfoDownloadController,
     BomCopyController,
     BomInfoController,
+    BomInfoCreateController,
+    BomInfoUpdateController,
+    BomInfoDeleteController,
   ],
   providers: [
     BomExcelService,
@@ -39,6 +48,9 @@ import { BomInfo } from './entities/bom-info.entity';
     BomInfoExcelDownloadService,
     BomCopyService,
     BomInfoService,
+    BomInfoCreateService,
+    BomInfoUpdateService,
+    BomInfoDeleteService,
   ],
   exports: [
     BomExcelService,
@@ -46,6 +58,9 @@ import { BomInfo } from './entities/bom-info.entity';
     BomInfoExcelDownloadService,
     BomCopyService,
     BomInfoService,
+    BomInfoCreateService,
+    BomInfoUpdateService,
+    BomInfoDeleteService,
   ],
 })
 export class BomInfoModule {}

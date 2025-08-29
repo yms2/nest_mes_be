@@ -1,18 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { AuthorityManages, SubMenu } from '../entities/permission.entity';
-import { mainMenu } from '../entities/permission.entity';
+import { AuthorityManages } from '../entities/permission.entity';
+import { MainMenus } from '../../../auth/GroupPermission/entity/MainMenu.entity';
+import { SubMenus } from '../../../auth/GroupPermission/entity/SubMenu.entity';
 
 @Injectable()
 export class PermissionReadService {
     constructor(
         @InjectRepository(AuthorityManages)
         private readonly authoritymanagesRepository: Repository<AuthorityManages>,
-        @InjectRepository(SubMenu)
-        private readonly subMenuRepository: Repository<SubMenu>,
-        @InjectRepository(mainMenu)
-        private readonly mainMenuRepository: Repository<mainMenu>,
+        @InjectRepository(SubMenus)
+        private readonly subMenuRepository: Repository<SubMenus>,
+        @InjectRepository(MainMenus)
+        private readonly mainMenuRepository: Repository<MainMenus>,
     ) {}
 
     /**
