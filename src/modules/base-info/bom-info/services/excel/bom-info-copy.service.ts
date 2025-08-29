@@ -24,18 +24,19 @@ export class BomCopyService {
       throw new Error(`소스 품목 [${sourceProductCode}]에 대한 BOM이 없습니다.`);
     }
 
-    // 타겟 BOM 생성
+    // 타겟 BOM 생성 (레벨 포함)
     const newBoms = sourceBoms.map(bom =>
       this.bomRepository.create({
         parentProductCode: targetProductCode,
         childProductCode: bom.childProductCode,
         quantity: bom.quantity,
         unit: bom.unit,
+        level: bom.level, // 레벨도 함께 복사
       }),
     );
 
     await this.bomRepository.save(newBoms);
 
-    return { message: `BOM 복사 완료 (소스: ${sourceProductCode}, 타겟: ${targetProductCode})` };
+    return { message: `BOM 복사 완료 (소스: ${sourceProductCode}, 타겟: ${targetProductCode}, 레벨 포함)` };
   }
 }

@@ -44,6 +44,9 @@ export class BomInfoUploadService {
 
         const quantity = Number(row['수량'] ?? 0);
         const unit = typeof row['단위'] === 'string' ? row['단위'].trim() : '';
+        
+        // 자동으로 레벨 계산
+        const level = await this.calculateBomLevel(currentParentProductCode);
 
         const existBom = await this.bomRepository.findOneBy({
           parentProductCode: currentParentProductCode,
@@ -53,6 +56,7 @@ export class BomInfoUploadService {
         if (existBom) {
           existBom.quantity = quantity;
           existBom.unit = unit;
+          existBom.level = level; // 자동 계산된 레벨로 업데이트
           await this.bomRepository.save(existBom);
         } else {
           const bom = this.bomRepository.create({
@@ -60,6 +64,7 @@ export class BomInfoUploadService {
             childProductCode: child.productCode,
             quantity,
             unit,
+            level, // 자동 계산된 레벨
           });
           await this.bomRepository.save(bom);
         }
@@ -73,11 +78,73 @@ export class BomInfoUploadService {
     }
 
     return {
-      message: 'BOM 업로드 완료',
+      message: 'BOM 업로드 완료 (레벨 자동 계산됨)',
       total: rows.length,
       success: rows.length - errors.length,
       failed: errors.length,
       errors,
     };
+  }
+
+  /**
+   * BOM 레벨을 자동으로 계산합니다.
+   * @param parentProductCode 상위품목 코드
+   * @returns 계산된 BOM 레벨
+   */
+  private async calculateBomLevel(parentProductCode: string): Promise<number> {
+    // 상위품목이 다른 BOM의 하위품목인지 확인
+    const parentAsChild = await this.bomRepository.findOne({
+      where: { childProductCode: parentProductCode },
+      order: { level: 'DESC' }, // 가장 높은 레벨을 찾기 위해 내림차순 정렬
+    });
+
+    if (parentAsChild) {
+      // 상위품목이 다른 BOM의 하위품목인 경우, 그 레벨 + 1
+      return parentAsChild.level + 1;
+    } else {
+      // 상위품목이 최상위인 경우 레벨 1
+      return 1;
+    }
+  }
+
+  /**
+   * 엑셀 템플릿 다운로드를 위한 샘플 데이터 생성 (레벨 컬럼 제거)
+   */
+  getExcelTemplate() {
+    const sampleData = [
+      {
+        '상위품목명': '최종제품A',
+        '품목명': '부품B',
+        '수량': 2,
+        '단위': '개'
+      },
+      {
+        '상위품목명': '부품B',
+        '품목명': '소재C',
+        '수량': 5,
+        '단위': 'kg'
+      },
+      {
+        '상위품목명': '부품B',
+        '품목명': '소재D',
+        '수량': 3,
+        '단위': '개'
+      }
+    ];
+
+    const worksheet = XLSX.utils.json_to_sheet(sampleData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'BOM_Template');
+
+    // 컬럼 너비 자동 조정 (레벨 컬럼 제거)
+    const columnWidths = [
+      { wch: 15 }, // 상위품목명
+      { wch: 15 }, // 품목명
+      { wch: 10 }, // 수량
+      { wch: 10 }  // 단위
+    ];
+    worksheet['!cols'] = columnWidths;
+
+    return XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
   }
 }

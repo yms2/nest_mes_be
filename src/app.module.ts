@@ -12,6 +12,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { BaseInfoModule } from './modules/base-info/base-info.module';
 import { LogModule } from './modules/log/log.module';
 import { BusinessInfoModule } from './modules/business-info/business-info.module';
+import { EquipmentModule } from './modules/equipment/equipment.module';
 @Module({
   imports: [
     RegisterModule,
@@ -19,6 +20,7 @@ import { BusinessInfoModule } from './modules/business-info/business-info.module
     BaseInfoModule,
     LogModule,
     BusinessInfoModule,
+    EquipmentModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
