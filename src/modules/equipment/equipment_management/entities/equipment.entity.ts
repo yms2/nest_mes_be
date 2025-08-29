@@ -1,9 +1,8 @@
+import { BaseEntity } from '@/common/entities/base.entity';
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity()
-export class Equipment {
-    @PrimaryGeneratedColumn()
-    id: number;
+export class Equipment extends BaseEntity {
 
     @Column({ name: 'equipment_code', type: 'varchar', length: 255 })
     equipmentCode: string;
@@ -29,4 +28,5 @@ export class Equipment {
     @Column({ name : 'equipment_worker', type: 'varchar', length: 255 })
     equipmentWorker: string;
     
+
 }
