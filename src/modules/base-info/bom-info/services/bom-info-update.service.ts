@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { BomInfo } from '../entities/bom-info.entity';
 import { ProductInfo } from '../../product-info/product_sample/entities/product-info.entity';
 import { logService } from 'src/modules/log/Services/log.service';
@@ -138,7 +138,7 @@ export class BomInfoUpdateService {
       where: {
         parentProductCode: finalParentCode,
         childProductCode: finalChildCode,
-        id: { $ne: id } as any, // TypeORM에서 다른 ID 제외
+        id: Not(id), // TypeORM에서 다른 ID 제외
       },
     });
 
