@@ -7,12 +7,12 @@ export abstract class BaseEntity {
   id: number;
 
   @ApiProperty({ example: 'admin', description: '생성자' })
-  @Column({ name: 'created_by', type: 'varchar', length: 50, comment: '생성자' })
-  createdBy: string;
+  @Column({ name: 'created_by', type: 'varchar', length: 50, comment: '생성자', nullable: true })
+  createdBy?: string;
 
   @ApiProperty({ example: 'admin', description: '수정자' })
   @Column({ name: 'updated_by', type: 'varchar', length: 50, comment: '수정자', nullable: true })
-  updatedBy: string;
+  updatedBy?: string;
 
   @ApiProperty({ example: '2025-07-02T09:00:00.000Z', description: '생성일시 (자동 생성)' })
   @CreateDateColumn({ comment: '생성일시' })

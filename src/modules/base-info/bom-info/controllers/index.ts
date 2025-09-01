@@ -6,3 +6,6 @@ export * from './bom-info-read.controller';
 export * from './bom-info-create.controller';
 export * from './bom-info-update.controller';
 export * from './bom-info-delete.controller';
+export * from './bom-process-create.controller';
+export * from './bom-process-delete.controller';
+export * from './bom-process-read.controller';
