@@ -4,9 +4,9 @@ import { EstimateManagementUpdateService } from '../services/estimatemanagement-
 import { UpdateEstimateDto } from '../dto/estimatemanagement-create.dto';
 import { CreateEstimateDetailDto } from '../dto/estimate-detail.dto';
 import { EstimateManagement } from '../entities/estimatemanagement.entity';
-import { Auth } from '@/common/decorators/auth.decorator';
+import { DevAuth } from '@/common/decorators/dev-auth.decorator';
 
-@ApiTags('견적관리 수정')
+@ApiTags('견적관리')
 @Controller('estimate-management')
 export class EstimateManagementUpdateController {
   constructor(
@@ -14,7 +14,7 @@ export class EstimateManagementUpdateController {
   ) {}
 
   @Put(':id')
-  @Auth()
+  @DevAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '견적 통합 수정',
@@ -28,7 +28,29 @@ export class EstimateManagementUpdateController {
         estimateInfo: {
           type: 'object',
           description: '견적 정보 수정 데이터',
-          $ref: '#/components/schemas/UpdateEstimateDto',
+          properties: {
+            estimateCode: { type: 'string', example: 'EST20250825001' },
+            estimateDate: { type: 'string', format: 'date', example: '2025-08-25' },
+            estimateVersion: { type: 'number', example: 2 },
+            customerCode: { type: 'string', example: 'CUST001' },
+            customerName: { type: 'string', example: '삼성전자' },
+            projectCode: { type: 'string', example: 'PROJ001' },
+            projectName: { type: 'string', example: '스마트폰 개발' },
+            productCode: { type: 'string', example: 'PROD001' },
+            productName: { type: 'string', example: '갤럭시 S25' },
+            productQuantity: { type: 'number', example: 1000 },
+            estimateStatus: { 
+              type: 'string', 
+              enum: ['견적중', '견적완료', '승인대기', '승인완료', '거절'],
+              example: '견적완료'
+            },
+            estimatePrice: { type: 'number', example: 50000000 },
+            employeeCode: { type: 'string', example: 'EMP001' },
+            employeeName: { type: 'string', example: '김철수' },
+            estimateRemark: { type: 'string', example: '긴급 견적' },
+            ordermanagementCode: { type: 'string', example: 'ORD001' },
+            termsOfPayment: { type: 'string', example: '30일 후 결제' }
+          }
         },
         status: {
           type: 'string',
@@ -38,10 +60,21 @@ export class EstimateManagementUpdateController {
         },
         details: {
           type: 'array',
-          items: {
-            $ref: '#/components/schemas/CreateEstimateDetailDto',
-          },
           description: '견적 세부품목 수정 데이터',
+          items: {
+            type: 'object',
+            properties: {
+              estimateId: { type: 'number', example: 1 },
+              detailCode: { type: 'string', example: 'DET001' },
+              itemCode: { type: 'string', example: 'ITEM001' },
+              itemName: { type: 'string', example: 'CPU 프로세서' },
+              itemSpecification: { type: 'string', example: 'Intel Core i7-12700K' },
+              unit: { type: 'string', example: '개' },
+              quantity: { type: 'number', example: 10.5 },
+              unitPrice: { type: 'number', example: 150000 },
+              totalPrice: { type: 'number', example: 1500000 }
+            }
+          }
         },
         recalculatePrice: {
           type: 'boolean',
@@ -67,7 +100,6 @@ export class EstimateManagementUpdateController {
               quantity: 100,
               unitPrice: 50000,
               totalPrice: 5000000,
-              remark: '수정된 부품',
             },
           ],
           recalculatePrice: true,
