@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsEmail, MinLength, IsEnum, IsOptional, Matches } from 'class-validator';
+import { IsString, IsEmail, MinLength, IsEnum, IsOptional, Matches, IsNotEmpty } from 'class-validator';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -14,6 +14,11 @@ export class CreateRegisterDto {
   @MinLength(4, { message: '아이디는 최소 4자 이상이어야 합니다.' })
   @Matches(/^[a-zA-Z0-9_]+$/, { message: '아이디는 영문, 숫자, 언더스코어만 사용 가능합니다.' })
   username: string;
+
+  @ApiProperty({ example: 'EMP001', description: '사원코드 (고유값)' })
+  @IsString()
+  @IsNotEmpty({ message: '사원코드는 필수입니다.' })
+  employee_code: string;
 
   @ApiProperty({ example: 'password123', description: '회원 비밀번호 (최소 8자, 영문+숫자+특수문자 포함)' })
   @IsString()

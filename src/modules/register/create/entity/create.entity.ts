@@ -17,6 +17,10 @@ export class user {
   @Column({ unique: true })
   username: string;
 
+  @ApiProperty({ example: 'EMP001', description: '사원코드 (자동 생성)' })
+  @Column({ unique: true, comment: '사원코드' })
+  employee_code: string;
+
   @ApiProperty({ example: 'hashed_password_123', description: '사용자 비밀번호 (해시 저장 권장)' })
   @Column({ comment: '비밀번호' })
   password: string;

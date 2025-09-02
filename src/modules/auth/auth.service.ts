@@ -33,10 +33,15 @@ export class AuthService {
         throw new BadRequestException('유효하지 않은 권한입니다.');
       }
 
-      // 3. 회원가입 처리
+      // 3. 사원코드 검증
+      if (!createRegisterDto.employee_code) {
+        throw new BadRequestException('사원코드는 필수입니다.');
+      }
+
+      // 4. 회원가입 처리
       const newUser = await this.userService.createUser(createRegisterDto);
 
-      // 4. 회원가입 성공 시 JWT 토큰 발급 (자동 로그인)
+      // 5. 회원가입 성공 시 JWT 토큰 발급 (자동 로그인)
       const payload = {
         id: newUser.id,
         username: newUser.username,
@@ -54,10 +59,10 @@ export class AuthService {
         expiresIn: this.configService.get('JWT_REFRESH_EXPIRES_IN'),
       });
 
-      // 5. 리프레시 토큰 저장
+      // 6. 리프레시 토큰 저장
       await this.userService.updateRefreshToken(newUser.id, refreshToken);
 
-      // 6. 회원가입 성공 응답 (토큰 포함)
+      // 7. 회원가입 성공 응답 (토큰 포함)
       return {
         ...newUser,
         accessToken,

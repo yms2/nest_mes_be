@@ -47,6 +47,7 @@ export class OrderManagementCreateService {
                 supplyPrice: createOrderManagementDto.supplyPrice.toString(),
                 vat: createOrderManagementDto.vat.toString(),
                 total: createOrderManagementDto.total.toString(),
+                createdBy,
             });
 
             // 데이터베이스에 저장

@@ -20,8 +20,8 @@ export class RegisterService {
   }
 
   // 회원가입 요청 처리
-  async createUser(createRegisterDto: CreateRegisterDto): Promise<user> {
-    const { username, password, passwordConfirm, email, group_name } = createRegisterDto;
+  async createUser(createRegisterDto: CreateRegisterDto & { employee_code?: string }): Promise<user> {
+    const { username, password, passwordConfirm, email, group_name, employee_code } = createRegisterDto;
 
     // 1. 비밀번호 확인 검증
     if (password !== passwordConfirm) {
@@ -34,7 +34,15 @@ export class RegisterService {
       throw new ConflictException('이미 사용중인 아이디입니다.');
     }
 
-    // 3. 이메일 중복 체크 (이메일이 제공된 경우에만)
+    // 3. 사원코드 중복 체크
+    if (employee_code) {
+      const existingEmployeeCode = await this.regiseterRepository.findOne({ where: { employee_code } });
+      if (existingEmployeeCode) {
+        throw new ConflictException('이미 사용중인 사원코드입니다.');
+      }
+    }
+
+    // 4. 이메일 중복 체크 (이메일이 제공된 경우에만)
     if (email) {
       const existingEmail = await this.regiseterRepository.findOne({ where: { email } });
       if (existingEmail) {
@@ -42,33 +50,44 @@ export class RegisterService {
       }
     }
 
-    // 4. 권한 검증
+    // 5. 권한 검증
     if (!Object.values(UserRole).includes(group_name)) {
       throw new BadRequestException('유효하지 않은 권한입니다.');
     }
 
-    // 5. 비밀번호 유효성 검사 (DTO에서 이미 검증됨)
+    // 6. 비밀번호 유효성 검사 (DTO에서 이미 검증됨)
     if (password.length < 8) {
       throw new BadRequestException('비밀번호는 최소 8자 이상이어야 합니다.');
     }
 
-    // 6. 비밀번호 해싱
+    // 7. 비밀번호 해싱
     const hashedPassword = await bcrypt.hash(password, 12); // saltRounds를 12로 증가
 
-    // 7. 새 유저 생성 및 저장
+    // 8. 새 유저 생성 및 저장
     const newUser = this.regiseterRepository.create({
       username,
       password: hashedPassword,
       email,
       group_name,
+      employee_code,
     });
 
-    // 8. 실제 DB에 INSERT 실행
+    // 9. 실제 DB에 INSERT 실행
     const savedUser = await this.regiseterRepository.save(newUser);
     
-    // 9. 비밀번호 필드를 제외한 사용자 정보 반환
+    // 10. 비밀번호 필드를 제외한 사용자 정보 반환
     const { password: _, ...userWithoutPassword } = savedUser;
     return userWithoutPassword as user;
+  }
+
+  // 특정 날짜의 마지막 사용자 조회 (사원코드 생성용)
+  async findLastUserByDate(dateStr: string): Promise<user | null> {
+    const pattern = `EMP${dateStr}%`;
+    return this.regiseterRepository
+      .createQueryBuilder('user')
+      .where('user.employee_code LIKE :pattern', { pattern })
+      .orderBy('user.employee_code', 'DESC')
+      .getOne();
   }
 
   // 사용자 비밀번호 검증
