@@ -10,6 +10,7 @@ import {
   UsePipes,
   ValidationPipe,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -21,13 +22,14 @@ import {
 } from '@nestjs/swagger';
 import { OrderManagementCreateService } from '../services/ordermanagement-create.service';
 import { CreateOrderManagementDto } from '../dto/ordermanagement-create.dto';
-import { JwtAuthGuard } from '../../../../common/guards/jwt-auth.guard';
 import { logService } from '../../../log/Services/log.service';
-
+import { DevAuth } from '@/common/decorators/dev-auth.decorator';
+import { OrderManagement } from '../entities/ordermanagement.entity';
+import { ApiResponseBuilder } from 'src/common/interfaces/api-response.interface';
+ 
 @ApiTags('주문관리')
 @Controller('ordermanagement')
-@UseGuards(JwtAuthGuard)
-@ApiBearerAuth('access-token')
+
 export class OrderManagementCreateController {
   constructor(
     private readonly orderManagementService: OrderManagementCreateService,
@@ -35,6 +37,7 @@ export class OrderManagementCreateController {
   ) {}
 
   @Post('create')
+  @DevAuth()
   @UsePipes(new ValidationPipe())
   @ApiOperation({
     summary: '주문관리 등록',
@@ -125,48 +128,25 @@ export class OrderManagementCreateController {
   })
   async createOrderManagement(
     @Body() createOrderManagementDto: CreateOrderManagementDto,
-    @Query('createdBy') createdBy: string,
+    @Req() req: Request & { user: { username: string } },
   ) {
     try {
-      if (!createdBy) {
-        throw new HttpException(
-          {
-            statusCode: HttpStatus.BAD_REQUEST,
-            message: '생성자 정보가 필요합니다.',
-          },
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-
       const result = await this.orderManagementService.createOrderManagement(
         createOrderManagementDto,
-        createdBy,
+        req.user.username,
       );
 
-      // 로그 생성
-      await this.logService.createSimpleLog({
-        moduleName: '주문관리',
-        action: 'CREATE',
-        username: createdBy,
-        details: `주문 코드: ${result.orderCode}`,
-      });
 
-      return {
-        message: '주문이 성공적으로 등록되었습니다.',
-        data: result,
-      };
+      await this.writeCreateLog(result, req.user.username);
+
+      return ApiResponseBuilder.success(result, '주문이 성공적으로 등록되었습니다.');
+     
+
+
     } catch (error) {
-      // 로그 생성
-      await this.logService.createSimpleLog({
-        moduleName: '주문관리',
-        action: 'CREATE_FAIL',
-        username: createdBy || 'unknown',
-        details: `오류: ${error.message}`,
-      });
-
-      if (error instanceof HttpException) {
-        throw error;
-      }
+    
+      await this.writeCreateFailLog(createOrderManagementDto, req.user.username, error);
+     
 
       throw new HttpException(
         {
@@ -177,29 +157,6 @@ export class OrderManagementCreateController {
       );
     }
   }
-
-  @Get('check-duplicate/:orderCode')
-  @ApiOperation({
-    summary: '주문 코드 중복 확인',
-    description: '주문 코드의 중복 여부를 확인합니다.',
-  })
-  @ApiParam({
-    name: 'orderCode',
-    description: '확인할 주문 코드',
-    example: 'ORD20250127001',
-  })
-  @ApiResponse({
-    status: 200,
-    description: '중복 확인 성공',
-    schema: {
-      type: 'object',
-      properties: {
-        orderCode: { type: 'string', example: 'ORD20250127001' },
-        isDuplicate: { type: 'boolean', example: false },
-        message: { type: 'string', example: '사용 가능한 주문 코드입니다.' },
-      },
-    },
-  })
   async checkOrderCodeDuplicate(@Param('orderCode') orderCode: string) {
     try {
       const isDuplicate = await this.orderManagementService.checkOrderCodeDuplicate(orderCode);
@@ -220,4 +177,25 @@ export class OrderManagementCreateController {
     }
   }
 
+
+  private async writeCreateLog(result: OrderManagement, username: string) {
+    await this.logService.createDetailedLog({
+      moduleName: '주문관리',
+      action: 'CREATE',
+      username,
+      targetId: result.orderCode,
+      targetName: result.orderCode,
+    });
+  }
+
+  private async writeCreateFailLog(dto: CreateOrderManagementDto, username: string, error: Error) {
+    await this.logService.createDetailedLog({
+      moduleName: '주문관리',
+      action: 'CREATE_FAIL',
+      username,
+      targetId: '',
+      targetName: dto.productName,
+      details: `생성 실패: ${error.message}`,
+    });
+  }
 }

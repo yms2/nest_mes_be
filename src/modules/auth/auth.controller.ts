@@ -328,8 +328,7 @@ export class AuthController {
 
   // 사용자 정보 업데이트 (아이디, 이메일, 그룹 수정)
   @Post('update-user-info')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth('access-token')
+  @Auth()
   @ApiOperation({ 
     summary: '사용자 정보 업데이트', 
     description: '사용자의 아이디, 이메일, 그룹을 수정합니다.' 
@@ -340,6 +339,7 @@ export class AuthController {
     examples: {
       '예시 1': {
         value: {
+          id: 1,
           username: 'newusername',
           email: 'newemail@example.com',
           group_name: 'manager'
@@ -391,10 +391,10 @@ export class AuthController {
   })
   async updateUserInfo(
     @Req() req: Request & { user: { id: number; username: string } },
-    @Body() updateData: { username?: string; email?: string; group_name?: UserRole }
+    @Body() updateData: { id: number;   username?: string; email?: string; group_name?: UserRole }
   ) {
     try {
-      const result = await this.authService.updateUserInfo(req.user.id, updateData);
+      const result = await this.authService.updateUserInfo(updateData.id, updateData);
       
       // 로그 생성
       await this.logService.createSimpleLog({

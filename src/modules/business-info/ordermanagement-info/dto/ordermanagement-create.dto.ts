@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString, IsNumber, IsDateString, IsOptional } from 'class-validator';
 
 export class CreateOrderManagementDto {
+
     @ApiProperty({ example: '2025-01-01', description: '주문 일자' })
     @IsNotEmpty()
     @IsDateString()

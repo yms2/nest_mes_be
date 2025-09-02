@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 
 // 사용자 정보 업데이트용 DTO
 export class UpdateUserInfoDto {
+  id: number;
   username?: string;
   email?: string;
   group_name?: UserRole;
@@ -187,13 +188,13 @@ export class AuthService {
   }
 
   // 사용자 정보 업데이트 (아이디, 이메일, 그룹 변경)
-  async updateUserInfo(userId: number, updateUserInfoDto: UpdateUserInfoDto): Promise<Omit<user, 'password'>> {
+  async updateUserInfo(id: number, updateUserInfoDto: UpdateUserInfoDto): Promise<Omit<user, 'password'>> {
     try {
-      const { username, email, group_name } = updateUserInfoDto;
+      const { id, username, email, group_name } = updateUserInfoDto;
       const updateData: Partial<user> = {};
 
       // 현재 사용자 정보 조회
-      const currentUser = await this.userService.findById(userId);
+      const currentUser = await this.userService.findById(id);
       if (!currentUser) {
         throw new NotFoundException('사용자를 찾을 수 없습니다.');
       }
@@ -209,7 +210,7 @@ export class AuthService {
 
       // 이메일 변경 시 중복 체크
       if (email && email !== currentUser.email) {
-        const existingEmail = await this.userService.findById(userId);
+        const existingEmail = await this.userService.findById(id);
         if (existingEmail && existingEmail.email === email) {
           throw new ConflictException('이미 사용중인 이메일입니다.');
         }
@@ -228,10 +229,10 @@ export class AuthService {
       if (Object.keys(updateData).length > 0) {
         // RegisterService의 Repository를 직접 사용하여 업데이트
         const userRepository = (this.userService as any).regiseterRepository;
-        await userRepository.update(userId, updateData);
+        await userRepository.update(id, updateData);
         
         // 업데이트된 사용자 정보 반환
-        const updatedUser = await this.userService.findById(userId);
+        const updatedUser = await this.userService.findById(id);
         if (updatedUser) {
           const { password, ...userWithoutPassword } = updatedUser;
           return userWithoutPassword;
