@@ -103,6 +103,14 @@ export class ProductInfo extends BaseEntity {
   @Column({ name: 'product_bigo', type: 'varchar', length: 100, comment: '비고', nullable: true })
   productBigo: string;
 
+  @ApiProperty({ example: '바코드넘버', description: '바코드넘버' })
+  @Column({ name: 'barcode_number', type: 'varchar', length: 100, comment: '바코드넘버', nullable: true })
+  barcodeNumber: string;
+
+  @ApiProperty({ example: 'uploads/barcodes/barcode_0000000000001_1234567890.png', description: '바코드 이미지 경로' })
+  @Column({ name: 'barcode_image_path', type: 'varchar', length: 255, comment: '바코드 이미지 경로', nullable: true })
+  barcodeImagePath: string;
+
   // 파일 관계
   @OneToMany(() => ProductFile, file => file.product)
   files: ProductFile[];

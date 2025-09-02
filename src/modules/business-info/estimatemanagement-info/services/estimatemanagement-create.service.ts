@@ -228,15 +228,23 @@ export class EstimateManagementCreateService {
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
 
-    // 오늘 날짜의 견적 개수 조회
-    const todayEstimates = await this.estimateRepository.count({
-      where: {
-        estimateDate: today,
-      },
-    });
+    // 오늘 날짜의 견적 코드 중 가장 큰 시퀀스 번호 찾기
+    const todayEstimates = await this.estimateRepository
+      .createQueryBuilder('estimate')
+      .where('estimate.estimateCode LIKE :pattern', { 
+        pattern: `EST${year}${month}${day}%` 
+      })
+      .orderBy('estimate.estimateCode', 'DESC')
+      .getOne();
 
-    const sequence = String(todayEstimates + 1).padStart(3, '0');
-    return `EST${year}${month}${day}${sequence}`;
+    let sequence = 1;
+    if (todayEstimates && todayEstimates.estimateCode) {
+      // 기존 코드에서 시퀀스 번호 추출
+      const lastSequence = parseInt(todayEstimates.estimateCode.slice(-3));
+      sequence = lastSequence + 1;
+    }
+
+    return `EST${year}${month}${day}${String(sequence).padStart(3, '0')}`;
   }
 
   /**
@@ -290,12 +298,20 @@ export class EstimateManagementCreateService {
    * @returns 생성된 세부품목 코드
    */
   private async generateDetailCode(estimateId: number): Promise<string> {
-    // 해당 견적의 세부품목 개수 조회
-    const detailCount = await this.estimateDetailRepository.count({
-      where: { estimateId },
-    });
+    // 해당 견적의 세부품목 코드 중 가장 큰 시퀀스 번호 찾기
+    const lastDetail = await this.estimateDetailRepository
+      .createQueryBuilder('detail')
+      .where('detail.estimateId = :estimateId', { estimateId })
+      .orderBy('detail.detailCode', 'DESC')
+      .getOne();
 
-    const sequence = String(detailCount + 1).padStart(3, '0');
-    return `DET${estimateId}${sequence}`;
+    let sequence = 1;
+    if (lastDetail && lastDetail.detailCode) {
+      // 기존 코드에서 시퀀스 번호 추출
+      const lastSequence = parseInt(lastDetail.detailCode.slice(-3));
+      sequence = lastSequence + 1;
+    }
+
+    return `DET${estimateId}${String(sequence).padStart(3, '0')}`;
   }
 }
