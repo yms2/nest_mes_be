@@ -19,6 +19,10 @@ export class RegisterService {
     return this.regiseterRepository.findOne({ where: { id } });
   }
 
+  async findByEmployeeCode(employee_code: string): Promise<user | null> {
+    return this.regiseterRepository.findOne({ where: { employee_code } });
+  }
+
   // 회원가입 요청 처리
   async createUser(createRegisterDto: CreateRegisterDto & { employee_code?: string }): Promise<user> {
     const { username, password, passwordConfirm, email, group_name, employee_code } = createRegisterDto;

@@ -10,8 +10,6 @@ export class OrderManagementCreateService {
     constructor(
         @InjectRepository(OrderManagement)
         private readonly orderManagementRepository: Repository<OrderManagement>,
-        @InjectRepository(ProductInfo)
-        private readonly productRepository: Repository<ProductInfo>,
     ) {}
 
 
@@ -49,12 +47,11 @@ export class OrderManagementCreateService {
                 supplyPrice: createOrderManagementDto.supplyPrice.toString(),
                 vat: createOrderManagementDto.vat.toString(),
                 total: createOrderManagementDto.total.toString(),
-                createdBy,
+                createdBy: createdBy, // BaseEntity의 createdBy 필드에 설정
             });
 
             // 데이터베이스에 저장
             const savedOrderManagement = await this.orderManagementRepository.save(orderManagement);
-
 
             return savedOrderManagement;
         } catch (error) {
@@ -72,16 +69,5 @@ export class OrderManagementCreateService {
             where: { orderCode }
         });
         return !!existingOrder;
-    }
-
-    /**
-     * 품목 정보 조회
-     * @param productCode 품목 코드
-     * @returns 품목 정보
-     */
-    async getProductInfo(productCode: string): Promise<ProductInfo | null> {
-        return await this.productRepository.findOne({
-            where: { productCode }
-        });
     }
 }

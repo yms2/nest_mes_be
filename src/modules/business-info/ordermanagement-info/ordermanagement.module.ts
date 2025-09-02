@@ -6,15 +6,13 @@ import * as services from './services';
 
 import { CommonModule } from '../../../common/common.module';
 import { LogModule } from '../../log/log.module';
-import { ProductInfo } from '../../base-info/product-info/product_sample/entities/product-info.entity';
-
 
 const controllerArray = Object.values(controllers);
 const serviceArray = Object.values(services);
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([OrderManagement, ProductInfo]),
+        TypeOrmModule.forFeature([OrderManagement]),
         CommonModule,
         LogModule,
     ],

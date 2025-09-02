@@ -323,16 +323,16 @@ export class AuthService {
   }
 
   // 사용자 정보 계정 조회 (ID로 조회)
-  async getUserInfoById(id: number): Promise<Omit<user, 'password'> | null> {
+  async getUserInfoByEmployeeCode(employee_code: string): Promise<Omit<user, 'password'> | null> {
     try {
-      const user = await this.userService.findById(id);
+      const user = await this.userService.findByEmployeeCode(employee_code);
       if (!user) {
         return null;
       }
       const { password, ...userWithoutPassword } = user;
       return userWithoutPassword;
     } catch (error) {
-      console.error('사원계정 조회 오류 (ID):', error);
+      console.error('사원계정 조회 오류 (사원코드):', error);
       return null;
     }
   }

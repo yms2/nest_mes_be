@@ -430,10 +430,10 @@ export class AuthController {
   }
 
   // 사용자 정보 계정 조회 (ID로 조회)
-  @Get('get-user-info-by-id/:id')
+  @Get('user-employee-code/:employee_code')
   @ApiOperation({ 
-    summary: '사용자 정보 계정 조회 (ID)', 
-    description: '사용자의 ID로 사용자 정보를 조회합니다.' 
+    summary: '사용자 정보 계정 조회 (사원코드)', 
+    description: '사용자의 사원코드로 사용자 정보를 조회합니다.' 
   })
   @ApiResponse({
     status: 200,
@@ -441,12 +441,12 @@ export class AuthController {
     schema: {
       type: 'object',
       properties: {
-        id: { type: 'number', example: 1 },
+        employee_code: { type: 'string', example: 'EMP001' },
         username: { type: 'string', example: 'testuser' },
         email: { type: 'string', example: 'test@example.com' },
         group_name: { type: 'string', example: 'user' },
         createdAt: { type: 'string', example: '2025-01-27T10:00:00.000Z' },
-        updatedAt: { type: 'string', example: '2025-01-27T10:00:00.000Z' }
+        updatedAt: { type: 'string', example: '2025-01-27T10:00:00.000Z' },
       }
     }
   })
@@ -460,9 +460,9 @@ export class AuthController {
       }
     }
   })
-  async getUserInfoById(@Param('id') id: number) {
+  async getUserInfoByEmployeeCode(@Param('employee_code') employee_code: string) {
     try {
-      const result = await this.authService.getUserInfoById(id);
+      const result = await this.authService.getUserInfoByEmployeeCode(employee_code);
       if (!result) {
         throw new HttpException(
           {
