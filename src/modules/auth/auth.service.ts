@@ -316,4 +316,19 @@ export class AuthService {
       throw new InternalServerErrorException('이메일 중복확인 중 오류가 발생했습니다.');
     }
   }
+
+  // 사용자 정보 계정 조회 (ID로 조회)
+  async getUserInfoById(id: number): Promise<Omit<user, 'password'> | null> {
+    try {
+      const user = await this.userService.findById(id);
+      if (!user) {
+        return null;
+      }
+      const { password, ...userWithoutPassword } = user;
+      return userWithoutPassword;
+    } catch (error) {
+      console.error('사원계정 조회 오류 (ID):', error);
+      return null;
+    }
+  }
 }

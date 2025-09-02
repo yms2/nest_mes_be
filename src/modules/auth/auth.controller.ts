@@ -8,6 +8,7 @@ import {
   UnauthorizedException,
   Get,
   Query,
+  Param,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse, ApiCookieAuth, ApiQuery, ApiBody } from '@nestjs/swagger';
@@ -422,6 +423,64 @@ export class AuthController {
         {
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
           message: '사용자 정보 업데이트 중 오류가 발생했습니다.',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  // 사용자 정보 계정 조회 (ID로 조회)
+  @Get('get-user-info-by-id/:id')
+  @ApiOperation({ 
+    summary: '사용자 정보 계정 조회 (ID)', 
+    description: '사용자의 ID로 사용자 정보를 조회합니다.' 
+  })
+  @ApiResponse({
+    status: 200,
+    description: '사용자 정보 조회 성공',
+    schema: {
+      type: 'object',
+      properties: {
+        id: { type: 'number', example: 1 },
+        username: { type: 'string', example: 'testuser' },
+        email: { type: 'string', example: 'test@example.com' },
+        group_name: { type: 'string', example: 'user' },
+        createdAt: { type: 'string', example: '2025-01-27T10:00:00.000Z' },
+        updatedAt: { type: 'string', example: '2025-01-27T10:00:00.000Z' }
+      }
+    }
+  })
+  @ApiResponse({
+    status: 404,
+    description: '사용자를 찾을 수 없음',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: '사용자를 찾을 수 없습니다.' }
+      }
+    }
+  })
+  async getUserInfoById(@Param('id') id: number) {
+    try {
+      const result = await this.authService.getUserInfoById(id);
+      if (!result) {
+        throw new HttpException(
+          {
+            statusCode: HttpStatus.NOT_FOUND,
+            message: '사용자를 찾을 수 없습니다.',
+          },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      return result;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: '사용자 정보 조회 중 오류가 발생했습니다.',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
