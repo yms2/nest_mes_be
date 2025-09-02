@@ -5,8 +5,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { OrderManagement } from '../entities/ordermanagement.entity';
 import { CreateOrderManagementDto } from '../dto/ordermanagement-create.dto';
 
+@Injectable()
 export class OrderManagementCreateService {
     constructor(
+        @InjectRepository(OrderManagement)
         private readonly orderManagementRepository: Repository<OrderManagement>,
         @InjectRepository(ProductInfo)
         private readonly productRepository: Repository<ProductInfo>,
