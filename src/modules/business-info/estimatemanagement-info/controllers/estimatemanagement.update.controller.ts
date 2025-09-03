@@ -30,6 +30,7 @@ export class EstimateManagementUpdateController {
           description: '견적 정보 수정 데이터',
           properties: {
             estimateCode: { type: 'string', example: 'EST20250825001' },
+            estimateName: { type: 'string', example: '2025년 1분기 스마트폰 견적' },
             estimateDate: { type: 'string', format: 'date', example: '2025-08-25' },
             estimateVersion: { type: 'number', example: 2 },
             customerCode: { type: 'string', example: 'CUST001' },
@@ -89,6 +90,7 @@ export class EstimateManagementUpdateController {
         summary: '견적 정보, 상태, 세부품목 모두 수정',
         value: {
           estimateInfo: {
+            estimateName: '2025년 1분기 스마트폰 견적 (수정)',
             estimateStatus: '견적완료',
             estimateRemark: '수정된 견적',
           },

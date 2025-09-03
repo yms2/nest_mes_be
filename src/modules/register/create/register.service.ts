@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, ConflictException } from '@nestjs/common';
+import { Injectable, BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { user } from './entity/create.entity';
@@ -106,6 +106,17 @@ export class RegisterService {
       return userWithoutPassword;
     }
     return null;
+  }
+
+
+  // 사용자 정보 삭제
+  async deleteUser(id: number): Promise<void> {
+    const existingUser = await this.regiseterRepository.findOne({ where: { id } });
+ //없는아이디 예외처리
+    if (!existingUser) {
+      throw new NotFoundException('사용자 정보를 찾을 수 없습니다.');
+    }
+    await this.regiseterRepository.delete(id);
   }
 
   // 리프레시 토큰 업데이트

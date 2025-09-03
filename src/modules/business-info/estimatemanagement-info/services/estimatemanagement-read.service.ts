@@ -13,28 +13,88 @@ export class EstimateManagementReadService {
   ) {}
 
   /**
-   * 모든 견적 목록을 조회합니다.
+   * 모든 견적 목록을 조회합니다. (검색 기능 포함)
    */
-  async getAllEstimates(page: number = 1, limit: number = 10, username: string) {
+  async getAllEstimates(
+    page: number = 1, 
+    limit: number = 10, 
+    username: string,
+    search?: string,
+    startDate?: string,
+    endDate?: string,
+  ) {
     try {
       const skip = (page - 1) * limit;
-      const [estimates, total] = await this.estimateRepository.findAndCount({
-        relations: ['estimateDetails'],
-        order: { id: 'DESC' },
-        skip,
-        take: limit,
-      });
+      
+      // 검색 조건 구성
+      const whereConditions: any = {};
+      
+      // 일반 검색 (견적코드, 견적명, 고객명, 프로젝트명, 제품명)
+      if (search) {
+        whereConditions.search = search;
+      }
+      
+      // 견적일 범위 검색
+      if (startDate || endDate) {
+        if (startDate && endDate) {
+          whereConditions.estimateDate = {
+            startDate: new Date(startDate),
+            endDate: new Date(endDate)
+          };
+        } else if (startDate) {
+          whereConditions.estimateDate = {
+            startDate: new Date(startDate)
+          };
+        } else if (endDate) {
+          whereConditions.estimateDate = {
+            endDate: new Date(endDate)
+          };
+        }
+      }
+
+      // 쿼리 빌더로 검색 조건 적용
+      const queryBuilder = this.estimateRepository
+        .createQueryBuilder('estimate')
+        .leftJoinAndSelect('estimate.estimateDetails', 'estimateDetails')
+        .orderBy('estimate.id', 'DESC')
+        .skip(skip)
+        .take(limit);
+
+      // 검색 조건 적용
+      if (search) {
+        queryBuilder.andWhere(
+          '(estimate.estimateCode LIKE :search OR estimate.estimateName LIKE :search OR estimate.customerName LIKE :search OR estimate.projectName LIKE :search OR estimate.productName LIKE :search)',
+          { search: `%${search}%` }
+        );
+      }
+
+      if (startDate && endDate) {
+        queryBuilder.andWhere('estimate.estimateDate BETWEEN :startDate AND :endDate', {
+          startDate: new Date(startDate),
+          endDate: new Date(endDate)
+        });
+      } else if (startDate) {
+        queryBuilder.andWhere('estimate.estimateDate >= :startDate', {
+          startDate: new Date(startDate)
+        });
+      } else if (endDate) {
+        queryBuilder.andWhere('estimate.estimateDate <= :endDate', {
+          endDate: new Date(endDate)
+        });
+      }
+
+      const [estimates, total] = await queryBuilder.getManyAndCount();
 
       await this.logService.createDetailedLog({
         moduleName: '견적관리 조회',
         action: 'READ_SUCCESS',
         username,
         targetId: '',
-        targetName: '전체 견적 목록',
-        details: `견적 목록 조회: ${total}개 중 ${estimates.length}개`,
+        targetName: '견적 목록 검색',
+        details: `견적 검색 조회: ${total}개 중 ${estimates.length}개 (검색어: ${search || '없음'}, 기간: ${startDate || '시작일 없음'} ~ ${endDate || '종료일 없음'})`,
       });
 
-      return { estimates, total, page, limit };
+      return { estimates, total, page, limit, search, startDate, endDate };
     } catch (error) {
       throw error;
     }
@@ -158,6 +218,4 @@ export class EstimateManagementReadService {
 
     return estimate;
   }
-
-
 }
