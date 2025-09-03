@@ -1,8 +1,8 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { user } from './entity/create.entity';
-import { CreateRegisterDto } from './dto/create.dto';
+import { CreateRegisterDto, UserRole } from './dto/create.dto';
 import * as bcrypt from 'bcrypt';
 
 // Service 받을 수 있게 해준다.
@@ -18,44 +18,80 @@ export class RegisterService {
   async findById(id: number): Promise<user | null> {
     return this.regiseterRepository.findOne({ where: { id } });
   }
-  // 회원가입 요청 처리
-  async createUser(createRegisterDto: CreateRegisterDto): Promise<user> {
-    // 요청 들어온 데이터에 username, password, email 추출
-    const { username, password, email, group_name } = createRegisterDto;
 
-    // 아이디 중복 체크
-    const existingUser = await this.regiseterRepository.findOne({ where: { username } });
-    if (existingUser) {
-      throw new BadRequestException('이미 사용중인 아이디입니다.');
+  async findByEmployeeCode(employee_code: string): Promise<user | null> {
+    return this.regiseterRepository.findOne({ where: { employee_code } });
+  }
+
+  // 회원가입 요청 처리
+  async createUser(createRegisterDto: CreateRegisterDto & { employee_code?: string }): Promise<user> {
+    const { username, password, passwordConfirm, email, group_name, employee_code } = createRegisterDto;
+
+    // 1. 비밀번호 확인 검증
+    if (password !== passwordConfirm) {
+      throw new BadRequestException('비밀번호와 비밀번호 확인이 일치하지 않습니다.');
     }
 
-    // 비밀번호 유효성 검사 (예: 최소 길이, 특수문자 등)
+    // 2. 아이디 중복 체크
+    const existingUser = await this.regiseterRepository.findOne({ where: { username } });
+    if (existingUser) {
+      throw new ConflictException('이미 사용중인 아이디입니다.');
+    }
+
+    // 3. 사원코드 중복 체크
+    if (employee_code) {
+      const existingEmployeeCode = await this.regiseterRepository.findOne({ where: { employee_code } });
+      if (existingEmployeeCode) {
+        throw new ConflictException('이미 사용중인 사원코드입니다.');
+      }
+    }
+
+    // 4. 이메일 중복 체크 (이메일이 제공된 경우에만)
+    if (email) {
+      const existingEmail = await this.regiseterRepository.findOne({ where: { email } });
+      if (existingEmail) {
+        throw new ConflictException('이미 사용중인 이메일입니다.');
+      }
+    }
+
+    // 5. 권한 검증
+    if (!Object.values(UserRole).includes(group_name)) {
+      throw new BadRequestException('유효하지 않은 권한입니다.');
+    }
+
+    // 6. 비밀번호 유효성 검사 (DTO에서 이미 검증됨)
     if (password.length < 8) {
       throw new BadRequestException('비밀번호는 최소 8자 이상이어야 합니다.');
     }
 
-    // 이메일 중복 체크
-    const existingEmail = await this.regiseterRepository.findOne({ where: { email } });
-    if (existingEmail) {
-      throw new BadRequestException('이미 사용중인 이메일입니다.');
-    }
+    // 7. 비밀번호 해싱
+    const hashedPassword = await bcrypt.hash(password, 12); // saltRounds를 12로 증가
 
-    // 그룹명 존재 유무 체크
-    if (!group_name) {
-      throw new BadRequestException('그룹명을 선택해주세요.');
-    }
-
-    // 3. 비밀번호 해싱
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // 새 유저 저장
-    const user = this.regiseterRepository.create({
+    // 8. 새 유저 생성 및 저장
+    const newUser = this.regiseterRepository.create({
       username,
       password: hashedPassword,
       email,
+      group_name,
+      employee_code,
     });
-    // 실제 DB에 INSERT 실행
-    return await this.regiseterRepository.save(user);
+
+    // 9. 실제 DB에 INSERT 실행
+    const savedUser = await this.regiseterRepository.save(newUser);
+    
+    // 10. 비밀번호 필드를 제외한 사용자 정보 반환
+    const { password: _, ...userWithoutPassword } = savedUser;
+    return userWithoutPassword as user;
+  }
+
+  // 특정 날짜의 마지막 사용자 조회 (사원코드 생성용)
+  async findLastUserByDate(dateStr: string): Promise<user | null> {
+    const pattern = `EMP${dateStr}%`;
+    return this.regiseterRepository
+      .createQueryBuilder('user')
+      .where('user.employee_code LIKE :pattern', { pattern })
+      .orderBy('user.employee_code', 'DESC')
+      .getOne();
   }
 
   // 사용자 비밀번호 검증
@@ -90,12 +126,28 @@ export class RegisterService {
 
   // 비밀번호 변경
   async changePassword(id: number, newPassword: string): Promise<void> {
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
     await this.regiseterRepository.update(id, { password: hashedPassword });
   }
 
   // 사용자명으로 사용자 조회
   async findByUsername(username: string): Promise<user | null> {
     return await this.regiseterRepository.findOne({ where: { username } });
+  }
+
+  // 권한별 사용자 목록 조회
+  async findUsersByRole(role: UserRole): Promise<user[]> {
+    return await this.regiseterRepository.find({ 
+      where: { group_name: role },
+      select: ['id', 'username', 'email', 'group_name', 'createdAt']
+    });
+  }
+
+  // 전체 사용자 목록 조회 (비밀번호 제외)
+  async findAllUsers(): Promise<Omit<user, 'password'>[]> {
+    const users = await this.regiseterRepository.find({
+      select: ['id', 'username', 'email', 'group_name', 'createdAt', 'updatedAt']
+    });
+    return users;
   }
 }

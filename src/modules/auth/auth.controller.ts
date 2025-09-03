@@ -7,20 +7,22 @@ import {
   Req,
   UnauthorizedException,
   Get,
+  Query,
+  Param,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse, ApiCookieAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse, ApiCookieAuth, ApiQuery, ApiBody } from '@nestjs/swagger';
 import { ChangePasswordDto } from './change-pasesword/change-password.dto';
-import { AdminLoginUserDto } from './auth.dto';
+import { AdminLoginUserDto, UpdateUserInfoDto } from './auth.dto';
 import { AuthService } from './auth.service';
 import { RegisterService } from '../register/create/register.service';
-import { user } from '../register/create/entity/create.entity';
 import { logService } from '../log/Services/log.service';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Auth } from 'src/common/decorators/auth.decorator';
+import { CreateRegisterDto, UserRole } from '../register/create/dto/create.dto';
 
 interface JwtPayload {
   id: number;
@@ -162,6 +164,7 @@ export class AuthController {
       return { message: '로그아웃 되었습니다.' };
     }
   }
+
   @Post('refresh-token')
   @ApiCookieAuth('refresh_token')
   @ApiOperation({ summary: '리프레시 토큰으로 액세스 토큰 재발급' })
@@ -278,6 +281,221 @@ export class AuthController {
         {
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
           message: '토큰 검증 실패했습니다.',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  // 아이디 중복확인
+  @Get('check-username')
+  @ApiOperation({ 
+    summary: '아이디 중복확인', 
+    description: '입력한 아이디의 사용 가능 여부를 확인합니다.' 
+  })
+  @ApiQuery({ 
+    name: 'username', 
+    description: '확인할 아이디', 
+    example: 'testuser',
+    required: true 
+  })
+  @ApiResponse({
+    status: 200,
+    description: '아이디 중복확인 성공',
+    schema: {
+      type: 'object',
+      properties: {
+        available: { type: 'boolean', example: true },
+        message: { type: 'string', example: '사용 가능한 아이디입니다.' }
+      }
+    }
+  })
+  async checkUsername(@Query('username') username: string) {
+    try {
+      const result = await this.authService.checkUsernameAvailability(username);
+      return result;
+    } catch (error) {
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: '아이디 중복확인 중 오류가 발생했습니다.',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  // 사용자 정보 업데이트 (아이디, 이메일, 그룹, 비밀번호 수정)
+  @Post('update-user-info')
+  @Auth()
+  @ApiOperation({ 
+    summary: '사용자 정보 업데이트', 
+    description: '사용자의 아이디, 이메일, 그룹, 비밀번호를 수정합니다.' 
+  })
+  @ApiBody({
+    type: UpdateUserInfoDto,
+    description: '사용자 정보 업데이트 요청 데이터',
+    examples: {
+      '통합 업데이트': {
+        value: {
+          id: 1,
+          username: 'newusername',
+          email: 'newemail@example.com',
+          group_name: 'manager',
+          password: 'newpassword123',
+          passwordConfirm: 'newpassword123'
+        }
+      }
+    }
+  })
+  @ApiResponse({
+    status: 200,
+    description: '사용자 정보 업데이트 성공',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: '사용자 정보가 성공적으로 업데이트되었습니다.' },
+        data: {
+          type: 'object',
+          properties: {
+            id: { type: 'number', example: 1 },
+            username: { type: 'string', example: 'newusername' },
+            email: { type: 'string', example: 'newemail@example.com' },
+            group_name: { type: 'string', example: 'manager' },
+            employee_code: { type: 'string', example: 'EMP001' },
+            createdAt: { type: 'string', example: '2025-01-27T10:00:00.000Z' },
+            updatedAt: { type: 'string', example: '2025-01-27T10:00:00.000Z' }
+          },
+          description: '비밀번호는 보안상 응답에서 제외됩니다.'
+        }
+      }
+    }
+  })
+  @ApiResponse({
+    status: 400,
+    description: '잘못된 요청',
+    schema: {
+      type: 'object',
+      properties: {
+        statusCode: { type: 'number', example: 400 },
+        message: { type: 'string', example: '유효하지 않은 권한입니다.' }
+      }
+    }
+  })
+  @ApiResponse({
+    status: 409,
+    description: '중복된 정보',
+    schema: {
+      type: 'object',
+      properties: {
+        statusCode: { type: 'number', example: 409 },
+        message: { type: 'string', example: '이미 사용중인 아이디입니다.' }
+      }
+    }
+  })
+  @ApiResponse({
+    status: 400,
+    description: '잘못된 요청',
+    schema: {
+      type: 'object',
+      properties: {
+        statusCode: { type: 'number', example: 400 },
+        message: { type: 'string', example: '비밀번호와 비밀번호 확인이 일치하지 않습니다.' }
+      }
+    }
+  })
+  async updateUserInfo(
+    @Req() req: Request & { user: { id: number; username: string } },
+    @Body() updateData: UpdateUserInfoDto
+  ) {
+    try {
+      const result = await this.authService.updateUserInfo(updateData.id, updateData);
+      
+      // 로그 생성
+      await this.logService.createSimpleLog({
+        moduleName: '계정관리',
+        action: 'UPDATE_USER_INFO',
+        username: req.user.username,
+      });
+
+      return {
+        message: '사용자 정보가 성공적으로 업데이트되었습니다.',
+        data: result
+      };
+    } catch (error) {
+      // 로그 생성
+      await this.logService.createSimpleLog({
+        moduleName: '계정관리',
+        action: 'UPDATE_USER_INFO_FAIL',
+        username: req.user.username,
+      });
+
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: '사용자 정보 업데이트 중 오류가 발생했습니다.',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  // 사용자 정보 계정 조회 (ID로 조회)
+  @Get('user-employee-code/:employee_code')
+  @ApiOperation({ 
+    summary: '사용자 정보 계정 조회 (사원코드)', 
+    description: '사용자의 사원코드로 사용자 정보를 조회합니다.' 
+  })
+  @ApiResponse({
+    status: 200,
+    description: '사용자 정보 조회 성공',
+    schema: {
+      type: 'object',
+      properties: {
+        employee_code: { type: 'string', example: 'EMP001' },
+        username: { type: 'string', example: 'testuser' },
+        email: { type: 'string', example: 'test@example.com' },
+        group_name: { type: 'string', example: 'user' },
+        createdAt: { type: 'string', example: '2025-01-27T10:00:00.000Z' },
+        updatedAt: { type: 'string', example: '2025-01-27T10:00:00.000Z' },
+      }
+    }
+  })
+  @ApiResponse({
+    status: 404,
+    description: '사용자를 찾을 수 없음',
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: '사용자를 찾을 수 없습니다.' }
+      }
+    }
+  })
+  async getUserInfoByEmployeeCode(@Param('employee_code') employee_code: string) {
+    try {
+      const result = await this.authService.getUserInfoByEmployeeCode(employee_code);
+      if (!result) {
+        throw new HttpException(
+          {
+            statusCode: HttpStatus.NOT_FOUND,
+            message: '사용자를 찾을 수 없습니다.',
+          },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      return result;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: '사용자 정보 조회 중 오류가 발생했습니다.',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
