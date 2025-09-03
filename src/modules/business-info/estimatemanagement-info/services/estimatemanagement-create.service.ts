@@ -28,6 +28,9 @@ export class EstimateManagementCreateService {
       // 기본 검증
       await this.validateEstimateData(createEstimateDto);
 
+      // 프로젝트명 중복 체크 및 버전 자동 증가
+      await this.checkProjectDuplicateAndUpdateVersion(createEstimateDto);
+
       // 중복 견적 검증
       await this.checkDuplicateEstimate(createEstimateDto);
 
@@ -168,7 +171,6 @@ export class EstimateManagementCreateService {
       estimateVersion,
       customerCode,
       customerName,
-      projectCode,
       projectName,
       productCode,
       productName,
@@ -179,9 +181,9 @@ export class EstimateManagementCreateService {
       employeeName,
     } = createEstimateDto;
 
-    // 필수 필드 검증
+    // 필수 필드 검증 (projectCode는 자동 생성되므로 제외)
     if (!estimateDate || !estimateVersion || !customerCode || !customerName || 
-        !projectCode || !projectName || !productCode || !productName || 
+        !projectName || !productCode || !productName || 
         !productQuantity || !estimateStatus || !estimatePrice || 
         !employeeCode || !employeeName) {
       throw new BadRequestException('필수 필드가 누락되었습니다.');
@@ -195,6 +197,45 @@ export class EstimateManagementCreateService {
     // 견적 가격 검증
     if (estimatePrice < 0) {
       throw new BadRequestException('견적 가격은 0 이상이어야 합니다.');
+    }
+  }
+
+    /**
+   * 프로젝트명 중복 체크 및 버전 자동 증가를 처리합니다.
+   * @param createEstimateDto 견적 생성 데이터
+   */
+  private async checkProjectDuplicateAndUpdateVersion(createEstimateDto: CreateEstimateDto): Promise<void> {
+    const { projectName, customerCode } = createEstimateDto;
+
+    // 같은 고객의 같은 프로젝트명이 있는지 확인
+    const existingProject = await this.estimateRepository.findOne({
+      where: { 
+        projectName,
+        customerCode 
+      },
+      order: { estimateVersion: 'DESC' }
+    });
+
+    if (existingProject) {
+      // 기존 버전보다 1 증가
+      const newVersion = existingProject.estimateVersion + 1;
+      createEstimateDto.estimateVersion = newVersion;
+      
+      // 기존 프로젝트 코드 사용
+      createEstimateDto.projectCode = existingProject.projectCode;
+      
+      // 로그 기록 (버전 증가 정보)
+      await this.logService.createDetailedLog({
+        moduleName: '견적관리 등록',
+        action: 'VERSION_INCREMENT',
+        username: 'SYSTEM',
+        targetId: existingProject.id.toString(),
+        targetName: `${projectName} - ${customerCode}`,
+        details: `프로젝트 "${projectName}" (고객: ${customerCode})의 버전이 ${existingProject.estimateVersion}에서 ${newVersion}으로 자동 증가되었습니다.`,
+      });
+    } else {
+      // 새로운 프로젝트인 경우 프로젝트 코드 자동 생성
+      createEstimateDto.projectCode = await this.generateProjectCode();
     }
   }
 
@@ -215,6 +256,38 @@ export class EstimateManagementCreateService {
           `이미 존재하는 견적 코드입니다: ${estimateCode}`,
         );
       }
+    }
+  }
+
+  /**
+   * 프로젝트 코드를 자동 생성합니다.
+   * @returns 생성된 프로젝트 코드
+   */
+  private async generateProjectCode(): Promise<string> {
+    try {
+      // 전체 프로젝트 코드 중 가장 큰 시퀀스 번호 찾기
+      const lastProject = await this.estimateRepository
+        .createQueryBuilder('estimate')
+        .where('estimate.projectCode LIKE :pattern', { 
+          pattern: 'PROJ%' 
+        })
+        .orderBy('estimate.projectCode', 'DESC')
+        .getOne();
+
+      let sequence = 1;
+      if (lastProject && lastProject.projectCode) {
+        // 기존 코드에서 시퀀스 번호 추출 (PROJ001 -> 1, PROJ002 -> 2)
+        const lastSequence = parseInt(lastProject.projectCode.slice(4)); // 'PROJ' 제거
+        if (!isNaN(lastSequence)) {
+          sequence = lastSequence + 1;
+        }
+      }
+
+      return `PROJ${String(sequence).padStart(3, '0')}`;
+    } catch (error) {
+      // 오류 발생 시 기본 프로젝트 코드 반환
+      console.error('프로젝트 코드 생성 중 오류 발생:', error);
+      return 'PROJ001';
     }
   }
 

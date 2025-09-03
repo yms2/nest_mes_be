@@ -3,12 +3,15 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OrderManagement } from '../entities/ordermanagement.entity';
 import { CreateOrderManagementDto } from '../dto/ordermanagement-create.dto';
+import { EstimateManagement } from '../../estimatemanagement-info/entities/estimatemanagement.entity';
 
 @Injectable()
 export class OrderManagementCreateService {
     constructor(
         @InjectRepository(OrderManagement)
         private readonly orderManagementRepository: Repository<OrderManagement>,
+        @InjectRepository(EstimateManagement)
+        private readonly estimateRepository: Repository<EstimateManagement>,
     ) {}
 
 
@@ -52,6 +55,14 @@ export class OrderManagementCreateService {
             // 데이터베이스에 저장
             const savedOrderManagement = await this.orderManagementRepository.save(orderManagement);
 
+            // 견적 테이블에 수주 코드 업데이트
+            if (createOrderManagementDto.estimateCode) {
+                await this.updateEstimateWithOrderCode(
+                    createOrderManagementDto.estimateCode, 
+                    orderCode
+                );
+            }
+
             return savedOrderManagement;
         } catch (error) {
             throw new Error(`주문관리 등록 중 오류가 발생했습니다: ${error.message}`);
@@ -68,5 +79,28 @@ export class OrderManagementCreateService {
             where: { orderCode }
         });
         return !!existingOrder;
+    }
+
+    /**
+     * 견적 테이블에 수주 코드 업데이트
+     * @param estimateCode 견적 코드
+     * @param orderCode 수주 코드
+     */
+    private async updateEstimateWithOrderCode(estimateCode: string, orderCode: string): Promise<void> {
+        try {
+            // 견적 코드로 견적 정보 조회
+            const estimate = await this.estimateRepository.findOne({
+                where: { estimateCode }
+            });
+
+            if (estimate) {
+                // 견적에 수주 코드 업데이트
+                estimate.ordermanagementCode = orderCode;
+                await this.estimateRepository.save(estimate);
+            }
+        } catch (error) {
+            console.error(`견적 테이블 업데이트 중 오류 발생: ${error.message}`);
+            // 견적 업데이트 실패해도 수주 등록은 계속 진행
+        }
     }
 }

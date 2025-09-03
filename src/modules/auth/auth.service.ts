@@ -4,14 +4,8 @@ import { user } from '../register/create/entity/create.entity';
 import { CreateRegisterDto, UserRole } from '../register/create/dto/create.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-
-// 사용자 정보 업데이트용 DTO
-export class UpdateUserInfoDto {
-  id: number;
-  username?: string;
-  email?: string;
-  group_name?: UserRole;
-}
+import * as bcrypt from 'bcrypt';
+import { UpdateUserInfoDto } from './auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -223,6 +217,22 @@ export class AuthService {
           throw new BadRequestException('유효하지 않은 권한입니다.');
         }
         updateData.group_name = group_name;
+      }
+
+      // 비밀번호 변경 로직
+      if (updateUserInfoDto.password) {
+        if (!updateUserInfoDto.passwordConfirm) {
+          throw new BadRequestException('비밀번호 확인을 입력해주세요.');
+        }
+        if (updateUserInfoDto.password !== updateUserInfoDto.passwordConfirm) {
+          throw new BadRequestException('비밀번호와 비밀번호 확인이 일치하지 않습니다.');
+        }
+        if (updateUserInfoDto.password.length < 8) {
+          throw new BadRequestException('비밀번호는 최소 8자 이상이어야 합니다.');
+        }
+        // 비밀번호 해시화
+        const hashedPassword = await bcrypt.hash(updateUserInfoDto.password, 12);
+        updateData.password = hashedPassword;
       }
 
       // 업데이트할 데이터가 있는 경우에만 업데이트
