@@ -13,10 +13,9 @@ import {
 import { Request } from 'express';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse, ApiCookieAuth, ApiQuery, ApiBody } from '@nestjs/swagger';
 import { ChangePasswordDto } from './change-pasesword/change-password.dto';
-import { AdminLoginUserDto } from './auth.dto';
+import { AdminLoginUserDto, UpdateUserInfoDto } from './auth.dto';
 import { AuthService } from './auth.service';
 import { RegisterService } from '../register/create/register.service';
-import { user } from '../register/create/entity/create.entity';
 import { logService } from '../log/Services/log.service';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -326,23 +325,25 @@ export class AuthController {
     }
   }
 
-  // 사용자 정보 업데이트 (아이디, 이메일, 그룹 수정)
+  // 사용자 정보 업데이트 (아이디, 이메일, 그룹, 비밀번호 수정)
   @Post('update-user-info')
   @Auth()
   @ApiOperation({ 
     summary: '사용자 정보 업데이트', 
-    description: '사용자의 아이디, 이메일, 그룹을 수정합니다.' 
+    description: '사용자의 아이디, 이메일, 그룹, 비밀번호를 수정합니다.' 
   })
   @ApiBody({
-    type: CreateRegisterDto,
+    type: UpdateUserInfoDto,
     description: '사용자 정보 업데이트 요청 데이터',
     examples: {
-      '예시 1': {
+      '통합 업데이트': {
         value: {
           id: 1,
           username: 'newusername',
           email: 'newemail@example.com',
-          group_name: 'manager'
+          group_name: 'manager',
+          password: 'newpassword123',
+          passwordConfirm: 'newpassword123'
         }
       }
     }
@@ -361,8 +362,11 @@ export class AuthController {
             username: { type: 'string', example: 'newusername' },
             email: { type: 'string', example: 'newemail@example.com' },
             group_name: { type: 'string', example: 'manager' },
+            employee_code: { type: 'string', example: 'EMP001' },
+            createdAt: { type: 'string', example: '2025-01-27T10:00:00.000Z' },
             updatedAt: { type: 'string', example: '2025-01-27T10:00:00.000Z' }
-          }
+          },
+          description: '비밀번호는 보안상 응답에서 제외됩니다.'
         }
       }
     }
@@ -389,9 +393,20 @@ export class AuthController {
       }
     }
   })
+  @ApiResponse({
+    status: 400,
+    description: '잘못된 요청',
+    schema: {
+      type: 'object',
+      properties: {
+        statusCode: { type: 'number', example: 400 },
+        message: { type: 'string', example: '비밀번호와 비밀번호 확인이 일치하지 않습니다.' }
+      }
+    }
+  })
   async updateUserInfo(
     @Req() req: Request & { user: { id: number; username: string } },
-    @Body() updateData: { id: number;   username?: string; email?: string; group_name?: UserRole }
+    @Body() updateData: UpdateUserInfoDto
   ) {
     try {
       const result = await this.authService.updateUserInfo(updateData.id, updateData);
