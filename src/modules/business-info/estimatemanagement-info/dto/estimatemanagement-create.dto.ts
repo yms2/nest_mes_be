@@ -16,6 +16,17 @@ export class CreateEstimateDto {
   estimateCode?: string;
 
   @ApiProperty({ 
+    description: '견적명', 
+    example: '2025년 1분기 스마트폰 견적', 
+    minLength: 1, 
+    maxLength: 100 
+  })
+  @IsNotEmpty()
+  @IsString()
+  @MaxLength(100)
+  estimateName: string;
+
+  @ApiProperty({ 
     description: '견적 날짜', 
     example: '2025-08-25',
     type: Date
@@ -196,6 +207,15 @@ export class UpdateEstimateDto {
   @IsOptional()
   @IsString()
   estimateCode?: string;
+
+  @ApiProperty({ 
+    description: '견적명', 
+    example: '2025년 1분기 스마트폰 견적', 
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  estimateName?: string;
 
   @ApiProperty({ 
     description: '견적 날짜', 

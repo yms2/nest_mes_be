@@ -33,7 +33,7 @@ export class EstimateManagementReadController {
   @ApiQuery({ 
     name: 'search', 
     required: false, 
-    description: '검색 키워드 (견적코드, 고객명, 프로젝트명, 제품명)',
+    description: '검색 키워드 (견적코드, 견적명, 고객명, 프로젝트명, 제품명)',
     example: '삼성전자'
   })
   @ApiQuery({ 
@@ -60,6 +60,7 @@ export class EstimateManagementReadController {
             {
               id: 1,
               estimateCode: 'EST20250825001',
+              estimateName: '2025년 1분기 스마트폰 견적',
               estimateDate: '2025-08-25',
               customerName: '삼성전자',
               projectName: '스마트폰 개발',
@@ -125,5 +126,35 @@ export class EstimateManagementReadController {
         error.message || '견적 목록 조회에 실패했습니다.',
       );
     }
+  }
+
+  @Get('recent')
+  @ApiOperation({ 
+    summary: '최근 30일 내 견적 목록 조회',
+    description: '최근 30일 내 견적 목록을 조회합니다.' 
+  })
+  async getRecentEstimates(@Request() req, @Query('page') page: number = 1, @Query('limit') limit: number = 10): Promise<any> {
+    const username = req.user?.username || 'unknown';
+    return await this.estimateManagementReadService.getRecentEstimates(page, limit, username);
+  }
+
+  @Get('expired')
+  @ApiOperation({ 
+    summary: '30일 경과 견적 목록 조회',
+    description: '30일 경과 견적 목록을 조회합니다.' 
+  })
+  async getExpiredEstimates(@Request() req, @Query('page') page: number = 1, @Query('limit') limit: number = 10): Promise<any> {
+    const username = req.user?.username || 'unknown';
+    return await this.estimateManagementReadService.getExpiredEstimates(page, limit, username);
+  }
+
+  @Get(':id')
+  @ApiOperation({ 
+    summary: '견적 상세 조회',
+    description: '견적 상세 정보를 조회합니다.' 
+  })
+  async getEstimateById(@Request() req, @Param('id') id: number): Promise<any> {
+    const username = req.user?.username || 'unknown';
+    return await this.estimateManagementReadService.getEstimateById(id, username);
   }
 }

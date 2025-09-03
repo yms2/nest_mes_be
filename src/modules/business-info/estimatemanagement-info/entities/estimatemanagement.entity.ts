@@ -9,6 +9,9 @@ export class EstimateManagement {
     @Column({ name : 'estimate_code', type: 'varchar', length: 20 })
     estimateCode: string;
 
+    @Column({ name : 'estimate_name', type: 'varchar', length: 100 })
+    estimateName: string;
+
     @Column({ name : 'estimate_date', type: 'date' })
     estimateDate: Date;
 

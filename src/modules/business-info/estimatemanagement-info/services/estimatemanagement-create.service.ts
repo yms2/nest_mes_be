@@ -169,6 +169,7 @@ export class EstimateManagementCreateService {
     const {
       estimateDate,
       estimateVersion,
+      estimateName,
       customerCode,
       customerName,
       projectName,
@@ -182,7 +183,7 @@ export class EstimateManagementCreateService {
     } = createEstimateDto;
 
     // 필수 필드 검증 (projectCode는 자동 생성되므로 제외)
-    if (!estimateDate || !estimateVersion || !customerCode || !customerName || 
+    if (!estimateDate || !estimateVersion || !estimateName || !customerCode || !customerName || 
         !projectName || !productCode || !productName || 
         !productQuantity || !estimateStatus || !estimatePrice || 
         !employeeCode || !employeeName) {

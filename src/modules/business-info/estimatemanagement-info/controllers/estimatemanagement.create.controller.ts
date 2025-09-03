@@ -49,6 +49,7 @@ export class EstimateManagementCreateController {
           estimate: {
             estimateDate: '2025-08-25',
             estimateVersion: 1,
+            estimateName: '2025년 1분기 스마트폰 견적',
             customerCode: 'CUST001',
             customerName: '삼성전자',
             projectCode: 'PROJ001',
@@ -105,6 +106,7 @@ export class EstimateManagementCreateController {
         data: {
           id: 1,
           estimateCode: 'EST20250825001',
+          estimateName: '2025년 1분기 스마트폰 견적',
           estimateDate: '2025-08-25',
           estimateVersion: 1,
           customerCode: 'CUST001',
