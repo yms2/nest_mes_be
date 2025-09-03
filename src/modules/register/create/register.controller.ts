@@ -1,9 +1,10 @@
 //회원가입 하는 Controller
-import { Body, Controller, Post, HttpCode, HttpStatus, ValidationPipe, UsePipes } from '@nestjs/common';
+import { Body, Controller, Post, HttpCode, HttpStatus, ValidationPipe, UsePipes, Param, Delete } from '@nestjs/common';
 import { RegisterService } from './register.service';
 import { CreateRegisterDto, UserRole } from './dto/create.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiParam } from '@nestjs/swagger';
 import { ApiResponseBuilder } from 'src/common/interfaces/api-response.interface';
+import { Auth } from '@/common/decorators/auth.decorator';
 
 @ApiTags('Register') // Swagger에서 Register 그룹으로 묶기
 @Controller('register')
@@ -173,5 +174,15 @@ export class RegisterController {
     ];
 
     return ApiResponseBuilder.success(roles, '권한 목록을 조회했습니다.');
+  }
+
+  // 사용자 정보 삭제
+  @Delete(':id')
+  @Auth()
+  @ApiOperation({ summary: '사용자 정보 삭제' })
+  @ApiParam({ name: 'id', description: '사용자 ID' })
+  async deleteUserInfo(@Param('id') id: number) {
+    await this.registerService.deleteUser(id);
+    return ApiResponseBuilder.success(null, '사용자 정보가 삭제되었습니다.');
   }
 }
