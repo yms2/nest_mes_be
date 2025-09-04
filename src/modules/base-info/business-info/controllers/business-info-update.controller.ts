@@ -7,6 +7,7 @@ import { BusinessInfoUpdateService } from '../services/business-info-update.serv
 import { logService } from 'src/modules/log/Services/log.service';
 import { Auth } from 'src/common/decorators/auth.decorator';
 import { BusinessInfo } from '../entities/business-info.entity';
+import { DevAuthWithPermission } from '@/common/decorators/dev-auth-with-permission.decorator';
 @ApiTags('BusinessInfo')
 @Controller('business-info')
 export class BusinessInfoUpdateController {
@@ -16,7 +17,7 @@ export class BusinessInfoUpdateController {
   ) {}
 
   @Put(':businessNumber')
-  @Auth()
+  @DevAuthWithPermission('businessInfo', 'update')
   @ApiOperation({ summary: '사업장 정보 수정', description: '기존 사업장 정보를 수정합니다.' })
   @ApiParam({ name: 'businessNumber', description: '사업자 번호', example: '6743001715' })
   async updateBusinessInfo(
