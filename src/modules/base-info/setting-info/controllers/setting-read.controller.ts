@@ -2,7 +2,7 @@ import { Controller, DefaultValuePipe, Get, ParseBoolPipe, Query, UseInterceptor
 import { ApiTags, ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { ClassSerializerInterceptor } from '@nestjs/common';
 import { SettingReadService } from '../services/setting-read.service';
-import { Auth } from '@/common/decorators/auth.decorator';
+import { DevSettingInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 import { BaseCode, SubCode } from '../entities/setting.entity';
 
 @ApiTags('설정관리')
@@ -12,7 +12,7 @@ export class SettingReadController {
     constructor(private readonly settingReadService: SettingReadService) {}
 
     @Get()
-    @Auth()
+    @DevSettingInfoAuth.read()
     @ApiOperation({ 
         summary: '모든 설정 정보 조회', 
         description: '모든 설정 정보를 조회합니다. withSubs 파라미터로 서브 데이터 포함 여부를 선택할 수 있습니다.' 
@@ -44,7 +44,7 @@ export class SettingReadController {
     }
 
     @Get('sub-codes')
-    @Auth()
+    @DevSettingInfoAuth.read()
     @ApiOperation({ summary: '서브 코드 조회' })
     @ApiQuery({ name: 'baseCodeId', description: '기본 코드 ID', required: true, type: Number })
     async getSubCodes(@Query('baseCodeId') baseCodeId: number): Promise<SubCode[]> {

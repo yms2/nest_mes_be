@@ -2,7 +2,7 @@ import { Controller, Query, Get, UseInterceptors } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { ClassSerializerInterceptor } from '@nestjs/common';
 import { SearchCustomerInfoDto } from '../dto/customer-info-search.dto';
-import { Auth } from '../../../../common/decorators/auth.decorator';
+import { DevCustomerInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 import { CustomerInfoHandler } from '../handlers/customer-info.handler';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 
@@ -13,7 +13,7 @@ export class CustomerInfoReadController {
   constructor(private readonly customerInfoHandler: CustomerInfoHandler) {}
 
   @Get()
-  @Auth()
+  @DevCustomerInfoAuth.read()
   @ApiOperation({ summary: '거래처 정보 조회/검색', description: '조건별 거래처 정보 조회' })
   @ApiQuery({ name: 'customerNumber', required: false, description: '사업자등록번호 (정확 매칭)' })
   @ApiQuery({ name: 'search', required: false, description: '검색어 (통합 검색)' })

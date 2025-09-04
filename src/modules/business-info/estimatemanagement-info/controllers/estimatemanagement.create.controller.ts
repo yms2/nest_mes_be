@@ -4,12 +4,12 @@ import { EstimateManagementCreateService } from '../services/estimatemanagement-
 import { CreateEstimateDto } from '../dto/estimatemanagement-create.dto';
 import { CreateEstimateDetailDto } from '../dto/estimate-detail.dto';
 import { EstimateManagement } from '../entities/estimatemanagement.entity';
-import { DevAuth } from '@/common/decorators/dev-auth.decorator';
+import { DevEstimateInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 import { ApiResponseBuilder } from 'src/common/interfaces/api-response.interface';
 
 @ApiTags('견적관리')
 @Controller('estimate-management')
-@DevAuth()
+@DevEstimateInfoAuth.create()
 @ApiBearerAuth()
 export class EstimateManagementCreateController {
   constructor(

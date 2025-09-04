@@ -4,15 +4,15 @@ import { BomInfoCreateService } from '../services/bom-info-create.service';
 import { CreateBomDto } from '../dto/create-bom.dto';
 import { BomInfo } from '../entities/bom-info.entity';
 import { ApiResponse as CustomApiResponse, ApiResponseBuilder } from 'src/common/interfaces/api-response.interface';
-import { Auth } from '@/common/decorators/auth.decorator';
+import { DevBomInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 
 @ApiTags('BOM 등록/수정/삭제')
 @Controller('bom-info')
-@Auth()
 export class BomInfoCreateController {
   constructor(private readonly bomInfoCreateService: BomInfoCreateService) {}
 
   @Post()
+  @DevBomInfoAuth.create()
   @ApiOperation({
     summary: 'BOM 정보 등록',
     description: '새로운 BOM 정보를 등록합니다. 상위품목과 하위품목의 관계를 정의하고 수량과 단위를 설정합니다.',

@@ -4,7 +4,7 @@ import { EstimateManagementUpdateService } from '../services/estimatemanagement-
 import { UpdateEstimateDto } from '../dto/estimatemanagement-create.dto';
 import { CreateEstimateDetailDto } from '../dto/estimate-detail.dto';
 import { EstimateManagement } from '../entities/estimatemanagement.entity';
-import { DevAuth } from '@/common/decorators/dev-auth.decorator';
+import { DevEstimateInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 
 @ApiTags('견적관리')
 @Controller('estimate-management')
@@ -14,7 +14,7 @@ export class EstimateManagementUpdateController {
   ) {}
 
   @Put(':id')
-  @DevAuth()
+  @DevEstimateInfoAuth.update()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '견적 통합 수정',

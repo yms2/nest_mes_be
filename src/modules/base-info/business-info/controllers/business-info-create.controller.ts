@@ -5,7 +5,7 @@ import { ApiResponseBuilder } from '../../../../common/interfaces/api-response.i
 import { BusinessInfoCreateService } from '../services';
 import { logService } from '../../../log/Services/log.service';
 import { BusinessInfo } from '../entities/business-info.entity';
-import { DevAuthWithPermission } from '@/common/decorators/dev-auth-with-permission.decorator';
+import { DevBusinessInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 
 @ApiTags('BusinessInfo')
 @Controller('business-info')
@@ -16,7 +16,7 @@ export class BusinessInfoCreateController {
   ) {}
 
   @Post()
-  @DevAuthWithPermission('businessInfo', 'create')
+  @DevBusinessInfoAuth.create()
   @ApiOperation({ summary: '사업장 정보 생성', description: '신규 사업장 정보를 생성합니다.' })
   async createBusinessInfo(
     @Body() createBusinessInfoDto: CreateBusinessInfoDto,

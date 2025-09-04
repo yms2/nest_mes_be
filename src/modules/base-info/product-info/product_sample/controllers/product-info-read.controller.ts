@@ -1,7 +1,7 @@
 import { Controller, Query, Get, UseInterceptors } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { ClassSerializerInterceptor } from '@nestjs/common';
-import { Auth } from '../../../../../common/decorators/auth.decorator';
+import { DevProductInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { ProductInfoHandler } from '../handlers/product-info.handler';
 import { SearchProductInfoDto } from '../dto/product-info-read.dto';
@@ -12,7 +12,7 @@ export class ProductInfoReadController {
   constructor(private readonly productInfoHandler: ProductInfoHandler) {}
 
   @Get()
-  @Auth()
+  @DevProductInfoAuth.read()
   @ApiOperation({ summary: '품목 정보 조호/검색', description: '조건별 품목 정보 조회' })
   @ApiQuery({ name: 'search', required: false, description: '검색어 (통합 검색' })
   @ApiQuery({ name: 'startDate', required: false, description: '시작 날짜 (YYYY-MM-DD)' })

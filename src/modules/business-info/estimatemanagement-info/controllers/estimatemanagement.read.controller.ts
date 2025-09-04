@@ -1,12 +1,12 @@
 import { Controller, Get, Param, Query, Request } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { EstimateManagementReadService } from '../services/estimatemanagement-read.service';
-import { DevAuth } from '@/common/decorators/dev-auth.decorator';
+import { DevEstimateInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 import { ApiResponseBuilder } from 'src/common/interfaces/api-response.interface';
 
 @ApiTags('견적관리')
 @Controller('estimate-management')
-@DevAuth()
+@DevEstimateInfoAuth.read()
 @ApiBearerAuth()
 export class EstimateManagementReadController {
   constructor(

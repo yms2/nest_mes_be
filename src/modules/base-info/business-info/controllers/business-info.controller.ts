@@ -2,7 +2,7 @@ import { Controller, Query, Get, UseInterceptors } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { ClassSerializerInterceptor } from '@nestjs/common';
 import { ReadBusinessInfoDto } from '../dto/read-business-info.dto';
-import { DevAuthWithPermission } from '@/common/decorators/dev-auth-with-permission.decorator';
+import { DevBusinessInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 import { BusinessInfoHandler } from '../handlers/business-info.handler';
 
 interface PaginationDto {
@@ -17,7 +17,7 @@ export class BusinessInfoController {
   constructor(private readonly businessInfoHandler: BusinessInfoHandler) {}
 
   @Get()
-  @DevAuthWithPermission('businessInfo', 'read')
+  @DevBusinessInfoAuth.read()
   @ApiOperation({ summary: '사업장 정보 조회/검색', description: '조건별 사업장 정보 조회' })
   @ApiQuery({ name: 'businessNumber', required: false })
   @ApiQuery({ name: 'search', required: false })

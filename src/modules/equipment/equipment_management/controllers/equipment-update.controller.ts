@@ -3,7 +3,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/s
 import { EquipmentUpdateService } from '../services/equipment-update.service';
 import { UpdateEquipmentDto } from '../dto/update-equipment.dto';
 import { Equipment } from '../entities/equipment.entity';
-import { Auth } from '@/common/decorators/auth.decorator';
+import { DevEquipmentInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 
 @ApiTags('설비 관리')
 @Controller('equipment')
@@ -13,7 +13,7 @@ export class EquipmentUpdateController {
   ) {}
 
   @Put(':equipmentCode')
-  @Auth()
+  @DevEquipmentInfoAuth.update()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '설비 정보 수정',

@@ -2,15 +2,15 @@ import { Controller, Delete, Param, Body, Request, HttpStatus, ParseIntPipe } fr
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
 import { BomInfoDeleteService } from '../services/bom-info-delete.service';
 import { ApiResponse as CustomApiResponse, ApiResponseBuilder } from 'src/common/interfaces/api-response.interface';
-import { Auth } from '@/common/decorators/auth.decorator';
+import { DevBomInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 
 @ApiTags('BOM 등록/수정/삭제')
 @Controller('bom-info')
-@Auth()
 export class BomInfoDeleteController {
   constructor(private readonly bomInfoDeleteService: BomInfoDeleteService) {}
 
   @Delete(':id')
+  @DevBomInfoAuth.delete()
   @ApiOperation({
     summary: 'BOM 정보 삭제',
     description: '특정 ID의 BOM 정보를 삭제합니다. 하위 BOM이나 상위 BOM이 있는 경우 삭제할 수 없습니다.',

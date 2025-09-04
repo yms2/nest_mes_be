@@ -2,7 +2,7 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ProductInfoUpdateService } from '../services/product-info-update.service';
 import { Body, Controller, Param, Put, Req } from '@nestjs/common';
 import { logService } from 'src/modules/log/Services/log.service';
-import { Auth } from 'src/common/decorators/auth.decorator';
+import { DevProductInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 import { CreateProductInfoDto } from '../dto/product-info-create.dto';
 import { ApiResponseBuilder } from 'src/common/interfaces/api-response.interface';
 import { ProductInfo } from '../entities/product-info.entity';
@@ -16,7 +16,7 @@ export class ProductInfoUpdateController {
   ) {}
 
   @Put(':id')
-  @Auth()
+  @DevProductInfoAuth.update()
   @ApiOperation({ summary: 'id로 품목 정보 수정', description: '기존 품목 정보를 수정합니다.' })
   async updateProductInfo(
     @Param('id') id: number,

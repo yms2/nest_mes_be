@@ -7,6 +7,7 @@ import { ApiResponseBuilder } from 'src/common/interfaces/api-response.interface
 import { CreateCustomerInfoDto } from '../dto/customer-info-create.dto';
 import { CustomerInfo } from '../entities/customer-info.entity';
 import { Auth } from 'src/common/decorators/auth.decorator';
+import { DevCustomerInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 
 @ApiTags('CustomerInfo')
 @Controller('customer-info')
@@ -17,7 +18,7 @@ export class CustomerInfoCreateController {
   ) {}
 
   @Post()
-  @Auth()
+  @DevCustomerInfoAuth.create()
   @ApiOperation({ summary: '거래처 정보 생성', description: '신규 거래처 정보를 생성합니다.' })
   async createCustomerInfo(
     @Body() createCustomerInfoDto: CreateCustomerInfoDto,

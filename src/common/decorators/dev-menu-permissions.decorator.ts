@@ -134,6 +134,7 @@ export const DevProductInfoAuth = {
     ),
 };
 
+
 /**
  * 개발환경용 공정정보 권한 데코레이터들
  */
@@ -208,6 +209,75 @@ export const DevAuthorityManageAuth = {
     delete: () => applyDecorators(
         UseGuards(DevAuthGuard, PermissionGuard),
         RequirePermission('authorityManage', 'delete'),
+        ApiBearerAuth('access-token')
+    ),
+};
+
+export const DevSettingInfoAuth = {
+    create: () => applyDecorators(
+        UseGuards(DevAuthGuard, PermissionGuard),
+        RequirePermission('settingInfo', 'create'),
+        ApiBearerAuth('access-token')
+    ),
+    read: () => applyDecorators(
+        UseGuards(DevAuthGuard, PermissionGuard),
+        RequirePermission('settingInfo', 'read'),
+        ApiBearerAuth('access-token')
+    ),
+    update: () => applyDecorators(
+        UseGuards(DevAuthGuard, PermissionGuard),
+        RequirePermission('settingInfo', 'update'),
+        ApiBearerAuth('access-token')
+    ),
+    delete: () => applyDecorators(
+        UseGuards(DevAuthGuard, PermissionGuard),
+        RequirePermission('settingInfo', 'delete'),
+        ApiBearerAuth('access-token')
+    ),
+};
+
+export const DevEstimateInfoAuth = {
+    create: () => applyDecorators(
+        UseGuards(DevAuthGuard, PermissionGuard),
+        RequirePermission('estimateInfo', 'create'),
+        ApiBearerAuth('access-token')
+    ),
+    read: () => applyDecorators(
+        UseGuards(DevAuthGuard, PermissionGuard),
+        RequirePermission('estimateInfo', 'read'),
+        ApiBearerAuth('access-token')
+    ),
+    update: () => applyDecorators(
+        UseGuards(DevAuthGuard, PermissionGuard),
+        RequirePermission('estimateInfo', 'update'),
+        ApiBearerAuth('access-token')
+    ),
+    delete: () => applyDecorators(
+        UseGuards(DevAuthGuard, PermissionGuard),
+        RequirePermission('estimateInfo', 'delete'),
+        ApiBearerAuth('access-token')
+    ),
+};
+
+export const DevEquipmentInfoAuth = {
+    create: () => applyDecorators(
+        UseGuards(DevAuthGuard, PermissionGuard),
+        RequirePermission('equipmentInfo', 'create'),
+        ApiBearerAuth('access-token')
+    ),
+    read: () => applyDecorators(
+        UseGuards(DevAuthGuard, PermissionGuard),
+        RequirePermission('equipmentInfo', 'read'),
+        ApiBearerAuth('access-token')
+    ),
+    update: () => applyDecorators(
+        UseGuards(DevAuthGuard, PermissionGuard),
+        RequirePermission('equipmentInfo', 'update'),
+        ApiBearerAuth('access-token')
+    ),
+    delete: () => applyDecorators(
+        UseGuards(DevAuthGuard, PermissionGuard),
+        RequirePermission('equipmentInfo', 'delete'),
         ApiBearerAuth('access-token')
     ),
 };

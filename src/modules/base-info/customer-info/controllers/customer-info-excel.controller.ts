@@ -1,13 +1,13 @@
 import { Controller, Get, Query, Res } from '@nestjs/common';
 import { Response } from 'express';
-import { Auth } from '../../../../common/decorators/auth.decorator';
+import { DevCustomerInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { CustomerInfoSearchService } from '../services/customer-info-search.service';
 import { CustomerInfoTemplateService } from '../services/customer-info-template.service';
 import { CustomerInfoDownloadService } from '../services/customer-info-download.service';
 import { CustomerInfoReadService } from '../services/customer-info-read.service';
 
-@Auth()
+@DevCustomerInfoAuth.read()
 @ApiTags('CustomerInfo')
 @Controller('customer-info')
 export class CustomerInfoExcelController {

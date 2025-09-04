@@ -2,7 +2,7 @@ import { Controller, Get, Param, UseInterceptors } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { ClassSerializerInterceptor } from '@nestjs/common';
 import { PermissionReadService } from '../services/permission-read.service';
-import { Auth } from '@/common/decorators/auth.decorator';
+import { DevAuthorityManageAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 import { AuthorityManages } from '../entities/permission.entity';
 
 @ApiTags('권한관리')
@@ -14,7 +14,7 @@ export class PermissionReadController {
   // ===== 권한 관리 정보 조회 =====
   
   @Get()
-  @Auth()
+  @DevAuthorityManageAuth.read()
   @ApiOperation({ 
     summary: '모든 권한 관리 정보 조회', 
     description: '모든 권한 관리 정보를 조회합니다.' 

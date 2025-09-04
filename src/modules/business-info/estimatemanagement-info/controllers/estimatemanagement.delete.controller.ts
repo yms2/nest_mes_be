@@ -2,7 +2,7 @@ import { Controller, Delete, Param, ParseIntPipe, Body, HttpCode, HttpStatus } f
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
 import { EstimateManagementDeleteService } from '../services/estimatemanagement-delete.service';
 import { EstimateManagement } from '../entities/estimatemanagement.entity';
-import { DevAuth } from '@/common/decorators/dev-auth.decorator';
+import { DevEstimateInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 
 @ApiTags('견적관리')
 @Controller('estimate-management')
@@ -12,7 +12,7 @@ export class EstimateManagementDeleteController {
   ) {}
 
   @Delete(':id')
-  @DevAuth()
+  @DevEstimateInfoAuth.delete()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '견적 삭제',
@@ -39,7 +39,7 @@ export class EstimateManagementDeleteController {
   }
 
   @Delete(':id/details')
-  @DevAuth()
+  @DevEstimateInfoAuth.delete()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '견적 세부품목 삭제',
@@ -91,7 +91,7 @@ export class EstimateManagementDeleteController {
   }
 
   @Delete('batch')
-  @DevAuth()
+  @DevEstimateInfoAuth.delete()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '견적 일괄 삭제',

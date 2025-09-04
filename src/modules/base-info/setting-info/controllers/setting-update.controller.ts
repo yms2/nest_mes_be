@@ -2,7 +2,7 @@ import { Controller, Put, Param, Body, Req } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiParam } from '@nestjs/swagger';
 
 import { logService } from 'src/modules/log/Services/log.service';
-import { Auth } from 'src/common/decorators/auth.decorator';
+import { DevSettingInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 import { ApiResponseBuilder } from 'src/common/interfaces/api-response.interface';
 import { SettingUpdateService } from '../services/setting-update.service';
 import { UpdateSubCodeDto } from '../dto/setting-update.entity';
@@ -17,7 +17,7 @@ export class SettingUpdateController {
     ) {}
 
     @Put(':id')
-    @Auth()
+    @DevSettingInfoAuth.update()
     @ApiOperation({ summary: '서브 코드 수정', description: '기존 서브 코드를 수정합니다.' })
     @ApiParam({ name: 'id', description: '서브 코드 ID', example: '1' })
     async updateSubCode(

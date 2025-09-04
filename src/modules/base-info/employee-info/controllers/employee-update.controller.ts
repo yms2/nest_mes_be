@@ -5,7 +5,7 @@ import { CreateEmployeeDto } from '../dto/employee-create.dto';
 import { ApiResponseBuilder } from 'src/common/interfaces/api-response.interface';
 import { EmployeeUpdateService } from '../services/employee-update.service';
 import { logService } from 'src/modules/log/Services/log.service';
-import { Auth } from 'src/common/decorators/auth.decorator';
+import { DevUserInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 import { Employee } from '../entities/employee.entity';
 
 @ApiTags('EmployeeInfo')
@@ -17,7 +17,7 @@ export class EmployeeUpdateController {
     ) {}
 
     @Put(':id')
-    @Auth()
+    @DevUserInfoAuth.update()
     @ApiOperation({ summary: 'id 정보 수정', description: '기존 직원 정보를 수정합니다.' })
     async updateEmployeeInfo(
         @Param('id') id: number,

@@ -2,7 +2,7 @@ import { Controller, Delete, NotFoundException, Param, Req } from '@nestjs/commo
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SettingDeleteService } from '../services/setting-delete.service';
 import { SubCode } from '../entities/setting.entity';
-import { Auth } from '@/common/decorators/auth.decorator';
+import { DevSettingInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 import { ApiResponseBuilder } from '@/common/interfaces/api-response.interface';
 import { logService } from '@/modules/log/Services/log.service';
 
@@ -15,7 +15,7 @@ export class SettingDeleteController {
     ) {}
 
     @Delete(':id')
-    @Auth()
+    @DevSettingInfoAuth.delete()
     @ApiOperation({ summary: '서브 코드 삭제', description: '서브 코드를 삭제합니다.' })
     @ApiResponse({ status: 200, description: '서브 코드 삭제 성공' })
     @ApiParam({ name: 'id', description: '서브 코드 ID', example: 1 })

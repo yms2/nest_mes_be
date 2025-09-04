@@ -4,7 +4,7 @@ import { PermissionUpdateService } from '../services/permission-update.service';
 import { PermissionUpdateDto } from '../dto/permission-update.dto';
 import { AuthorityManages } from '../entities/permission.entity';
 import { ApiResponse as ApiResponseInterface } from 'src/common/interfaces/api-response.interface';
-import { Auth } from '@/common/decorators/auth.decorator';
+import { DevAuthorityManageAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 
 @ApiTags('권한관리')
 @Controller('permissions')
@@ -14,7 +14,7 @@ export class PermissionUpdateController {
     ) {}
 
     @Put(':id')
-    @Auth()
+    @DevAuthorityManageAuth.update()
     @ApiOperation({ summary: '권한 정보 업데이트' })
     @ApiParam({ name: 'id', description: '권한 ID' })
     @ApiResponse({ status: 200, description: '권한 업데이트 성공' })

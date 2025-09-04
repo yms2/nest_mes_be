@@ -3,7 +3,7 @@ import { ApiTags, ApiOperation, ApiParam } from '@nestjs/swagger';
 import { ApiResponseBuilder } from 'src/common/interfaces/api-response.interface';
 import { EmployeeDeleteService } from '../services/employee-delete.service';
 import { logService } from 'src/modules/log/Services/log.service';
-import { Auth } from 'src/common/decorators/auth.decorator';
+import { DevUserInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 
 @ApiTags('EmployeeInfo')
 @Controller('employee-info')
@@ -14,7 +14,7 @@ export class EmployeeDeleteController {
     ) {}
 
     @Delete(':id')
-    @Auth()
+    @DevUserInfoAuth.delete()
     @ApiOperation({
         summary: '직원 정보 영구 삭제',
         description: '직원 정보를 영구적으로 삭제합니다.',

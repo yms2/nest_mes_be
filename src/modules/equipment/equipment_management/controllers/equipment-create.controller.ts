@@ -3,7 +3,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { EquipmentCreateService } from '../services/equipment-create.service';
 import { CreateEquipmentDto } from '../dto/create-equipment.dto';
 import { Equipment } from '../entities/equipment.entity';
-import { Auth } from '@/common/decorators/auth.decorator';
+import { DevEquipmentInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 
 @ApiTags('설비 관리')
 @Controller('equipment')
@@ -13,7 +13,7 @@ export class EquipmentCreateController {
   ) {}
 
   @Post()
-  @Auth()
+  @DevEquipmentInfoAuth.create()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: '설비 등록',

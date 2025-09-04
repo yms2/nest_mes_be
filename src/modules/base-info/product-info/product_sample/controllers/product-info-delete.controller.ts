@@ -3,7 +3,7 @@ import { ProductInfoDeleteService } from '../services/product-info-delete.servic
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { Controller, Delete, Param, Req } from '@nestjs/common';
 import { ApiResponseBuilder } from 'src/common/interfaces/api-response.interface';
-import { Auth } from 'src/common/decorators/auth.decorator';
+import { DevProductInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 
 @ApiTags('ProductInfo')
 @Controller('product-info')
@@ -14,7 +14,7 @@ export class ProductInfoDeleteController {
   ) {}
 
   @Delete(':id')
-  @Auth()
+  @DevProductInfoAuth.delete()
   @ApiOperation({
     summary: '품목 정보 영구 삭제',
     description: '품목 정보를 영구적으로 삭제합니다.',
