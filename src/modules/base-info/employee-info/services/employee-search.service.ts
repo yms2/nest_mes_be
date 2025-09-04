@@ -60,6 +60,33 @@ export class EmployeeSearchService {
         };
     }
 
+    // 특정 필드에서만 검색
+    async searchEmployeeByField(
+        fieldName: string,
+        keyword: string,
+        page: number = 1,
+        limit: number = 10,
+    ): Promise<SearchResult> {
+        const trimmedKeyword = keyword.trim();
+        const offset = (page - 1) * limit;
+
+        const queryBuilder = this.employeeRepository
+            .createQueryBuilder('employee')
+            .where(`employee.${fieldName} LIKE :keyword`, { keyword: `%${trimmedKeyword}%` })
+            .orderBy('employee.employeeName', 'ASC')
+            .skip(offset)
+            .take(limit);
+
+        const [data, total] = await queryBuilder.getManyAndCount();
+
+        return {
+            data,
+            total,
+            page,
+            limit,
+        };
+    }
+
     async searchEmployeeByDateRange(
         startDate: string,
         endDate: string,

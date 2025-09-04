@@ -24,7 +24,23 @@ export class ProductInfoHandler {
       result.page,
       result.limit,
       result.total,
-      '거래처 정보 통합검색이 완료되었습니다.',
+      '품목 정보 통합검색이 완료되었습니다.',
+    );
+  }
+
+  async handleSearchByField(fieldName: string, keyword: string, pagination: PaginationDto) {
+    const result = await this.productInfoSearchService.searchProductInfoByField(
+      fieldName,
+      keyword,
+      pagination.page,
+      pagination.limit,
+    );
+    return buildPaginatedResponse(
+      result.data,
+      result.page,
+      result.limit,
+      result.total,
+      `품목 정보 ${fieldName} 검색이 완료되었습니다.`,
     );
   }
 

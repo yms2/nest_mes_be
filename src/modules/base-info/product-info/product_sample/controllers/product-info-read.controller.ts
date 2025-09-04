@@ -26,6 +26,7 @@ export class ProductInfoReadController {
       limit: query.limit || 10,
     };
 
+    // 날짜 범위 검색
     if (query.startDate && query.endDate) {
       return this.productInfoHandler.handleDateRangeSearch(
         query.startDate,
@@ -34,14 +35,17 @@ export class ProductInfoReadController {
       );
     }
 
+    // 품명이 있으면 search 값 무시하고 포함 검색
     if (query.productName && query.productName.trim() !== '') {
-      return this.productInfoHandler.handleSearch(query.productName, pagination);
+      return this.productInfoHandler.handleSearchByField('productName', query.productName, pagination);
     }
 
+    // 통합 검색 (search만)
     if (query.search && query.search.trim() !== '') {
       return this.productInfoHandler.handleSearch(query.search, pagination);
     }
 
+    // 전체 목록 조회
     return this.productInfoHandler.handleListRead(pagination);
   }
 }

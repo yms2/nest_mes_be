@@ -28,6 +28,22 @@ export class CustomerInfoHandler {
     );
   }
 
+  async handleSearchByField(fieldName: string, keyword: string, pagination: PaginationDto) {
+    const result = await this.customerInfoSearchService.searchCustomerInfoByField(
+      fieldName,
+      keyword,
+      pagination.page,
+      pagination.limit,
+    );
+    return buildPaginatedResponse(
+      result.data,
+      result.page,
+      result.limit,
+      result.total,
+      `거래처 정보 ${fieldName} 검색이 완료되었습니다.`,
+    );
+  }
+
   async handleDateRangeSearch(startDate: string, endDate: string, pagination: PaginationDto) {
     const result = await this.customerInfoSearchService.searchCustomerInfoByDateRange(
       startDate,

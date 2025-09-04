@@ -29,6 +29,11 @@ export class CustomerInfoReadController {
       limit: query.limit || 10,
     };
 
+    // 사업자등록번호가 있으면 search 값 무시하고 포함 검색
+    if (query.customerNumber && query.customerNumber.trim() !== '') {
+      return this.customerInfoHandler.handleSearchByField('customerNumber', query.customerNumber, pagination);
+    }
+
     // 날짜 범위 검색
     if (query.startDate && query.endDate) {
       return this.customerInfoHandler.handleDateRangeSearch(
@@ -38,10 +43,14 @@ export class CustomerInfoReadController {
       );
     }
 
-    // 통합 검색 (search, customerNumber, customerName 모두 검색어로 처리)
-    const searchKeyword = query.search || query.customerNumber || query.customerName;
-    if (searchKeyword && searchKeyword.trim() !== '') {
-      return this.customerInfoHandler.handleSearch(searchKeyword.trim(), pagination);
+    // 사업자명이 있으면 search 값 무시하고 포함 검색
+    if (query.customerName && query.customerName.trim() !== '') {
+      return this.customerInfoHandler.handleSearchByField('customerName', query.customerName, pagination);
+    }
+
+    // 통합 검색 (search만)
+    if (query.search && query.search.trim() !== '') {
+      return this.customerInfoHandler.handleSearch(query.search.trim(), pagination);
     }
 
     // 전체 목록 조회
