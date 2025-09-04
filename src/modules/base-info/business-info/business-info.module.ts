@@ -15,7 +15,6 @@ import {
   ExcelTemplateService,
   ExcelExportService
 } from './services';
-import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 
 import { LogModule } from '../../log/log.module';
 import {

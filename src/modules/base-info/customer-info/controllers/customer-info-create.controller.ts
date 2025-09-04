@@ -6,7 +6,6 @@ import { CustomerInfoCreateService } from '../services/customer-info-create.serv
 import { ApiResponseBuilder } from 'src/common/interfaces/api-response.interface';
 import { CreateCustomerInfoDto } from '../dto/customer-info-create.dto';
 import { CustomerInfo } from '../entities/customer-info.entity';
-import { Auth } from 'src/common/decorators/auth.decorator';
 import { DevCustomerInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 
 @ApiTags('CustomerInfo')
@@ -33,6 +32,7 @@ export class CustomerInfoCreateController {
       await this.writeCreateLog(result, req.user.username);
 
       return ApiResponseBuilder.success(result, '거래처 정보 등록되었습니다.');
+      
     } catch (error) {
       await this.writeCreateFailLog(createCustomerInfoDto, req.user.username, error);
       throw error;

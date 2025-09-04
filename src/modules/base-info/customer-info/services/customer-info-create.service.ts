@@ -1,5 +1,5 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { Injectable, ConflictException } from '@nestjs/common';
+import { Injectable, ConflictException, BadRequestException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { CustomerInfo } from '../entities/customer-info.entity';
 import { CreateCustomerInfoDto } from '../dto/customer-info-create.dto';
@@ -16,6 +16,8 @@ export class CustomerInfoCreateService {
     createdBy: string,
   ): Promise<CustomerInfo> {
     await this.checkCustomerNumberDuplicate(createCustomerInfoDto.customerNumber);
+    await this.checkCustomerName(createCustomerInfoDto.customerName);
+    await this.checkCustomerCeo(createCustomerInfoDto.customerCeo);
     const newCustomerCode = await this.generateCustomerCode();
     const customerEntity = this.createCustomerEntity(
       createCustomerInfoDto,
@@ -31,6 +33,20 @@ export class CustomerInfoCreateService {
     });
     if (existingCustomer) {
       throw new ConflictException(`사업자 등록번호가 이미 존재합니다.`);
+    }
+  }
+
+  //거래처명이 비어있다면 예외처리
+  private async checkCustomerName(customerName: string): Promise<void> {
+    if (!customerName) {
+      throw new BadRequestException('거래처명이 비어있습니다.');
+    }
+  }
+
+  //대표자명이 비어있다면 예외처리
+  private async checkCustomerCeo(customerCeo: string): Promise<void> {
+    if (!customerCeo) {
+      throw new BadRequestException('대표자명이 비어있습니다.');
     }
   }
 

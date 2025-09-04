@@ -33,7 +33,7 @@ export class CreateCustomerInfoDto {
   customerName: string;
 
   @ApiProperty({
-    example: '112332-1323333',
+    example: '1123321323333',
     description: '법인 번호 (선택)',
     required: false,
   })
