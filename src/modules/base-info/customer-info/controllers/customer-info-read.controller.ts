@@ -15,7 +15,8 @@ export class CustomerInfoReadController {
   @Get()
   @DevCustomerInfoAuth.read()
   @ApiOperation({ summary: '거래처 정보 조회/검색', description: '조건별 거래처 정보 조회' })
-  @ApiQuery({ name: 'customerNumber', required: false, description: '사업자등록번호 (정확 매칭)' })
+  @ApiQuery({ name: 'customerNumber', required: false, description: '사업자등록번호 (검색어)' })
+  @ApiQuery({ name: 'customerName', required: false, description: '사업자명 (검색어)' })
   @ApiQuery({ name: 'search', required: false, description: '검색어 (통합 검색)' })
   @ApiQuery({ name: 'startDate', required: false, description: '시작 날짜 (YYYY-MM-DD)' })
   @ApiQuery({ name: 'endDate', required: false, description: '종료 날짜 (YYYY-MM-DD)' })
@@ -28,11 +29,6 @@ export class CustomerInfoReadController {
       limit: query.limit || 10,
     };
 
-    // 사업자등록번호로 단일 조회
-    if (query.customerNumber && query.customerNumber.trim() !== '') {
-      return this.customerInfoHandler.handleSingleRead(query);
-    }
-
     // 날짜 범위 검색
     if (query.startDate && query.endDate) {
       return this.customerInfoHandler.handleDateRangeSearch(
@@ -42,9 +38,10 @@ export class CustomerInfoReadController {
       );
     }
 
-    // 통합 검색
-    if (query.search && query.search.trim() !== '') {
-      return this.customerInfoHandler.handleSearch(query.search, pagination);
+    // 통합 검색 (search, customerNumber, customerName 모두 검색어로 처리)
+    const searchKeyword = query.search || query.customerNumber || query.customerName;
+    if (searchKeyword && searchKeyword.trim() !== '') {
+      return this.customerInfoHandler.handleSearch(searchKeyword.trim(), pagination);
     }
 
     // 전체 목록 조회

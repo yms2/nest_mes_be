@@ -12,10 +12,6 @@ export class CustomerInfoHandler {
     private readonly customerInfoSearchService: CustomerInfoSearchService,
   ) {}
 
-  async handleSingleRead(query: SearchCustomerInfoDto) {
-    const result = await this.customerInfoReadService.getCustomerInfoByNumber(query);
-    return ApiResponseBuilder.success(result, '거래처 정보(단일) 조회되었습니다.');
-  }
 
   async handleSearch(search: string, pagination: PaginationDto) {
     const result = await this.customerInfoSearchService.searchCustomerInfo(
