@@ -65,6 +65,34 @@ export class BusinessInfoSearchService {
     };
   }
 
+  // 특정 필드에서만 검색
+  async searchBusinessInfoByField(
+    fieldName: string,
+    keyword: string,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<SearchResult> {
+    const trimmedKeyword = keyword.trim();
+    const offset = (page - 1) * limit;
+
+    const queryBuilder = this.businessInfoRepository
+      .createQueryBuilder('business')
+      .where('business.isDeleted = false')
+      .andWhere(`business.${fieldName} LIKE :keyword`, { keyword: `%${trimmedKeyword}%` })
+      .orderBy('business.businessName', 'ASC')
+      .skip(offset)
+      .take(limit);
+
+    const [data, total] = await queryBuilder.getManyAndCount();
+
+    return {
+      data: DateFormatter.formatBusinessInfoArrayDates(data),
+      total,
+      page,
+      limit,
+    };
+  }
+
   // 날짜 범위 검색
   async searchBusinessInfoByDateRange(
     startDate: string,

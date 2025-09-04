@@ -10,4 +10,12 @@ export class SearchEmployeeDto extends BaseSearchDto {
   })
   @OptionalString()
   employeeCode?: string;
+
+  @ApiProperty({
+    example: '홍길동',
+    description: '직원명 (포함 검색)',
+    required: false,
+  })
+  @OptionalString()
+  employeeName?: string;
 }

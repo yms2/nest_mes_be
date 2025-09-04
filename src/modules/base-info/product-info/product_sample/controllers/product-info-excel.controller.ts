@@ -18,7 +18,6 @@ export class ProductInfoExcelController {
         private readonly productDownloadService: ProductDownloadService,
     ) {}
 
-    @Get('download-template')
     @ApiOperation({ summary: '품목정보 엑셀 템플릿 다운로드' })
     async downloadTemplate(@Res() res: Response) {
         const buffer = await this.productInfoTemplateService.generateUploadTemplate();
@@ -33,18 +32,25 @@ export class ProductInfoExcelController {
     @ApiQuery({ name: 'keyword', required: false, description: '검색 키워드 (선택사항)' })
     @ApiQuery({ name: 'page', required: false, description: '페이지 번호 (기본값: 1)' })
     @ApiQuery({ name: 'limit', required: false, description: '페이지당 개수 (기본값: 99999)' })
+    @ApiQuery({ name: 'productName', required: false, description: '품명 (포함 검색)' })
     async downloadExcel(
         @Res() res: Response,
         @Query('keyword') keyword?: string,
         @Query('page') page?: string,
         @Query('limit') limit?: string,
+        @Query('productName') productName?: string,
     ) {
         let result;
 
         const pageNum = page ? parseInt(page) : 1;
         const limitNum = limit ? parseInt(limit) : 99999;
 
-        if (keyword && keyword.trim()) {
+        // 품명으로 검색 (해당 필드에서만)
+        if (productName && productName.trim()) {
+            result = await this.productInfoSearchService.searchProductInfo(productName.trim(), pageNum, limitNum);
+        }
+        // 통합 검색 (모든 필드에서)
+        else if (keyword && keyword.trim()) {
             result = await this.productInfoSearchService.searchProductInfo(keyword.trim(), pageNum, limitNum);
         } else {
             result = await this.productInfoService.getAllProductInfo(pageNum, limitNum);

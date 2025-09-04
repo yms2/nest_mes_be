@@ -19,6 +19,7 @@ export class ProductInfoReadController {
   @ApiQuery({ name: 'endDate', required: false, description: '종료 날짜 (YYYY-MM-DD)' })
   @ApiQuery({ name: 'page', required: false, description: '페이지 번호' })
   @ApiQuery({ name: 'limit', required: false, description: '페이지당 개수' })
+  @ApiQuery({ name: 'productName', required: false, description: '품명 (포함 검색)' })
   async getProductInfo(@Query() query: SearchProductInfoDto) {
     const pagination: PaginationDto = {
       page: query.page || 1,
@@ -31,6 +32,10 @@ export class ProductInfoReadController {
         query.endDate,
         pagination,
       );
+    }
+
+    if (query.productName && query.productName.trim() !== '') {
+      return this.productInfoHandler.handleSearch(query.productName, pagination);
     }
 
     if (query.search && query.search.trim() !== '') {

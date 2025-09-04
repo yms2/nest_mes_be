@@ -33,18 +33,25 @@ export class EmployeeExcelController {
     @ApiQuery({ name: 'keyword', required: false, description: '검색 키워드 (선택사항)' })
     @ApiQuery({ name: 'page', required: false, description: '페이지 번호 (기본값: 1)' })
     @ApiQuery({ name: 'limit', required: false, description: '페이지당 개수 (기본값: 99999)' })
+    @ApiQuery({ name: 'employeeName', required: false, description: '직원명 (포함 검색)' })
     async downloadExcel(
         @Res() res: Response,
         @Query('keyword') keyword?: string,
         @Query('page') page?: string,
         @Query('limit') limit?: string,
+        @Query('employeeName') employeeName?: string,
     ) {
         let result;
 
         const pageNum = page ? parseInt(page) : 1;
         const limitNum = limit ? parseInt(limit) : 99999;
 
-        if (keyword && keyword.trim()) {
+        // 직원명으로 검색 (해당 필드에서만)
+        if (employeeName && employeeName.trim()) {
+            result = await this.employeeSearchService.searchEmployee(employeeName.trim(), pageNum, limitNum);
+        }
+        // 통합 검색 (모든 필드에서)
+        else if (keyword && keyword.trim()) {
             result = await this.employeeSearchService.searchEmployee(keyword.trim(), pageNum, limitNum);
         } else {
             result = await this.employeeReadService.getAllEmployee(pageNum, limitNum);

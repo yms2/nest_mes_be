@@ -16,6 +16,7 @@ export class EmployeeReadController {
     @DevUserInfoAuth.read()
     @ApiOperation({ summary: '직원 정보 조회/검색', description: '조건별 직원 정보 조회' })
     @ApiQuery({ name: 'employeeCode', required: false, description: '직원 코드 (정확 매칭)' })
+    @ApiQuery({ name: 'employeeName', required: false, description: '직원명 (포함 검색)' })
     @ApiQuery({ name: 'search', required: false, description: '검색어 (통합 검색)' })
     @ApiQuery({ name: 'startDate', required: false, description: '시작 날짜 (YYYY-MM-DD)' })
     @ApiQuery({ name: 'endDate', required: false, description: '종료 날짜 (YYYY-MM-DD)' })
@@ -33,6 +34,10 @@ export class EmployeeReadController {
 
         if (query.startDate && query.endDate) {
             return this.employeeInfoHandler.handleDateRangeSearch(query.startDate, query.endDate, pagination);
+        }
+
+        if (query.employeeName && query.employeeName.trim() !== '') {
+            return this.employeeInfoHandler.handleSearch(query.employeeName, pagination);
         }
 
         if (query.search && query.search.trim() !== '') {
