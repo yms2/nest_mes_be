@@ -47,7 +47,7 @@ export class ProductInfoExcelController {
 
         // 품명으로 검색 (해당 필드에서만)
         if (productName && productName.trim()) {
-            result = await this.productInfoSearchService.searchProductInfo(productName.trim(), pageNum, limitNum);
+            result = await this.productInfoSearchService.searchProductInfoByField('productName', productName.trim(), pageNum, limitNum);
         }
         // 통합 검색 (모든 필드에서)
         else if (keyword && keyword.trim()) {
