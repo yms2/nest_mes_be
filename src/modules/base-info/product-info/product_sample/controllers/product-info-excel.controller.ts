@@ -17,7 +17,7 @@ export class ProductInfoExcelController {
         private readonly productInfoSearchService: ProductInfoSearchService,
         private readonly productDownloadService: ProductDownloadService,
     ) {}
-
+    @Get('download-template')
     @ApiOperation({ summary: '품목정보 엑셀 템플릿 다운로드' })
     async downloadTemplate(@Res() res: Response) {
         const buffer = await this.productInfoTemplateService.generateUploadTemplate();
