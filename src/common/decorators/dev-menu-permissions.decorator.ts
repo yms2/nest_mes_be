@@ -262,22 +262,22 @@ export const DevEstimateInfoAuth = {
 export const DevEquipmentInfoAuth = {
     create: () => applyDecorators(
         UseGuards(DevAuthGuard, PermissionGuard),
-        RequirePermission('equipmentInfo', 'create'),
+        RequirePermission('facilityInfo', 'create'),
         ApiBearerAuth('access-token')
     ),
     read: () => applyDecorators(
         UseGuards(DevAuthGuard, PermissionGuard),
-        RequirePermission('equipmentInfo', 'read'),
+        RequirePermission('facilityInfo', 'read'),
         ApiBearerAuth('access-token')
     ),
     update: () => applyDecorators(
         UseGuards(DevAuthGuard, PermissionGuard),
-        RequirePermission('equipmentInfo', 'update'),
+        RequirePermission('facilityInfo', 'update'),
         ApiBearerAuth('access-token')
     ),
     delete: () => applyDecorators(
         UseGuards(DevAuthGuard, PermissionGuard),
-        RequirePermission('equipmentInfo', 'delete'),
+        RequirePermission('facilityInfo', 'delete'),
         ApiBearerAuth('access-token')
     ),
 };
