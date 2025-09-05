@@ -5,7 +5,7 @@ import { logService } from 'src/modules/log/Services/log.service';
 import { DevSettingInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 import { ApiResponseBuilder } from 'src/common/interfaces/api-response.interface';
 import { SettingUpdateService } from '../services/setting-update.service';
-import { UpdateSubCodeDto } from '../dto/setting-update.entity';
+import { UpdateSubCodeDto } from '../dto/setting-update.dto';
 import { SubCode } from '../entities/setting.entity';
 
 @ApiTags('설정관리')

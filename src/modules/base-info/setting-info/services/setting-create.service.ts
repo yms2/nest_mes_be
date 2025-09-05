@@ -1,7 +1,7 @@
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { SubCode } from "../entities/setting.entity";
-import { UpdateSubCodeDto } from "../dto/setting-update.entity";
+import { UpdateSubCodeDto } from "../dto/setting-update.dto";
 
 
 export class SettingCreateService {
