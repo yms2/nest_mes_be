@@ -48,7 +48,7 @@ export class EmployeeExcelController {
 
         // 직원명으로 검색 (해당 필드에서만)
         if (employeeName && employeeName.trim()) {
-            result = await this.employeeSearchService.searchEmployee(employeeName.trim(), pageNum, limitNum);
+            result = await this.employeeSearchService.searchEmployeeByField('employeeName', employeeName.trim(), pageNum, limitNum);
         }
         // 통합 검색 (모든 필드에서)
         else if (keyword && keyword.trim()) {
