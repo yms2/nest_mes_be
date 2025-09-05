@@ -38,7 +38,7 @@ export class SubCode extends BaseEntity {
     subCodeName: string;
 
     @ApiProperty({ example: 'subcode', description: '서브 코드 설명' })
-    @Column({ name: 'sub_code_description', type: 'varchar', length: 50, comment: '서브 코드 설명' })
+    @Column({ name: 'sub_code_description', type: 'varchar', length: 50, comment: '서브 코드 설명' , nullable: true})
     subCodeDescription: string;
 
     @ManyToOne(() => BaseCode, (baseCode) => baseCode.subCodes)
