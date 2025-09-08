@@ -24,6 +24,7 @@ export class EstimateManagementReadService {
     endDate?: string,
   ) {
     try {
+      
       const skip = (page - 1) * limit;
       
       // 검색 조건 구성
@@ -63,7 +64,7 @@ export class EstimateManagementReadService {
       // 검색 조건 적용
       if (search) {
         queryBuilder.andWhere(
-          '(estimate.estimateCode LIKE :search OR estimate.estimateName LIKE :search OR estimate.customerName LIKE :search OR estimate.projectName LIKE :search OR estimate.productName LIKE :search)',
+          '(estimate.estimateName LIKE :search OR estimate.customerName LIKE :search OR estimate.projectName LIKE :search OR estimate.productName LIKE :search OR estimate.employeeName LIKE :search)',
           { search: `%${search}%` }
         );
       }
@@ -83,6 +84,9 @@ export class EstimateManagementReadService {
         });
       }
 
+      // 생성된 쿼리 확인
+      const sql = queryBuilder.getSql();
+      
       const [estimates, total] = await queryBuilder.getManyAndCount();
 
       await this.logService.createDetailedLog({
