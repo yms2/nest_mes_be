@@ -70,7 +70,7 @@ export class EstimateManagementReadController {
               estimateDetails: [
                 {
                   id: 1,
-                  detailCode: 'DET1001',
+                  detailCode: 'DET001',
                   itemName: 'CPU 프로세서',
                   quantity: 10.00,
                   totalPrice: 1500000.00

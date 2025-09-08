@@ -39,6 +39,11 @@ export class EstimateManagementCreateService {
         createEstimateDto.estimateCode = await this.generateEstimateCode();
       }
 
+      // 프로젝트명으로 프로젝트코드 조회 또는 자동 생성
+      if (createEstimateDto.projectName && !createEstimateDto.projectCode) {
+        createEstimateDto.projectCode = await this.getOrGenerateProjectCode(createEstimateDto.projectName);
+      }
+
       // 견적 생성
       const estimate = this.estimateRepository.create(createEstimateDto);
       const savedEstimate = await this.estimateRepository.save(estimate);
@@ -287,7 +292,6 @@ export class EstimateManagementCreateService {
       return `PROJ${String(sequence).padStart(3, '0')}`;
     } catch (error) {
       // 오류 발생 시 기본 프로젝트 코드 반환
-      console.error('프로젝트 코드 생성 중 오류 발생:', error);
       return 'PROJ001';
     }
   }
@@ -378,23 +382,48 @@ export class EstimateManagementCreateService {
    * @returns 생성된 세부품목 코드
    */
   private async generateDetailCode(estimateId: number): Promise<string> {
-    // 해당 견적의 세부품목 코드 중 가장 큰 시퀀스 번호 찾기
+    // 전체 세부품목 코드 중 가장 큰 시퀀스 번호 찾기
     const lastDetail = await this.estimateDetailRepository
       .createQueryBuilder('detail')
-      .where('detail.estimateId = :estimateId', { estimateId })
-      .andWhere('detail.detailCode IS NOT NULL')
+      .where('detail.detailCode IS NOT NULL')
+      .andWhere('detail.detailCode LIKE :pattern', { pattern: 'DET%' })
       .orderBy('detail.detailCode', 'DESC')
       .getOne();
 
     let sequence = 1;
     if (lastDetail && lastDetail.detailCode && lastDetail.detailCode.trim() !== '') {
-      // 기존 코드에서 시퀀스 번호 추출
-      const lastSequence = parseInt(lastDetail.detailCode.slice(-3));
-      if (!isNaN(lastSequence)) {
-        sequence = lastSequence + 1;
+      // DET001에서 001 부분을 추출
+      const match = lastDetail.detailCode.match(/DET(\d+)/);
+      if (match) {
+        const currentNumber = parseInt(match[1], 10);
+        sequence = currentNumber + 1;
       }
     }
 
-    return `DET${estimateId}${String(sequence).padStart(3, '0')}`;
+    return `DET${sequence.toString().padStart(3, '0')}`;
+  }
+
+  /**
+   * 프로젝트명으로 프로젝트코드를 조회하거나 새로 생성합니다.
+   * @param projectName 프로젝트명
+   * @returns 프로젝트코드
+   */
+  private async getOrGenerateProjectCode(projectName: string): Promise<string> {
+    try {
+      // 기존 견적데이터에서 같은 프로젝트명으로 프로젝트코드 조회
+      const existingEstimate = await this.estimateRepository.findOne({
+        where: { projectName: projectName.trim() }
+      });
+      
+      if (existingEstimate) {
+        return existingEstimate.projectCode;
+      }
+      
+      // 기존 프로젝트가 없으면 새로운 프로젝트코드 생성
+      return await this.generateProjectCode();
+      
+    } catch (error) {
+      throw new BadRequestException(`프로젝트 정보 처리 중 오류가 발생했습니다: ${projectName}`);
+    }
   }
 }

@@ -1,5 +1,5 @@
-import { Controller, Post, Body, Request, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
+import { Controller, Post, Body, Request, UseGuards, Param } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody, ApiParam } from '@nestjs/swagger';
 import { EstimateManagementCreateService } from '../services/estimatemanagement-create.service';
 import { CreateEstimateDto } from '../dto/estimatemanagement-create.dto';
 import { CreateEstimateDetailDto } from '../dto/estimate-detail.dto';
@@ -127,7 +127,7 @@ export class EstimateManagementCreateController {
             {
               id: 1,
               estimateId: 1,
-              detailCode: 'DET1001',
+              detailCode: 'DET001',
               itemCode: 'ITEM001',
               itemName: 'CPU 프로세서',
               itemSpecification: 'Intel Core i7-12700K',
@@ -139,7 +139,7 @@ export class EstimateManagementCreateController {
             {
               id: 2,
               estimateId: 1,
-              detailCode: 'DET1002',
+              detailCode: 'DET002',
               itemCode: 'ITEM002',
               itemName: '메모리',
               itemSpecification: 'DDR5 16GB',
@@ -211,6 +211,148 @@ export class EstimateManagementCreateController {
     } catch (error) {
       return ApiResponseBuilder.error(
         error.message || '견적과 세부품목 등록에 실패했습니다.',
+      );
+    }
+  }
+
+  @Post(':id/details')
+  @ApiOperation({ 
+    summary: '견적 ID로 세부품목 등록', 
+    description: '기존 견적에 세부품목을 추가로 등록합니다.' 
+  })
+  @ApiParam({ 
+    name: 'id', 
+    description: '견적 ID', 
+    type: 'number',
+    example: 1
+  })
+  @ApiBody({ 
+    description: '세부품목 등록 데이터',
+    schema: {
+      type: 'object',
+      properties: {
+        estimateDetails: {
+          type: 'array',
+          description: '세부품목 배열',
+          items: {
+            $ref: '#/components/schemas/CreateEstimateDetailDto'
+          }
+        }
+      },
+      required: ['estimateDetails']
+    },
+    examples: {
+      example1: {
+        summary: '세부품목 등록',
+        description: '견적 ID 1에 세부품목 추가 등록',
+        value: {
+          estimateDetails: [
+            {
+              itemCode: 'ITEM004',
+              itemName: '그래픽카드',
+              itemSpecification: 'RTX 4080',
+              unit: '개',
+              quantity: 2.00,
+              unitPrice: 800000.00,
+              totalPrice: 1600000.00
+            },
+            {
+              itemCode: 'ITEM005',
+              itemName: '파워서플라이',
+              itemSpecification: '850W 80+ Gold',
+              unit: '개',
+              quantity: 1.00,
+              unitPrice: 150000.00,
+              totalPrice: 150000.00
+            }
+          ]
+        }
+      }
+    }
+  })
+  @ApiResponse({ 
+    status: 201, 
+    description: '세부품목 등록 성공',
+    schema: {
+      example: {
+        success: true,
+        message: '세부품목이 성공적으로 등록되었습니다.',
+        data: [
+          {
+            id: 3,
+            estimateId: 1,
+            detailCode: 'DET003',
+            itemCode: 'ITEM004',
+            itemName: '그래픽카드',
+            itemSpecification: 'RTX 4080',
+            unit: '개',
+            quantity: 2.00,
+            unitPrice: 800000.00,
+            totalPrice: 1600000.00
+          },
+          {
+            id: 4,
+            estimateId: 1,
+            detailCode: 'DET004',
+            itemCode: 'ITEM005',
+            itemName: '파워서플라이',
+            itemSpecification: '850W 80+ Gold',
+            unit: '개',
+            quantity: 1.00,
+            unitPrice: 150000.00,
+            totalPrice: 150000.00
+          }
+        ],
+        timestamp: '2025-08-25T01:52:59.940Z'
+      }
+    }
+  })
+  @ApiResponse({ 
+    status: 400, 
+    description: '잘못된 요청',
+    schema: {
+      example: {
+        success: false,
+        message: '견적 ID 999가 존재하지 않습니다.',
+        data: null,
+        timestamp: '2025-08-25T01:52:59.940Z'
+      }
+    }
+  })
+  @ApiResponse({ 
+    status: 404, 
+    description: '견적을 찾을 수 없음',
+    schema: {
+      example: {
+        success: false,
+        message: '견적을 찾을 수 없습니다.',
+        data: null,
+        timestamp: '2025-08-25T01:52:59.940Z'
+      }
+    }
+  })
+  async createEstimateDetails(
+    @Param('id') id: number,
+    @Body() body: { estimateDetails: CreateEstimateDetailDto[] },
+    @Request() req,
+  ): Promise<any> {
+    try {
+      const username = req.user?.username || 'unknown';
+      const { estimateDetails } = body;
+
+      const result = await this.estimateManagementCreateService.createEstimateDetails(
+        id,
+        estimateDetails,
+        username,
+      );
+      
+      return ApiResponseBuilder.success(
+        result,
+        '세부품목이 성공적으로 등록되었습니다.',
+      );
+    } catch (error) {
+      return ApiResponseBuilder.error(
+        error.message || '세부품목 등록에 실패했습니다.',
       );
     }
   }

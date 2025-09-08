@@ -274,23 +274,24 @@ export class EstimateManagementUpdateService {
    * @returns 생성된 세부품목 코드
    */
   async generateDetailCode(estimateId: number): Promise<string> {
-    // 해당 견적의 세부품목 코드 중 가장 큰 시퀀스 번호 찾기
+    // 전체 세부품목 코드 중 가장 큰 시퀀스 번호 찾기
     const lastDetail = await this.estimateDetailRepository
       .createQueryBuilder('detail')
-      .where('detail.estimateId = :estimateId', { estimateId })
-      .andWhere('detail.detailCode IS NOT NULL')
+      .where('detail.detailCode IS NOT NULL')
+      .andWhere('detail.detailCode LIKE :pattern', { pattern: 'DET%' })
       .orderBy('detail.detailCode', 'DESC')
       .getOne();
 
     let sequence = 1;
     if (lastDetail && lastDetail.detailCode && lastDetail.detailCode.trim() !== '') {
-      // 기존 코드에서 시퀀스 번호 추출
-      const lastSequence = parseInt(lastDetail.detailCode.slice(-3));
-      if (!isNaN(lastSequence)) {
-        sequence = lastSequence + 1;
+      // DET001에서 001 부분을 추출
+      const match = lastDetail.detailCode.match(/DET(\d+)/);
+      if (match) {
+        const currentNumber = parseInt(match[1], 10);
+        sequence = currentNumber + 1;
       }
     }
 
-    return `DET${estimateId}${String(sequence).padStart(3, '0')}`;
+    return `DET${sequence.toString().padStart(3, '0')}`;
   }
 }

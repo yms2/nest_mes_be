@@ -1,11 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { EstimateDetail } from './estimate-detail.entity';
+import { BaseEntity } from '@/common/entities/base.entity';
 
 @Entity()
-export class EstimateManagement {
-    @PrimaryGeneratedColumn()
-    id: number;
-
+export class EstimateManagement extends BaseEntity{
     @Column({ name : 'estimate_code', type: 'varchar', length: 20 })
     estimateCode: string;
 
