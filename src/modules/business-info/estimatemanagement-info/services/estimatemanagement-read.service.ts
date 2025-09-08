@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, MoreThan, LessThanOrEqual } from 'typeorm';
 import { EstimateManagement } from '../entities/estimatemanagement.entity';
+import { Employee } from 'src/modules/base-info/employee-info/entities/employee.entity';
 import { logService } from 'src/modules/log/Services/log.service';
 
 @Injectable()
@@ -9,6 +10,8 @@ export class EstimateManagementReadService {
   constructor(
     @InjectRepository(EstimateManagement)
     private readonly estimateRepository: Repository<EstimateManagement>,
+    @InjectRepository(Employee)
+    private readonly employeeRepository: Repository<Employee>,
     private readonly logService: logService,
   ) {}
 
@@ -57,6 +60,12 @@ export class EstimateManagementReadService {
       const queryBuilder = this.estimateRepository
         .createQueryBuilder('estimate')
         .leftJoinAndSelect('estimate.estimateDetails', 'estimateDetails')
+        .leftJoin('employee', 'emp', 'estimate.employeeCode = emp.employee_code')
+        .addSelect([
+          'emp.employee_phone',
+          'emp.employee_name',
+          'emp.employee_code'
+        ])
         .orderBy('estimate.id', 'DESC')
         .skip(skip)
         .take(limit);
@@ -88,6 +97,21 @@ export class EstimateManagementReadService {
       const sql = queryBuilder.getSql();
       
       const [estimates, total] = await queryBuilder.getManyAndCount();
+      
+      // 사원 전화번호 정보 추가
+      const estimatesWithEmployeeInfo = await Promise.all(
+        estimates.map(async (estimate) => {
+          const employee = await this.employeeRepository.findOne({
+            where: { employeeCode: estimate.employeeCode },
+            select: ['employeePhone']
+          });
+          
+          return {
+            ...estimate,
+            employeePhone: employee?.employeePhone || null
+          };
+        })
+      );
 
       await this.logService.createDetailedLog({
         moduleName: '견적관리 조회',
@@ -95,10 +119,10 @@ export class EstimateManagementReadService {
         username,
         targetId: '',
         targetName: '견적 목록 검색',
-        details: `견적 검색 조회: ${total}개 중 ${estimates.length}개 (검색어: ${search || '없음'}, 기간: ${startDate || '시작일 없음'} ~ ${endDate || '종료일 없음'})`,
+        details: `견적 검색 조회: ${total}개 중 ${estimatesWithEmployeeInfo.length}개 (검색어: ${search || '없음'}, 기간: ${startDate || '시작일 없음'} ~ ${endDate || '종료일 없음'})`,
       });
 
-      return { estimates, total, page, limit, search, startDate, endDate };
+      return { estimates: estimatesWithEmployeeInfo, total, page, limit, search, startDate, endDate };
     } catch (error) {
       throw error;
     }
@@ -113,18 +137,39 @@ export class EstimateManagementReadService {
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
       const skip = (page - 1) * limit;
-      const [estimates, total] = await this.estimateRepository.findAndCount({
-        where: {
-          estimateDate: MoreThan(thirtyDaysAgo)
-        },
-        relations: ['estimateDetails'],
-        order: { id: 'DESC' },
-        skip,
-        take: limit,
-      });
+      const queryBuilder = this.estimateRepository
+        .createQueryBuilder('estimate')
+        .leftJoinAndSelect('estimate.estimateDetails', 'estimateDetails')
+        .leftJoin('employee', 'emp', 'estimate.employeeCode = emp.employee_code')
+        .addSelect([
+          'emp.employee_phone',
+          'emp.employee_name',
+          'emp.employee_code'
+        ])
+        .where('estimate.estimateDate > :thirtyDaysAgo', { thirtyDaysAgo })
+        .orderBy('estimate.id', 'DESC')
+        .skip(skip)
+        .take(limit);
+
+      const [estimates, total] = await queryBuilder.getManyAndCount();
+
+      // 사원 전화번호 정보 추가
+      const estimatesWithEmployeeInfo = await Promise.all(
+        estimates.map(async (estimate) => {
+          const employee = await this.employeeRepository.findOne({
+            where: { employeeCode: estimate.employeeCode },
+            select: ['employeePhone']
+          });
+          
+          return {
+            ...estimate,
+            employeePhone: employee?.employeePhone || null
+          };
+        })
+      );
 
       // 각 견적에 경과일수 추가
-      const estimatesWithDays = estimates.map(estimate => {
+      const estimatesWithDays = estimatesWithEmployeeInfo.map(estimate => {
         const estimateDate = new Date(estimate.estimateDate);
         const today = new Date();
         const diffTime = Math.abs(today.getTime() - estimateDate.getTime());
@@ -142,7 +187,7 @@ export class EstimateManagementReadService {
         username,
         targetId: '',
         targetName: '최근 30일 내 견적 목록',
-        details: `최근 30일 내 견적 조회: ${total}개 중 ${estimates.length}개`,
+        details: `최근 30일 내 견적 조회: ${total}개 중 ${estimatesWithDays.length}개`,
       });
 
       return { estimates: estimatesWithDays, total, page, limit };
@@ -160,18 +205,39 @@ export class EstimateManagementReadService {
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
       const skip = (page - 1) * limit;
-      const [estimates, total] = await this.estimateRepository.findAndCount({
-        where: {
-          estimateDate: LessThanOrEqual(thirtyDaysAgo)
-        },
-        relations: ['estimateDetails'],
-        order: { id: 'DESC' },
-        skip,
-        take: limit,
-      });
+      const queryBuilder = this.estimateRepository
+        .createQueryBuilder('estimate')
+        .leftJoinAndSelect('estimate.estimateDetails', 'estimateDetails')
+        .leftJoin('employee', 'emp', 'estimate.employeeCode = emp.employee_code')
+        .addSelect([
+          'emp.employee_phone',
+          'emp.employee_name',
+          'emp.employee_code'
+        ])
+        .where('estimate.estimateDate <= :thirtyDaysAgo', { thirtyDaysAgo })
+        .orderBy('estimate.id', 'DESC')
+        .skip(skip)
+        .take(limit);
+
+      const [estimates, total] = await queryBuilder.getManyAndCount();
+
+      // 사원 전화번호 정보 추가
+      const estimatesWithEmployeeInfo = await Promise.all(
+        estimates.map(async (estimate) => {
+          const employee = await this.employeeRepository.findOne({
+            where: { employeeCode: estimate.employeeCode },
+            select: ['employeePhone']
+          });
+          
+          return {
+            ...estimate,
+            employeePhone: employee?.employeePhone || null
+          };
+        })
+      );
 
       // 각 견적에 경과일수 추가
-      const estimatesWithDays = estimates.map(estimate => {
+      const estimatesWithDays = estimatesWithEmployeeInfo.map(estimate => {
         const estimateDate = new Date(estimate.estimateDate);
         const today = new Date();
         const diffTime = Math.abs(today.getTime() - estimateDate.getTime());
@@ -189,7 +255,7 @@ export class EstimateManagementReadService {
         username,
         targetId: '',
         targetName: '30일 경과 견적 목록',
-        details: `30일 경과 견적 조회: ${total}개 중 ${estimates.length}개`,
+        details: `30일 경과 견적 조회: ${total}개 중 ${estimatesWithDays.length}개`,
       });
 
       return { estimates: estimatesWithDays, total, page, limit };
@@ -202,14 +268,32 @@ export class EstimateManagementReadService {
    * ID로 견적을 조회합니다.
    */
   async getEstimateById(id: number, username: string): Promise<EstimateManagement> {
-    const estimate = await this.estimateRepository.findOne({
-      where: { id },
-      relations: ['estimateDetails'],
-    });
+    const estimate = await this.estimateRepository
+      .createQueryBuilder('estimate')
+      .leftJoinAndSelect('estimate.estimateDetails', 'estimateDetails')
+      .leftJoin('employee', 'emp', 'estimate.employeeCode = emp.employee_code')
+      .addSelect([
+        'emp.employee_phone',
+        'emp.employee_name',
+        'emp.employee_code'
+      ])
+      .where('estimate.id = :id', { id })
+      .getOne();
 
     if (!estimate) {
       throw new NotFoundException(`ID ${id}인 견적을 찾을 수 없습니다.`);
     }
+
+    // 사원 전화번호 정보 추가
+    const employee = await this.employeeRepository.findOne({
+      where: { employeeCode: estimate.employeeCode },
+      select: ['employeePhone']
+    });
+
+    const estimateWithEmployeeInfo = {
+      ...estimate,
+      employeePhone: employee?.employeePhone || null
+    };
 
     await this.logService.createDetailedLog({
       moduleName: '견적관리 조회',
@@ -220,6 +304,6 @@ export class EstimateManagementReadService {
       details: `견적 조회: ${estimate.estimateCode}`,
     });
 
-    return estimate;
+    return estimateWithEmployeeInfo;
   }
 }
