@@ -1,8 +1,10 @@
-import { Controller, Delete, Param, ParseIntPipe, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Delete, Param, ParseIntPipe, Body, HttpCode, HttpStatus, Req } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
 import { EstimateManagementDeleteService } from '../services/estimatemanagement-delete.service';
 import { EstimateManagement } from '../entities/estimatemanagement.entity';
 import { DevEstimateInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
+import { ApiResponseBuilder } from '@/common/interfaces/api-response.interface';
+import { DeleteMultipleEstimatesDto, DeleteEstimateDetailsDto } from '../dto/delete-estimate.dto';
 
 @ApiTags('견적관리')
 @Controller('estimate-management')
@@ -32,10 +34,17 @@ export class EstimateManagementDeleteController {
     status: 404,
     description: '견적을 찾을 수 없음',
   })
-  async deleteEstimate(@Param('id', ParseIntPipe) id: number): Promise<EstimateManagement> {
-    // TODO: 실제 사용자명을 가져오는 로직 필요
-    const username = 'system';
-    return await this.estimateManagementDeleteService.deleteEstimate(id, username);
+  async deleteEstimate(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: Request & { user: { username: string } }
+  ) {
+    try {
+      const result = await this.estimateManagementDeleteService.deleteEstimate(id, req.user.username);
+    
+      return ApiResponseBuilder.success(result, '견적 삭제 성공');
+    } catch (error) {
+      throw error;
+    }
   }
 
   @Delete(':id/details')
@@ -47,17 +56,7 @@ export class EstimateManagementDeleteController {
   })
   @ApiParam({ name: 'id', description: '견적 ID', type: Number })
   @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        detailIds: {
-          type: 'array',
-          items: { type: 'number' },
-          description: '삭제할 세부품목 ID 배열',
-          example: [1, 2, 3],
-        },
-      },
-    },
+    type: DeleteEstimateDetailsDto,
     description: '삭제할 세부품목 정보',
     examples: {
       example1: {
@@ -83,11 +82,15 @@ export class EstimateManagementDeleteController {
   })
   async deleteEstimateDetails(
     @Param('id', ParseIntPipe) id: number,
-    @Body() body: { detailIds: number[] },
-  ): Promise<EstimateManagement> {
-    // TODO: 실제 사용자명을 가져오는 로직 필요
-    const username = 'system';
-    return await this.estimateManagementDeleteService.deleteEstimateDetails(id, body.detailIds, username);
+    @Body() body: DeleteEstimateDetailsDto,
+    @Req() req: Request & { user: { username: string } }
+  ) {
+    try {
+      const result = await this.estimateManagementDeleteService.deleteEstimateDetails(id, body.detailIds, req.user.username);
+      return ApiResponseBuilder.success(result, '세부품목 삭제 성공');
+    } catch (error) {
+      throw error;
+    }
   }
 
   @Delete('batch')
@@ -98,17 +101,7 @@ export class EstimateManagementDeleteController {
     description: '여러 견적을 일괄 삭제합니다.',
   })
   @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        ids: {
-          type: 'array',
-          items: { type: 'number' },
-          description: '삭제할 견적 ID 배열',
-          example: [1, 2, 3],
-        },
-      },
-    },
+    type: DeleteMultipleEstimatesDto,
     description: '삭제할 견적 정보',
     examples: {
       example1: {
@@ -128,9 +121,15 @@ export class EstimateManagementDeleteController {
     status: 400,
     description: '일부 견적이 삭제할 수 없는 상태',
   })
-  async deleteMultipleEstimates(@Body() body: { ids: number[] }): Promise<EstimateManagement[]> {
-    // TODO: 실제 사용자명을 가져오는 로직 필요
-    const username = 'system';
-    return await this.estimateManagementDeleteService.deleteMultipleEstimates(body.ids, username);
+  async deleteMultipleEstimates(
+    @Body() body: DeleteMultipleEstimatesDto, 
+    @Req() req: Request & { user: { username: string } } 
+  ) {
+    try {
+      const result = await this.estimateManagementDeleteService.deleteMultipleEstimates(body.ids, req.user.username);
+      return ApiResponseBuilder.success(result, '견적 일괄 삭제 성공');
+    } catch (error) {
+      throw error;
+    }
   }
 }

@@ -21,7 +21,7 @@ export class EstimateDetail {
     @Column({ name: 'item_specification', type: 'varchar', length: 200, nullable: true })
     itemSpecification?: string;
 
-    @Column({ name: 'unit', type: 'varchar', length: 10 })
+    @Column({ name: 'unit', type: 'varchar', length: 10 , nullable: true})
     unit: string;
 
     @Column({ name: 'quantity', type: 'decimal', precision: 10, scale: 2 })
