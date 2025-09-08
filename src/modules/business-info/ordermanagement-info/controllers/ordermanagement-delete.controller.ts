@@ -48,44 +48,6 @@ export class OrderManagementDeleteController {
             data: deletedOrder
         };
     }
-
-    @Delete('batch')
-    @DevOrderManagementAuth.delete()
-    @HttpCode(HttpStatus.OK)
-    @ApiOperation({
-        summary: '주문 일괄 삭제',
-        description: '여러 주문을 일괄 삭제합니다.',
-    })
-    @ApiBody({
-        schema: {
-            type: 'object',
-            properties: {
-                ids: { type: 'array', items: { type: 'number' } },
-            },
-        },
-    })
-    @ApiResponse({
-        status: 200,
-        description: '주문 일괄 삭제 성공',
-        schema: {
-            type: 'object',
-            properties: {
-                message: { type: 'string', description: '성공 메시지' },
-                data: { type: 'array', items: { $ref: '#/components/schemas/OrderManagement' } },
-                count: { type: 'number', description: '삭제된 주문 수' }
-            }
-        }
-    })
-    async deleteMultipleOrderManagements(@Body() body: { ids: number[] }, @Req() req: AuthenticatedRequest): Promise<{ message: string; data: OrderManagement[]; count: number }> {
-        const username = req.user?.username || req.user?.name || 'unknown';
-        const deletedOrders = await this.orderManagementDeleteService.deleteMultipleOrderManagements(body.ids, username);
-        
-        return {
-            message: `${deletedOrders.length}개의 주문이 성공적으로 삭제되었습니다.`,
-            data: deletedOrders,
-            count: deletedOrders.length
-        };
-    }
 }
 
 

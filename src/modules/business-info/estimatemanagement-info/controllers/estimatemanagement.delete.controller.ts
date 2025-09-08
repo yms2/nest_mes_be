@@ -92,44 +92,4 @@ export class EstimateManagementDeleteController {
       throw error;
     }
   }
-
-  @Delete('batch')
-  @DevEstimateInfoAuth.delete()
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: '견적 일괄 삭제',
-    description: '여러 견적을 일괄 삭제합니다.',
-  })
-  @ApiBody({
-    type: DeleteMultipleEstimatesDto,
-    description: '삭제할 견적 정보',
-    examples: {
-      example1: {
-        summary: '견적 일괄 삭제',
-        value: {
-          ids: [1, 2, 3],
-        },
-      },
-    },
-  })
-  @ApiResponse({
-    status: 200,
-    description: '견적 일괄 삭제 성공',
-    type: [EstimateManagement],
-  })
-  @ApiResponse({
-    status: 400,
-    description: '일부 견적이 삭제할 수 없는 상태',
-  })
-  async deleteMultipleEstimates(
-    @Body() body: DeleteMultipleEstimatesDto, 
-    @Req() req: Request & { user: { username: string } } 
-  ) {
-    try {
-      const result = await this.estimateManagementDeleteService.deleteMultipleEstimates(body.ids, req.user.username);
-      return ApiResponseBuilder.success(result, '견적 일괄 삭제 성공');
-    } catch (error) {
-      throw error;
-    }
-  }
 }
