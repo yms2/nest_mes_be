@@ -112,6 +112,51 @@ export class ProductInfoSearchService {
     };
   }
 
+  // 특정 필드에서만 검색
+  async searchProductInfoByField(
+    fieldName: string,
+    keyword: string,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<SearchResult> {
+    const trimmedKeyword = keyword.trim();
+    const offset = (page - 1) * limit;
+
+    // 실제 DB 컬럼명으로 변환
+    const dbField = this.fieldMapping[fieldName] || fieldName;
+
+    const queryBuilder = this.productInfoRepository
+      .createQueryBuilder('product')
+      .leftJoin('customer_info', 'customer', 'customer.customer_code = product.customer_code')
+      .select([
+        'product.*',
+        'customer.customer_name as customerName',
+      ])
+      .where(`product.${dbField} LIKE :keyword`, { keyword: `%${trimmedKeyword}%` })
+      .orderBy('product.product_name', 'ASC')
+      .skip(offset)
+      .take(limit);
+
+    const [data, total] = await Promise.all([
+      queryBuilder.getRawMany(),
+      this.productInfoRepository.count(),
+    ]);
+
+    // 날짜 포맷팅 적용
+    const formattedData = data.map(item => ({
+      ...item,
+      createdAt: DateFormatter.formatDate(item.created_at),
+      updatedAt: DateFormatter.formatDate(item.updated_at),
+    }));
+
+    return {
+      data: formattedData,
+      total,
+      page,
+      limit,
+    };
+  }
+
   // 날짜 범위 검색
   async searchProductInfoByDateRange(
     startDate: string,

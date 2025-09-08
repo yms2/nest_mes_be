@@ -3,7 +3,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/s
 import { EquipmentDeleteService } from '../services/equipment-delete.service';
 import { DeleteEquipmentDto } from '../dto/delete-equipment.dto';
 import { Equipment } from '../entities/equipment.entity';
-import { Auth } from '@/common/decorators/auth.decorator';
+import { DevEquipmentInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 
 @ApiTags('설비 관리')
 @Controller('equipment')
@@ -13,7 +13,7 @@ export class EquipmentDeleteController {
   ) {}
 
   @Delete(':equipmentCode')
-  @Auth()
+  @DevEquipmentInfoAuth.delete()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '설비 삭제',
@@ -70,7 +70,7 @@ export class EquipmentDeleteController {
   }
 
   @Delete('batch/delete')
-  @Auth()
+  @DevEquipmentInfoAuth.delete()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '설비 일괄 삭제',

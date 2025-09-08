@@ -1,16 +1,15 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { EstimateManagement } from './estimatemanagement.entity';
+import { BaseEntity } from '@/common/entities/base.entity';
 
 @Entity()
-export class EstimateDetail {
-    @PrimaryGeneratedColumn()
-    id: number;
+export class EstimateDetail extends BaseEntity {
 
     @Column({ name: 'estimate_id', type: 'int' })
     estimateId: number;
 
-    @Column({ name: 'detail_code', type: 'varchar', length: 20 })
-    detailCode: string;
+    @Column({ name: 'detail_code', type: 'varchar', length: 20, nullable: true })
+    detailCode?: string;
 
     @Column({ name: 'item_code', type: 'varchar', length: 20 })
     itemCode: string;
@@ -21,7 +20,7 @@ export class EstimateDetail {
     @Column({ name: 'item_specification', type: 'varchar', length: 200, nullable: true })
     itemSpecification?: string;
 
-    @Column({ name: 'unit', type: 'varchar', length: 10 })
+    @Column({ name: 'unit', type: 'varchar', length: 10 , nullable: true})
     unit: string;
 
     @Column({ name: 'quantity', type: 'decimal', precision: 10, scale: 2 })

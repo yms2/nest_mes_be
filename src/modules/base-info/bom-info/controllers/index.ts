@@ -9,3 +9,4 @@ export * from './bom-info-delete.controller';
 export * from './bom-process-create.controller';
 export * from './bom-process-delete.controller';
 export * from './bom-process-read.controller';
+export * from './bom-process-update.controller';

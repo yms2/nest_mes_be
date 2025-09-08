@@ -23,6 +23,7 @@ export interface UploadResponse {
     newCount: number;
     updateCount: number;
     errorCount: number;
+    errors: any[];
   };
 }
 
@@ -78,12 +79,13 @@ export class ProductUploadService {
 
     return {
       success: true,
-      message: '품목 정보 업로드가 완료되었습니다.',
+      message: `품목 정보 업로드가 완료되었습니다. 성공: ${result.newCount + result.updateCount}건, 오류: ${result.errorCount}건`,
       data: {
         totalCount: result.totalCount,
         newCount: result.newCount,
         updateCount: result.updateCount,
-        errorCount: 0,
+        errorCount: result.errorCount,
+        errors: result.errors,
       },
     };
   }

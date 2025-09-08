@@ -28,6 +28,22 @@ export class CustomerInfoReadService {
     return DateFormatter.formatBusinessInfoDates(customerInfo);
   }
 
+  async getCustomerInfoByName(
+    SearchCustomerInfoDto: SearchCustomerInfoDto,
+  ): Promise<CustomerInfo> {
+    const { customerName } = SearchCustomerInfoDto;
+
+    const customerInfo = await this.customerInfoRepository.findOne({
+      where: { customerName },
+    });
+
+    if (!customerInfo) {
+      throw new NotFoundException('거래처 정보를 찾을 수 없습니다.');
+    }
+
+    return DateFormatter.formatBusinessInfoDates(customerInfo);
+  }
+
   async getAllCustomerInfo(
     page: number = 1,
     limit: number = 10,

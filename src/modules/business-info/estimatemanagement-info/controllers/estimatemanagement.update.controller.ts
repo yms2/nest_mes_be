@@ -1,10 +1,11 @@
-import { Controller, Put, Body, Param, ParseIntPipe, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Put, Body, Param, ParseIntPipe, HttpCode, HttpStatus, Req } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
 import { EstimateManagementUpdateService } from '../services/estimatemanagement-update.service';
 import { UpdateEstimateDto } from '../dto/estimatemanagement-create.dto';
 import { CreateEstimateDetailDto } from '../dto/estimate-detail.dto';
 import { EstimateManagement } from '../entities/estimatemanagement.entity';
-import { DevAuth } from '@/common/decorators/dev-auth.decorator';
+import { DevEstimateInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
+import { ApiResponseBuilder } from '@/common/interfaces/api-response.interface';
 
 @ApiTags('견적관리')
 @Controller('estimate-management')
@@ -14,7 +15,7 @@ export class EstimateManagementUpdateController {
   ) {}
 
   @Put(':id')
-  @DevAuth()
+  @DevEstimateInfoAuth.update()  
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '견적 통합 수정',
@@ -48,6 +49,7 @@ export class EstimateManagementUpdateController {
             estimatePrice: { type: 'number', example: 50000000 },
             employeeCode: { type: 'string', example: 'EMP001' },
             employeeName: { type: 'string', example: '김철수' },
+            unit: { type: 'string', example: '개' },
             estimateRemark: { type: 'string', example: '긴급 견적' },
             ordermanagementCode: { type: 'string', example: 'ORD001' },
             termsOfPayment: { type: 'string', example: '30일 후 결제' }
@@ -134,9 +136,13 @@ export class EstimateManagementUpdateController {
       details?: CreateEstimateDetailDto[];
       recalculatePrice?: boolean;
     },
-  ): Promise<EstimateManagement> {
-    // TODO: 실제 사용자명을 가져오는 로직 필요
-    const username = 'system';
-    return await this.estimateManagementUpdateService.updateEstimateComprehensive(id, updateData, username);
+    @Req() req: Request & { user: { username: string } },
+  ) {
+    try {
+      const result = await this.estimateManagementUpdateService.updateEstimateComprehensive(id, updateData, req.user.username);
+      return ApiResponseBuilder.success(result, '견적 통합 수정 성공');
+    } catch (error) {
+      throw error;
+    }
   }
 }

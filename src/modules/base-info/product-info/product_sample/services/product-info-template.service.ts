@@ -9,8 +9,8 @@ export class ProductInfoTemplateService {
         const worksheet = workbook.addWorksheet('품목정보양식');
 
         worksheet.columns = [
-            { header: '품목구분', key: 'productType', width: 20, style: { numFmt: '@' } },
             { header: '품목명', key: 'productName', width: 20, style: { numFmt: '@' } },
+            { header: '품목구분', key: 'productType', width: 20, style: { numFmt: '@' } },
             { header: '분류', key: 'productCategory', width: 20, style: { numFmt: '@' } },
             { header: '규격1(kHz)', key: 'productSize1', width: 20, style: { numFmt: '@' } },
             { header: '규격2(재질, Type)', key: 'productSize2', width: 20, style: { numFmt: '@' } },

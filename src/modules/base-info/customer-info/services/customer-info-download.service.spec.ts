@@ -66,9 +66,9 @@ describe('CustomerInfoDownloadService', () => {
     const mockCustomerData = [
       {
         id: 1,
-        customerCode: 'CUS001',
+        customerCode: 'C001',
         customerName: '테스트 거래처',
-        customerNumber: 'CUST001',
+        customerNumber: 'C001',
         customerCorporateRegistrationNumber: '112332-1323333',
         customerCeo: '홍길동',
         customerBusinessType: '제조업',
@@ -87,9 +87,9 @@ describe('CustomerInfoDownloadService', () => {
       },
       {
         id: 2,
-        customerCode: 'CUS002',
+        customerCode: 'C002',
         customerName: '테스트 거래처2',
-        customerNumber: 'CUST002',
+        customerNumber: 'C002',
         customerCorporateRegistrationNumber: '987654-3210987',
         customerCeo: '김철수',
         customerBusinessType: '서비스업',
@@ -154,9 +154,9 @@ describe('CustomerInfoDownloadService', () => {
       const mockDataWithNulls = [
         {
           id: 1,
-          customerCode: 'CUS001',
+          customerCode: 'C001',
           customerName: '테스트 거래처',
-          customerNumber: 'CUST001',
+          customerNumber: 'C001',
           customerCorporateRegistrationNumber: null,
           customerCeo: null,
           customerBusinessType: null,
@@ -193,9 +193,9 @@ describe('CustomerInfoDownloadService', () => {
       const mockDataWithStringDate = [
         {
           id: 1,
-          customerCode: 'CUS001',
+          customerCode: 'C001',
           customerName: '테스트 거래처',
-          customerNumber: 'CUST001',
+          customerNumber: 'C001',
           customerCorporateRegistrationNumber: '112332-1323333',
           customerCeo: '홍길동',
           customerBusinessType: '제조업',
@@ -231,9 +231,9 @@ describe('CustomerInfoDownloadService', () => {
     it('should handle large dataset', async () => {
       const largeDataset = Array.from({ length: 1000 }, (_, index) => ({
         id: index + 1,
-        customerCode: `CUS${String(index + 1).padStart(3, '0')}`,
+        customerCode: `C${String(index + 1).padStart(3, '0')}`,
         customerName: `테스트 거래처 ${index + 1}`,
-        customerNumber: `CUST${String(index + 1).padStart(3, '0')}`,
+        customerNumber: `C${String(index + 1).padStart(3, '0')}`,
         customerCorporateRegistrationNumber: `112332-${String(index + 1).padStart(6, '0')}`,
         customerCeo: `대표자 ${index + 1}`,
         customerBusinessType: '제조업',

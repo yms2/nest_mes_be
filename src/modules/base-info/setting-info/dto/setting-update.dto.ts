@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsString, IsInt } from "class-validator";
+import { IsNotEmpty, IsString, IsInt, IsOptional } from "class-validator";
 import { Type } from "class-transformer";
 
 export class UpdateSubCodeDto {
@@ -14,8 +14,8 @@ export class UpdateSubCodeDto {
   @IsString()
   subCodeName: string;
 
-  @ApiProperty({ example: 'subcode', description: '서브 코드 설명' })
-  @IsNotEmpty()
+  @ApiProperty({ example: 'subcode', description: '서브 코드 설명', required: false })
+  @IsOptional()
   @IsString()
-  subCodeDescription: string;
+  subCodeDescription?: string;
 }

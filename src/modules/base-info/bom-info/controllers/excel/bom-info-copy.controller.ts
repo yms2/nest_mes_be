@@ -11,7 +11,10 @@ export class BomCopyController {
 
   @Post('copy')
   @Auth()
-  @ApiOperation({ summary: 'BOM 복사', description: '등록된 BOM을 복사합니다.' })
+  @ApiOperation({ 
+    summary: 'BOM 복사', 
+    description: '등록된 BOM을 복사합니다. 중복되는 BOM은 자동으로 제외됩니다.' 
+  })
   async copyBom(@Body() body: CopyBomDto) {
     const { sourceProductCode, targetProductCode } = body;
     return this.bomCopyService.copyBom(sourceProductCode, targetProductCode);

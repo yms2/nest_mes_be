@@ -34,11 +34,15 @@ export class BusinessExcelController {
   @ApiQuery({ name: 'keyword', required: false, description: '검색 키워드 (선택사항)' })
   @ApiQuery({ name: 'page', required: false, description: '페이지 번호 (기본값: 1)' })
   @ApiQuery({ name: 'limit', required: false, description: '페이지당 개수 (기본값: 99999)' })
+  @ApiQuery({ name: 'businessNumber', required: false, description: '사업자등록번호 (포함 검색)' })
+  @ApiQuery({ name: 'businessName', required: false, description: '사업자명 (포함 검색)' })
   async downloadExcel(
     @Res() res: Response,
     @Query('keyword') keyword?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
+    @Query('businessNumber') businessNumber?: string,
+    @Query('businessName') businessName?: string,
   ) {
     let result;
     
@@ -46,7 +50,16 @@ export class BusinessExcelController {
     const pageNum = page ? parseInt(page) : 1;
     const limitNum = limit ? parseInt(limit) : 99999;
     
-    if (keyword && keyword.trim()) {
+    // 사업자등록번호로 검색 (해당 필드에서만)
+    if (businessNumber && businessNumber.trim()) {
+      result = await this.businessInfoSearchService.searchBusinessInfoByField('businessNumber', businessNumber.trim(), pageNum, limitNum);
+    }
+    // 사업자명으로 검색 (해당 필드에서만)
+    else if (businessName && businessName.trim()) {
+      result = await this.businessInfoSearchService.searchBusinessInfoByField('businessName', businessName.trim(), pageNum, limitNum);
+    }
+    // 통합 검색 (모든 필드에서)
+    else if (keyword && keyword.trim()) {
       // 키워드가 있으면 검색 결과 다운로드
       result = await this.businessInfoSearchService.searchBusinessInfo(keyword.trim(), pageNum, limitNum);
     } else {

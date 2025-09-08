@@ -140,12 +140,25 @@ export class EstimateManagementUpdateService {
 
         // 새로운 세부품목 등록
         if (updateData.details && updateData.details.length > 0) {
-          const newDetails = updateData.details.map(detail => 
-            this.estimateDetailRepository.create({
-              ...detail,
-              estimate: savedEstimate,
-            })
-          );
+          const newDetails: EstimateDetail[] = [];
+          for (const detail of updateData.details) {
+            // detailCode 자동 생성 (필요시)
+            if (!detail.detailCode || detail.detailCode.trim() === '') {
+              detail.detailCode = await this.generateDetailCode(id);
+            }
+            
+            // unit 필드 기본값 설정 (필요시)
+            if (!detail.unit || detail.unit.trim() === '') {
+              detail.unit = '개'; // 기본 단위
+            }
+
+            newDetails.push(
+              this.estimateDetailRepository.create({
+                ...detail,
+                estimate: savedEstimate,
+              })
+            );
+          }
           await this.estimateDetailRepository.save(newDetails);
         }
         updateLogs.push(`세부품목 수정: ${updateData.details.length}개 항목`);
@@ -253,5 +266,32 @@ export class EstimateManagementUpdateService {
     if (existingEstimate && existingEstimate.id !== excludeId) {
       throw new ConflictException(`견적 코드 ${estimateCode}는 이미 사용 중입니다.`);
     }
+  }
+
+  /**
+   * 세부품목 코드를 자동 생성합니다.
+   * @param estimateId 견적 ID
+   * @returns 생성된 세부품목 코드
+   */
+  async generateDetailCode(estimateId: number): Promise<string> {
+    // 전체 세부품목 코드 중 가장 큰 시퀀스 번호 찾기
+    const lastDetail = await this.estimateDetailRepository
+      .createQueryBuilder('detail')
+      .where('detail.detailCode IS NOT NULL')
+      .andWhere('detail.detailCode LIKE :pattern', { pattern: 'DET%' })
+      .orderBy('detail.detailCode', 'DESC')
+      .getOne();
+
+    let sequence = 1;
+    if (lastDetail && lastDetail.detailCode && lastDetail.detailCode.trim() !== '') {
+      // DET001에서 001 부분을 추출
+      const match = lastDetail.detailCode.match(/DET(\d+)/);
+      if (match) {
+        const currentNumber = parseInt(match[1], 10);
+        sequence = currentNumber + 1;
+      }
+    }
+
+    return `DET${sequence.toString().padStart(3, '0')}`;
   }
 }

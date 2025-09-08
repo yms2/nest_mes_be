@@ -4,7 +4,7 @@ import { PermissionCreateService } from '../services/permission-create.service';
 import { PermissionCreateDto } from '../dto/permission-create.dto';
 import { AuthorityManages } from '../entities/permission.entity';
 import { ApiResponse as ApiResponseInterface } from 'src/common/interfaces/api-response.interface';
-import { Auth } from '@/common/decorators/auth.decorator';
+import { DevAuthorityManageAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 
 @ApiTags('권한관리')
 @Controller('permissions')
@@ -14,7 +14,7 @@ export class PermissionCreateController {
     ) {}
 
     @Post()
-    @Auth()
+    @DevAuthorityManageAuth.create()
     @ApiOperation({ 
         summary: '권한 정보 등록', 
         description: '새로운 권한 정보를 등록합니다.' 

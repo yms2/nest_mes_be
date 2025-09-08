@@ -10,4 +10,12 @@ export class SearchCustomerInfoDto extends BaseSearchDto {
   })
   @OptionalString()
   customerNumber?: string;
+
+  @ApiProperty({
+    example: '삼성전자',
+    description: '사업자명 (단일 조회용)',
+    required: false,
+  })
+  @OptionalString()
+  customerName?: string;
 }

@@ -3,7 +3,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { PermissionDeleteService } from '../services/permission-delete.service';
 import { PermissionDeleteDto, BatchPermissionDeleteDto } from '../dto/permission-delete.dto';
 import { ApiResponse as ApiResponseInterface } from 'src/common/interfaces/api-response.interface';
-import { Auth } from '@/common/decorators/auth.decorator';
+import { DevAuthorityManageAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 
 @ApiTags('권한관리')
 @Controller('permissions')
@@ -13,7 +13,7 @@ export class PermissionDeleteController {
     ) {}
 
     @Delete(':id')
-    @Auth()
+    @DevAuthorityManageAuth.delete()
     @ApiOperation({ summary: '권한 정보 삭제' })
     @ApiParam({ name: 'id', description: '권한 ID' })
     @ApiResponse({ status: 200, description: '권한 삭제 성공' })

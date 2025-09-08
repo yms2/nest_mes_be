@@ -12,10 +12,6 @@ export class CustomerInfoHandler {
     private readonly customerInfoSearchService: CustomerInfoSearchService,
   ) {}
 
-  async handleSingleRead(query: SearchCustomerInfoDto) {
-    const result = await this.customerInfoReadService.getCustomerInfoByNumber(query);
-    return ApiResponseBuilder.success(result, '거래처 정보(단일) 조회되었습니다.');
-  }
 
   async handleSearch(search: string, pagination: PaginationDto) {
     const result = await this.customerInfoSearchService.searchCustomerInfo(
@@ -29,6 +25,22 @@ export class CustomerInfoHandler {
       result.limit,
       result.total,
       '거래처 정보 통합검색이 완료되었습니다.',
+    );
+  }
+
+  async handleSearchByField(fieldName: string, keyword: string, pagination: PaginationDto) {
+    const result = await this.customerInfoSearchService.searchCustomerInfoByField(
+      fieldName,
+      keyword,
+      pagination.page,
+      pagination.limit,
+    );
+    return buildPaginatedResponse(
+      result.data,
+      result.page,
+      result.limit,
+      result.total,
+      `거래처 정보 ${fieldName} 검색이 완료되었습니다.`,
     );
   }
 

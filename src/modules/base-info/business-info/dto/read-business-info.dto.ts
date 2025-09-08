@@ -10,4 +10,12 @@ export class ReadBusinessInfoDto extends BaseSearchDto {
   })
   @OptionalString()
   businessNumber?: string;
+
+  @ApiProperty({
+    example: '삼성전자',
+    description: '사업자명 (포함 검색)',
+    required: false,
+  })
+  @OptionalString()
+  businessName?: string;
 }

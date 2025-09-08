@@ -4,7 +4,7 @@ import { ApiTags, ApiOperation, ApiParam, ApiBearerAuth } from '@nestjs/swagger'
 import { ApiResponseBuilder } from 'src/common/interfaces/api-response.interface';
 import { BusinessInfoDeleteService } from '../services/business-info-delete.service';
 import { logService } from 'src/modules/log/Services/log.service';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { DevBusinessInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 
 @ApiTags('BusinessInfo')
 @Controller('business-info')
@@ -15,8 +15,7 @@ export class BusinessInfoDeleteController {
   ) {}
 
   @Delete(':businessNumber/hard')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth('access-token')
+  @DevBusinessInfoAuth.delete()
   @ApiOperation({
     summary: '사업장 정보 영구 삭제',
     description: '사업장 정보를 영구적으로 삭제합니다.',

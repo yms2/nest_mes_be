@@ -9,6 +9,7 @@ export class CopyBomDto {
   })
   @IsString()
   sourceProductCode: string;
+
   @ApiProperty({
     example: 'PRD014',
     description: '복사받을 품목코드',

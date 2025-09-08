@@ -21,6 +21,7 @@ import { logService } from '../../../log/Services/log.service';
 import { DevAuth } from '@/common/decorators/dev-auth.decorator';
 import { OrderManagement } from '../entities/ordermanagement.entity';
 import { ApiResponseBuilder } from 'src/common/interfaces/api-response.interface';
+import { AuthWithPermission } from '@/common/decorators/auth-with-permission.decorator';
  
 @ApiTags('주문관리')
 @Controller('ordermanagement')
@@ -32,7 +33,7 @@ export class OrderManagementCreateController {
   ) {}
 
   @Post('create')
-  @DevAuth()
+  @AuthWithPermission('orderReceiveManage', 'create')
   @UsePipes(new ValidationPipe())
   @ApiOperation({
     summary: '주문관리 등록',

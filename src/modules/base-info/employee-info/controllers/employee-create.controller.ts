@@ -6,7 +6,7 @@ import { EmployeeCreateService } from '../services/employee-create.service';
 import { ApiResponseBuilder } from 'src/common/interfaces/api-response.interface';
 import { CreateEmployeeDto } from '../dto/employee-create.dto';
 import { Employee } from '../entities/employee.entity';
-import { Auth } from 'src/common/decorators/auth.decorator';
+import { DevUserInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 
 @ApiTags('EmployeeInfo')
 @Controller('employee-info')
@@ -17,7 +17,7 @@ export class EmployeeCreateController {
     ) {}
 
     @Post()
-    @Auth()
+    @DevUserInfoAuth.create()
     @ApiOperation({ summary: '직원 정보 생성', description: '신규 직원 정보를 생성합니다.' })
     async createEmployee(@Body() createEmployeeDto: CreateEmployeeDto, @Req() req: Request & { user: { username: string } }) {
         try {

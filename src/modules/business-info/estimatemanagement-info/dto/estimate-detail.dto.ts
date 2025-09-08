@@ -48,9 +48,9 @@ export class CreateEstimateDetailDto {
     description: '단위', 
     example: '개', 
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  unit: string;
+  unit?: string;
 
   @ApiProperty({ 
     description: '수량', 

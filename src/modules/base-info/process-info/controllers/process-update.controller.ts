@@ -5,7 +5,7 @@ import { CreateProcessInfoDto } from '../dto/process-create.dto';
 import { ApiResponseBuilder } from 'src/common/interfaces/api-response.interface';
 import { ProcessUpdateService } from '../services/process-update.service';
 import { logService } from 'src/modules/log/Services/log.service';
-import { Auth } from 'src/common/decorators/auth.decorator';
+import { DevProcessInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 import { ProcessInfo } from '../entities/process.entity';
 
 
@@ -18,7 +18,7 @@ export class ProcessUpdateController {
     ) {}
 
     @Put(':id')
-    @Auth()
+    @DevProcessInfoAuth.update()
     @ApiOperation({ summary: '공정 정보 수정', description: '기존 공정 정보를 수정합니다.' })
     async updateProcessInfo(
         @Param('id') id: number,

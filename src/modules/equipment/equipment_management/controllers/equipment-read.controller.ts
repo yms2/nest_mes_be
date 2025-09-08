@@ -2,7 +2,7 @@ import { Controller, Get, Param, Query, HttpCode, HttpStatus } from '@nestjs/com
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { EquipmentReadService } from '../services/equipment-read.service';
 import { Equipment } from '../entities/equipment.entity';
-import { Auth } from '@/common/decorators/auth.decorator';
+import { DevEquipmentInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 
 @ApiTags('설비 관리')
 @Controller('equipment')
@@ -12,7 +12,7 @@ export class EquipmentReadController {
   ) {}
 
   @Get('search')
-  @Auth()
+  @DevEquipmentInfoAuth.read()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: '설비 검색',

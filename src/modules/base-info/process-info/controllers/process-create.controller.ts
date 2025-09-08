@@ -6,7 +6,7 @@ import { ProcessCreateService } from '../services/process-create.service';
 import { ApiResponseBuilder } from 'src/common/interfaces/api-response.interface';
 import { CreateProcessInfoDto } from '../dto/process-create.dto';
 import { ProcessInfo } from '../entities/process.entity';
-import { Auth } from 'src/common/decorators/auth.decorator';
+import { DevProcessInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 
 
 @ApiTags('ProcessInfo')
@@ -18,7 +18,7 @@ export class ProcessCreateController {
     ) {}
 
     @Post()
-    @Auth()
+    @DevProcessInfoAuth.create()
     @ApiOperation({ summary: '공정 정보 생성', description: '신규 공정 정보를 생성합니다.' })
     async createProcessInfo(
         @Body() createProcessInfoDto: CreateProcessInfoDto,

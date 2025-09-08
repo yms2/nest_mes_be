@@ -71,6 +71,33 @@ export class CustomerInfoSearchService {
     };
   }
 
+  // 특정 필드에서만 검색
+  async searchCustomerInfoByField(
+    fieldName: string,
+    keyword: string,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<SearchResult> {
+    const trimmedKeyword = keyword.trim();
+    const offset = (page - 1) * limit;
+
+    const queryBuilder = this.customerInfoRepository
+      .createQueryBuilder('customer')
+      .where(`customer.${fieldName} LIKE :keyword`, { keyword: `%${trimmedKeyword}%` })
+      .orderBy('customer.customerName', 'ASC')
+      .skip(offset)
+      .take(limit);
+
+    const [data, total] = await queryBuilder.getManyAndCount();
+
+    return {
+      data: DateFormatter.formatBusinessInfoArrayDates(data),
+      total,
+      page,
+      limit,
+    };
+  }
+
   // 날짜 범위 검색
   async searchCustomerInfoByDateRange(
     startDate: string,

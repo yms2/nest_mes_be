@@ -3,14 +3,6 @@ import { IsString, Matches, Length, IsNumberString, IsNotEmpty, IsEmail } from '
 import { OptionalString } from '../../../../common/decorators/optional-string.decorator';
 
 export class CreateBusinessInfoDto {
-  @ApiProperty({
-    example: '6743001715',
-    description: '사업자 번호 (필수)',
-    required: true,
-  })
-  @IsNumberString({}, { message: '사업자등록번호는 숫자만 입력하세요.' })
-  @Length(10, 10, { message: '사업자등록번호는 10자리 숫자여야 합니다.' })
-  businessNumber: string;
 
   @ApiProperty({
     example: '현대자동차',
@@ -26,9 +18,19 @@ export class CreateBusinessInfoDto {
     description: '사업장 담당자 (필수)',
     required: true,
   })
-  @IsString({ message: 'CEO는 필수값입니다.' })
-  @IsNotEmpty({ message: 'CEO는 필수 입력값입니다.' })
+  @IsString({ message: '대표자명은 필수값입니다.' })
+  @IsNotEmpty({ message: '대표자명은 필수 입력값입니다.' })
   businessCeo: string;
+
+
+  @ApiProperty({
+    example: '6743001715',
+    description: '사업자 번호 (필수)',
+    required: true,
+  })
+  @IsNumberString({}, { message: '사업자등록번호는 숫자만 입력하세요.' })
+  @Length(10, 10, { message: '사업자등록번호는 10자리 숫자여야 합니다.' })
+  businessNumber: string;
 
   @ApiProperty({
     example: '1234567890123',

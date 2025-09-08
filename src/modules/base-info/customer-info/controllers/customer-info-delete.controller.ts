@@ -4,6 +4,7 @@ import { ApiResponseBuilder } from 'src/common/interfaces/api-response.interface
 import { CustomerInfoDeleteService } from '../services/customer-info-delete.service';
 import { logService } from 'src/modules/log/Services/log.service';
 import { Auth } from 'src/common/decorators/auth.decorator';
+import { DevCustomerInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 
 @ApiTags('CustomerInfo')
 @Controller('customer-info')
@@ -14,7 +15,7 @@ export class CustomerInfoDeleteController {
   ) {}
 
   @Delete(':id')
-  @Auth()
+  @DevCustomerInfoAuth.delete()
   @ApiOperation({
     summary: '거래처 정보 영구 삭제',
     description: '거래처 정보를 영구적으로 삭제합니다.',

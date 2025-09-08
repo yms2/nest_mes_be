@@ -2,7 +2,7 @@ import { Body, Controller, Post, Req, Get, Param, Res, NotFoundException } from 
 import { ApiOperation, ApiTags, ApiParam } from '@nestjs/swagger';
 import { logService } from 'src/modules/log/Services/log.service';
 import { ProductInfoCreateService } from '../services/product-info-create.service';
-import { Auth } from 'src/common/decorators/auth.decorator';
+import { DevProductInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 import { CreateProductInfoDto } from '../dto/product-info-create.dto';
 import { ProductInfo } from '../entities/product-info.entity';
 import { ApiResponseBuilder } from 'src/common/interfaces/api-response.interface';
@@ -19,7 +19,7 @@ export class ProductInfoCreateController {
   ) {}
 
   @Post()
-  @Auth()
+  @DevProductInfoAuth.create()
   @ApiOperation({ summary: '품목 정보 생성', description: '신규 품목 정보를 생성합니다.' })
   async createProductInfo(
     @Body() createProductInfoDto: CreateProductInfoDto,
@@ -41,7 +41,7 @@ export class ProductInfoCreateController {
   }
 
   @Get('barcode/:productCode')
-  @Auth()
+  @DevProductInfoAuth.read()
   @ApiOperation({ summary: '바코드 이미지 조회', description: '품목 코드로 바코드 이미지를 조회합니다.' })
   @ApiParam({ name: 'productCode', description: '품목 코드', example: 'PRD001' })
   async getBarcodeImage(
@@ -79,7 +79,7 @@ export class ProductInfoCreateController {
   }
 
   @Get('barcode/download/:productCode')
-  @Auth()
+  @DevProductInfoAuth.read()
   @ApiOperation({ summary: '바코드 이미지 다운로드', description: '품목 코드로 바코드 이미지를 다운로드합니다.' })
   @ApiParam({ name: 'productCode', description: '품목 코드', example: 'PRD001' })
   async downloadBarcodeImage(

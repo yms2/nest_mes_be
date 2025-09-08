@@ -4,8 +4,8 @@ import { CreateBusinessInfoDto } from '../dto/create-business-info.dto';
 import { ApiResponseBuilder } from '../../../../common/interfaces/api-response.interface';
 import { BusinessInfoCreateService } from '../services';
 import { logService } from '../../../log/Services/log.service';
-import { Auth } from '../../../../common/decorators/auth.decorator';
 import { BusinessInfo } from '../entities/business-info.entity';
+import { DevBusinessInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 
 @ApiTags('BusinessInfo')
 @Controller('business-info')
@@ -16,7 +16,7 @@ export class BusinessInfoCreateController {
   ) {}
 
   @Post()
-  @Auth()
+  @DevBusinessInfoAuth.create()
   @ApiOperation({ summary: '사업장 정보 생성', description: '신규 사업장 정보를 생성합니다.' })
   async createBusinessInfo(
     @Body() createBusinessInfoDto: CreateBusinessInfoDto,

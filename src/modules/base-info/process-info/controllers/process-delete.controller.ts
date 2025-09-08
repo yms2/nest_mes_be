@@ -1,6 +1,6 @@
 import { Controller, Delete, Param, Req } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
-import { Auth } from 'src/common/decorators/auth.decorator';
+import { DevProcessInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 import { ApiResponseBuilder } from 'src/common/interfaces/api-response.interface';
 import { logService } from 'src/modules/log/Services/log.service';
 import { ProcessDeleteService } from '../services/process-delete.service';
@@ -14,7 +14,7 @@ export class ProcessDeleteController {
     ) {}
 
     @Delete(':id')
-    @Auth()
+    @DevProcessInfoAuth.delete()
     @ApiOperation({ summary: '공정 정보 영구 삭제', description: '공정 정보를 영구적으로 삭제합니다.' })
     @ApiParam({ name: 'id', description: 'ID', example: '1' })
     async deleteProcessInfo(

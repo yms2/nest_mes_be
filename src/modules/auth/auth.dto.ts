@@ -40,7 +40,7 @@ export class UpdateUserInfoDto {
   @ApiProperty({ example: 'newpassword123', description: '새 비밀번호 (선택사항)', required: false })
   @IsOptional()
   @IsString()
-  @MinLength(8)
+  @MinLength(8, { message: '비밀번호는 최소 8자 이상이어야 합니다.' })
   @MaxLength(255)
   password?: string;
 

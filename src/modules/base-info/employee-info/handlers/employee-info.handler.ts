@@ -33,6 +33,22 @@ export class EmployeeInfoHandler {
         );
     }
 
+    async handleSearchByField(fieldName: string, keyword: string, pagination: PaginationDto) {
+        const result = await this.employeeSearchService.searchEmployeeByField(
+            fieldName,
+            keyword,
+            pagination.page,
+            pagination.limit,
+        );
+        return buildPaginatedResponse(
+            result.data,
+            result.page,
+            result.limit,
+            result.total,
+            `직원 정보 ${fieldName} 검색이 완료되었습니다.`,
+        );
+    }
+
     async handleDateRangeSearch(startDate: string, endDate: string, pagination: PaginationDto) {
         const result = await this.employeeSearchService.searchEmployeeByDateRange(
             startDate,

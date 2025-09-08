@@ -1,6 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EstimateManagement } from './entities/estimatemanagement.entity';
+import { CustomerInfo } from '../../base-info/customer-info/entities/customer-info.entity';
+import { ProductInfo } from '../../base-info/product-info/product_sample/entities/product-info.entity';
+import { Employee } from '../../base-info/employee-info/entities/employee.entity';
 import * as controllers from './controllers';
 import * as services from './services';
 
@@ -13,7 +16,7 @@ const serviceArray = Object.values(services);
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([EstimateManagement, EstimateDetail]),
+        TypeOrmModule.forFeature([EstimateManagement, EstimateDetail, CustomerInfo, ProductInfo, Employee]),
         CommonModule,
         LogModule,
     ],

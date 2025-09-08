@@ -5,7 +5,7 @@ import { CreateCustomerInfoDto } from '../dto/customer-info-create.dto';
 import { ApiResponseBuilder } from 'src/common/interfaces/api-response.interface';
 import { CustomerInfoUpdateService } from '../services/customer-info-update.service';
 import { logService } from 'src/modules/log/Services/log.service';
-import { Auth } from 'src/common/decorators/auth.decorator';
+import { DevCustomerInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 import { CustomerInfo } from '../entities/customer-info.entity';
 
 @ApiTags('CustomerInfo')
@@ -17,7 +17,7 @@ export class CustomerInfoUpdateController {
   ) {}
 
   @Put(':id')
-  @Auth()
+  @DevCustomerInfoAuth.update()
   @ApiOperation({ summary: 'id 정보 수정', description: '기존 거래처 정보를 수정합니다.' })
   async updateCustomerInfo(
     @Param('id') id: number,

@@ -4,15 +4,15 @@ import { BomInfoUpdateService } from '../services/bom-info-update.service';
 import { UpdateBomDto } from '../dto/update-bom.dto';
 import { BomInfo } from '../entities/bom-info.entity';
 import { ApiResponse as CustomApiResponse, ApiResponseBuilder } from 'src/common/interfaces/api-response.interface';
-import { Auth } from '@/common/decorators/auth.decorator';
+import { DevBomInfoAuth } from '@/common/decorators/dev-menu-permissions.decorator';
 
 @ApiTags('BOM 등록/수정/삭제')
 @Controller('bom-info')
-@Auth()
 export class BomInfoUpdateController {
   constructor(private readonly bomInfoUpdateService: BomInfoUpdateService) {}
 
   @Put(':id')
+  @DevBomInfoAuth.update()
   @ApiOperation({
     summary: 'BOM 정보 수정',
     description: '기존 BOM 정보를 수정합니다. 상위품목, 하위품목, 수량, 단위를 변경할 수 있습니다.',
