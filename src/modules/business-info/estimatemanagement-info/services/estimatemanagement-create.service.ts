@@ -122,7 +122,7 @@ export class EstimateManagementCreateService {
         detailDto.estimateId = estimateId;
 
         // 세부품목 코드 자동 생성 (필요시)
-        if (!detailDto.detailCode) {
+        if (!detailDto.detailCode || detailDto.detailCode.trim() === '') {
           detailDto.detailCode = await this.generateDetailCode(estimateId);
         }
 
@@ -328,6 +328,7 @@ export class EstimateManagementCreateService {
   private async validateEstimateDetailData(detailDto: CreateEstimateDetailDto): Promise<void> {
     const {
       estimateId,
+      detailCode,
       itemCode,
       itemName,
       unit,
@@ -336,9 +337,14 @@ export class EstimateManagementCreateService {
       totalPrice,
     } = detailDto;
 
-    // 필수 필드 검증
+    // 필수 필드 검증 (detailCode는 선택적이므로 제외)
     if (!estimateId || !itemCode || !itemName || !unit || !quantity || !unitPrice || !totalPrice) {
       throw new BadRequestException('세부품목 필수 필드가 누락되었습니다.');
+    }
+
+    // detailCode가 제공된 경우 유효성 검증
+    if (detailCode && detailCode.trim() === '') {
+      throw new BadRequestException('세부품목 코드는 빈 문자열일 수 없습니다.');
     }
 
     // 수량 검증
@@ -376,14 +382,17 @@ export class EstimateManagementCreateService {
     const lastDetail = await this.estimateDetailRepository
       .createQueryBuilder('detail')
       .where('detail.estimateId = :estimateId', { estimateId })
+      .andWhere('detail.detailCode IS NOT NULL')
       .orderBy('detail.detailCode', 'DESC')
       .getOne();
 
     let sequence = 1;
-    if (lastDetail && lastDetail.detailCode) {
+    if (lastDetail && lastDetail.detailCode && lastDetail.detailCode.trim() !== '') {
       // 기존 코드에서 시퀀스 번호 추출
       const lastSequence = parseInt(lastDetail.detailCode.slice(-3));
-      sequence = lastSequence + 1;
+      if (!isNaN(lastSequence)) {
+        sequence = lastSequence + 1;
+      }
     }
 
     return `DET${estimateId}${String(sequence).padStart(3, '0')}`;

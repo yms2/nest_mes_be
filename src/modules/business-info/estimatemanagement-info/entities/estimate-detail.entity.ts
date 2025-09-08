@@ -9,8 +9,8 @@ export class EstimateDetail {
     @Column({ name: 'estimate_id', type: 'int' })
     estimateId: number;
 
-    @Column({ name: 'detail_code', type: 'varchar', length: 20 })
-    detailCode: string;
+    @Column({ name: 'detail_code', type: 'varchar', length: 20, nullable: true })
+    detailCode?: string;
 
     @Column({ name: 'item_code', type: 'varchar', length: 20 })
     itemCode: string;
