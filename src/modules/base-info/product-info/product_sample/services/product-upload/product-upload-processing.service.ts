@@ -17,36 +17,159 @@ export class ProductUploadProcessingService {
     rows: ProductExcelRow[],
     mode: 'add' | 'overwrite',
     createdBy: string,
-  ): Promise<{ totalCount: number; newCount: number; updateCount: number }> {
+  ): Promise<{ totalCount: number; newCount: number; updateCount: number; errorCount: number; errors: any[] }> {
     let newCount = 0;
     let updateCount = 0;
+    let errorCount = 0;
+    const errors: any[] = [];
 
-    for (const row of rows) {
-      const productName = String(row['품목명'] ?? '').trim();
-      
-      if (mode === 'add') {
-        // 추가 모드: 중복되지 않는 경우만 추가
-        const existingProduct = await this.productInfoRepository.findOne({
-          where: { productName },
-        });
-
-        if (!existingProduct) {
-          await this.createProduct(row, createdBy);
-          newCount++;
+    for (let i = 0; i < rows.length; i++) {
+      try {
+        const row = rows[i];
+        const productName = String(row['품목명'] ?? '').trim();
+        const productType = String(row['품목구분'] ?? '').trim();
+        
+        // 필수 필드 검증
+        if (!productName) {
+          errors.push({
+            row: i + 1,
+            productName,
+            productType,
+            error: '품목명이 누락되었습니다.',
+          });
+          errorCount++;
+          continue;
         }
-      } else {
-        // 덮어쓰기 모드: 기존 데이터 업데이트 또는 새로 생성
-        const existingProduct = await this.productInfoRepository.findOne({
-          where: { productName },
-        });
+        
+        if (!productType) {
+          errors.push({
+            row: i + 1,
+            productName,
+            productType,
+            error: '품목구분이 누락되었습니다.',
+          });
+          errorCount++;
+          continue;
+        }
 
-        if (existingProduct) {
-          await this.updateProduct(existingProduct, row, createdBy);
-          updateCount++;
+        // 길이 제한 검증
+        if (productName.length > 20) {
+          errors.push({
+            row: i + 1,
+            productName,
+            productType,
+            error: '품목명은 20자 이하여야 합니다.',
+          });
+          errorCount++;
+          continue;
+        }
+
+        if (productType.length > 10) {
+          errors.push({
+            row: i + 1,
+            productName,
+            productType,
+            error: '품목구분은 10자 이하여야 합니다.',
+          });
+          errorCount++;
+          continue;
+        }
+
+        const productCategory = String(row['분류'] ?? '').trim();
+        if (productCategory.length > 10) {
+          errors.push({
+            row: i + 1,
+            productName,
+            productType,
+            error: '분류는 10자 이하여야 합니다.',
+          });
+          errorCount++;
+          continue;
+        }
+
+        // 숫자 필드 검증
+        const unitQuantity = row['수량당수량'];
+        if (unitQuantity && isNaN(Number(unitQuantity))) {
+          errors.push({
+            row: i + 1,
+            productName,
+            productType,
+            error: '수량당수량은 숫자여야 합니다.',
+          });
+          errorCount++;
+          continue;
+        }
+
+        const safeInventory = row['안전재고'];
+        if (safeInventory && isNaN(Number(safeInventory))) {
+          errors.push({
+            row: i + 1,
+            productName,
+            productType,
+            error: '안전재고는 숫자여야 합니다.',
+          });
+          errorCount++;
+          continue;
+        }
+
+        const productPrice = row['매입단가'];
+        if (productPrice && isNaN(Number(productPrice))) {
+          errors.push({
+            row: i + 1,
+            productName,
+            productType,
+            error: '매입단가는 숫자여야 합니다.',
+          });
+          errorCount++;
+          continue;
+        }
+
+        const productPriceSale = row['매출단가'];
+        if (productPriceSale && isNaN(Number(productPriceSale))) {
+          errors.push({
+            row: i + 1,
+            productName,
+            productType,
+            error: '매출단가는 숫자여야 합니다.',
+          });
+          errorCount++;
+          continue;
+        }
+        
+        // 검증 통과한 경우에만 처리
+        if (mode === 'add') {
+          // 추가 모드: 중복되지 않는 경우만 추가
+          const existingProduct = await this.productInfoRepository.findOne({
+            where: { productName },
+          });
+
+          if (!existingProduct) {
+            await this.createProduct(row, createdBy);
+            newCount++;
+          }
         } else {
-          await this.createProduct(row, createdBy);
-          newCount++;
+          // 덮어쓰기 모드: 기존 데이터 업데이트 또는 새로 생성
+          const existingProduct = await this.productInfoRepository.findOne({
+            where: { productName },
+          });
+
+          if (existingProduct) {
+            await this.updateProduct(existingProduct, row, createdBy);
+            updateCount++;
+          } else {
+            await this.createProduct(row, createdBy);
+            newCount++;
+          }
         }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        errors.push({
+          row: i + 1,
+          productName: rows[i]['품목명'] || undefined,
+          productType: rows[i]['품목구분'] || undefined,
+          error: errorMessage,
+        });
+        errorCount++;
       }
     }
 
@@ -54,6 +177,8 @@ export class ProductUploadProcessingService {
       totalCount: rows.length,
       newCount,
       updateCount,
+      errorCount,
+      errors,
     };
   }
 

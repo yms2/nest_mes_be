@@ -15,15 +15,6 @@ import { OptionalString } from 'src/common/decorators/optional-string.decorator'
 export class CreateCustomerInfoDto {
   //필수값
   @ApiProperty({
-    example: '6743001715',
-    description: '사업자등록번호 (숫자 10자리, 필수)',
-    required: true,
-  })
-  @IsNumberString({}, { message: '사업자등록번호는 숫자만 입력하세요.' })
-  @Length(10, 10, { message: '사업자등록번호는 10자리 숫자여야 합니다.' })
-  customerNumber: string;
-
-  @ApiProperty({
     example: '현대자동차',
     description: '거래처 명 (필수)',
     required: true,
@@ -31,6 +22,24 @@ export class CreateCustomerInfoDto {
   @IsString({ message: '거래처 명은 필수값입니다.' })
   @IsNotEmpty({ message: '거래처 명은 필수 입력값입니다.' })
   customerName: string;
+
+  @ApiProperty({
+    example: '김대호',
+    description: '거래처 대표자명 (필수)',
+    required: true,
+  })
+  @IsString({ message: '거래처 대표자명은 필수값입니다.' })
+  @IsNotEmpty({ message: '거래처 대표자명은 필수 입력값입니다.' })
+  customerCeo: string;
+
+  @ApiProperty({
+    example: '6743001715',
+    description: '사업자등록번호 (숫자 10자리, 필수)',
+    required: true,
+  })
+  @IsNumberString({}, { message: '사업자등록번호는 숫자만 입력하세요.' })
+  @Length(10, 10, { message: '사업자등록번호는 10자리 숫자여야 합니다.' })
+  customerNumber: string;
 
   @ApiProperty({
     example: '1123321323333',
@@ -41,14 +50,7 @@ export class CreateCustomerInfoDto {
   @Length(13, 13, { message: '법인번호는 13자리 숫자여야 합니다.' })
   customerCorporateRegistrationNumber?: string;
 
-  @ApiProperty({
-    example: '김대호',
-    description: '거래처 CEO (필수)',
-    required: true,
-  })
-  @IsString({ message: '거래처 CEO는 필수값입니다.' })
-  @IsNotEmpty({ message: '거래처 CEO는 필수 입력값입니다.' })
-  customerCeo: string;
+
 
   @ApiProperty({
     example: '매출처',

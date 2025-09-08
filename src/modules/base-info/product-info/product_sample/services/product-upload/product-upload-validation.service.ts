@@ -5,7 +5,7 @@ import { ProductInfo } from '../../entities/product-info.entity';
 export interface ProductExcelRow {
   품목명: string;
   품목구분: string;
-  분류: string;
+  분류?: string;
   규격1?: string;
   규격2?: string;
   거래처코드?: string;
@@ -127,17 +127,6 @@ export class ProductUploadValidationService {
             productName,
             productType,
             error: '품목구분이 누락되었습니다.',
-          });
-          errorCount++;
-          hasErrors = true;
-          continue;
-        }
-        if (!productCategory) {
-          errors.push({
-            row: i + 1,
-            productName,
-            productType,
-            error: '분류가 누락되었습니다.',
           });
           errorCount++;
           hasErrors = true;
