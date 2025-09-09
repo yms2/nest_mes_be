@@ -25,9 +25,9 @@ export class OrderManagementDeleteController {
     @HttpCode(HttpStatus.OK)
     @ApiOperation({
         summary: '수주 삭제',
-        description: '주문을 완전히 삭제합니다 (세부품목 포함).',
+        description: '수주을 완전히 삭제합니다 (세부품목 포함).',
     })
-    @ApiParam({ name: 'id', description: '주문 ID', type: Number })
+    @ApiParam({ name: 'id', description: '수주 ID', type: Number })
     @ApiResponse({
         status: 200,
         description: '수주 삭제 성공',

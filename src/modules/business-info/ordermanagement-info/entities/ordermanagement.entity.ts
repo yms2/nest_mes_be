@@ -5,7 +5,7 @@ import { Entity, Column } from 'typeorm';
 @Entity()
 export class OrderManagement extends BaseEntity {
     @ApiProperty({ example: 'ORD001', description: '수주 코드 (자동 생성)' })
-    @Column({ name: 'order_code', type: 'varchar', length: 20 })
+    @Column({ name: 'order_code', type: 'varchar', length: 20, unique: true })
     orderCode: string;
 
     @ApiProperty({ example: '2025-01-01', description: '수주 일자' })
