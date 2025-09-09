@@ -23,7 +23,7 @@ import { OrderManagement } from '../entities/ordermanagement.entity';
 import { ApiResponseBuilder } from 'src/common/interfaces/api-response.interface';
 import { AuthWithPermission } from '@/common/decorators/auth-with-permission.decorator';
  
-@ApiTags('주문관리')
+@ApiTags('수주관리')
 @Controller('ordermanagement')
 
 export class OrderManagementCreateController {
@@ -36,12 +36,12 @@ export class OrderManagementCreateController {
   @AuthWithPermission('orderReceiveManage', 'create')
   @UsePipes(new ValidationPipe())
   @ApiOperation({
-    summary: '주문관리 등록',
+    summary: '수주관리 등록',
     description: '새로운 주문을 등록합니다. 주문 코드는 자동으로 생성됩니다.',
   })
   @ApiBody({
     type: CreateOrderManagementDto,
-    description: '주문 등록 정보',
+    description: '수주 등록 정보',
     examples: {
       '신규 주문': {
         value: {
@@ -67,11 +67,11 @@ export class OrderManagementCreateController {
   })
   @ApiResponse({
     status: 201,
-    description: '주문 등록 성공',
+    description: '수주 등록 성공',
     schema: {
       type: 'object',
       properties: {
-        message: { type: 'string', example: '주문이 성공적으로 등록되었습니다.' },
+        message: { type: 'string', example: '수주가 성공적으로 등록되었습니다.' },
         data: {
           type: 'object',
           properties: {
@@ -118,7 +118,7 @@ export class OrderManagementCreateController {
       type: 'object',
       properties: {
         statusCode: { type: 'number', example: 500 },
-        message: { type: 'string', example: '주문 등록 중 오류가 발생했습니다.' },
+        message: { type: 'string', example: '수주 등록 중 오류가 발생했습니다.' },
       },
     },
   })
@@ -135,7 +135,7 @@ export class OrderManagementCreateController {
 
       await this.writeCreateLog(result, req.user.username);
 
-      return ApiResponseBuilder.success(result, '주문이 성공적으로 등록되었습니다.');
+      return ApiResponseBuilder.success(result, '수주가 성공적으로 등록되었습니다.');
      
 
 
@@ -147,7 +147,7 @@ export class OrderManagementCreateController {
       throw new HttpException(
         {
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: '주문 등록 중 오류가 발생했습니다.',
+          message: '수주 등록 중 오류가 발생했습니다.',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -160,13 +160,13 @@ export class OrderManagementCreateController {
       return {
         orderCode,
         isDuplicate,
-        message: isDuplicate ? '이미 사용중인 주문 코드입니다.' : '사용 가능한 주문 코드입니다.',
+        message: isDuplicate ? '이미 사용중인 수주 코드입니다.' : '사용 가능한 수주 코드입니다.',
       };
     } catch (error) {
       throw new HttpException(
         {
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: '주문 코드 중복 확인 중 오류가 발생했습니다.',
+          message: '수주 코드 중복 확인 중 오류가 발생했습니다.',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -176,7 +176,7 @@ export class OrderManagementCreateController {
 
   private async writeCreateLog(result: OrderManagement, username: string) {
     await this.logService.createDetailedLog({
-      moduleName: '주문관리',
+      moduleName: '수주관리',
       action: 'CREATE',
       username,
       targetId: result.orderCode,
@@ -186,7 +186,7 @@ export class OrderManagementCreateController {
 
   private async writeCreateFailLog(dto: CreateOrderManagementDto, username: string, error: Error) {
     await this.logService.createDetailedLog({
-      moduleName: '주문관리',
+      moduleName: '수주관리',
       action: 'CREATE_FAIL',
       username,
       targetId: '',

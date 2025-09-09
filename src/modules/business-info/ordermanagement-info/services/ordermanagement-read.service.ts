@@ -32,7 +32,7 @@ export class OrderManagementReadService {
 
         if (search) {
             queryBuilder.andWhere(
-                '(orderManagement.orderCode LIKE :search OR orderManagement.orderName LIKE :search OR orderManagement.customerName LIKE :search OR orderManagement.projectName LIKE :search OR orderManagement.productName LIKE :search)',
+                '(orderManagement.orderCode LIKE :search OR orderManagement.customerName LIKE :search OR orderManagement.projectName LIKE :search OR orderManagement.productName LIKE :search OR orderManagement.orderType LIKE :search)',
                 { search: `%${search}%` }
             );
         }
