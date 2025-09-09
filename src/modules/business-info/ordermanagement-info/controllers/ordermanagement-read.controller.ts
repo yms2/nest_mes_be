@@ -4,7 +4,7 @@ import { OrderManagementReadService } from '../services/ordermanagement-read.ser
 import { DevAuth } from '@/common/decorators/dev-auth.decorator';
 import { ApiResponseBuilder } from 'src/common/interfaces/api-response.interface';
 
-@ApiTags('주문관리')
+@ApiTags('수주관리')
 @Controller('order-management')
 @DevAuth()
 @ApiBearerAuth()
@@ -14,14 +14,14 @@ export class OrderManagementReadController {
 
     @Get()
     @ApiOperation({ 
-        summary: '주문 목록 조회',
-        description: '주문 목록을 조회합니다.' 
+        summary: '수주 목록 조회',
+        description: '수주 목록을 조회합니다.' 
     })
     @ApiQuery({ name: 'page', type: Number, required: false, description: '페이지 번호', example: 1 })
     @ApiQuery({ name: 'limit', type: Number, required: false, description: '페이지당 항목 수', example: 10 })
-    @ApiQuery({ name: 'search', type: String, required: false, description: '검색 키워드 (주문코드, 주문명, 고객명, 프로젝트명, 제품명)', example: '삼성전자' })
-    @ApiQuery({ name: 'startDate', type: String, required: false, description: '주문일 시작일 (YYYY-MM-DD)', example: '2025-01-01' })
-    @ApiQuery({ name: 'endDate', type: String, required: false, description: '주문일 종료일 (YYYY-MM-DD)', example: '2025-01-31' })
+            @ApiQuery({ name: 'search', type: String, required: false, description: '검색 키워드 (수주코드, 수주명, 고객명, 프로젝트명, 제품명)', example: '삼성전자' })
+    @ApiQuery({ name: 'startDate', type: String, required: false, description: '수주일 시작일 (YYYY-MM-DD)', example: '2025-01-01' })
+    @ApiQuery({ name: 'endDate', type: String, required: false, description: '수주일 종료일 (YYYY-MM-DD)', example: '2025-01-31' })
     async getAllOrderManagement(
         @Request() req, 
         @Query('page') page: number = 1, 
@@ -43,33 +43,33 @@ export class OrderManagementReadController {
 
             return ApiResponseBuilder.success(
                 result,
-                '주문 목록을 성공적으로 조회했습니다.',
+                '수주 목록을 성공적으로 조회했습니다.',
             );
         } catch (error) {
             return ApiResponseBuilder.error(
-                error.message || '주문 목록 조회에 실패했습니다.',
+                error.message || '수주 목록 조회에 실패했습니다.',
             );
         }
     }
 
     @Get(':id')
     @ApiOperation({ 
-        summary: '주문 상세 조회',
-        description: 'ID를 통해 주문 상세 정보를 조회합니다.' 
+        summary: '수주 상세 조회',
+        description: 'ID를 통해 수주 상세 정보를 조회합니다.' 
     })
     @ApiParam({ 
         name: 'id', 
-        description: '조회할 주문의 ID', 
+        description: '조회할 수주의 ID', 
         example: 1,
         type: Number
     })
     @ApiResponse({ 
         status: 200, 
-        description: '주문 상세 조회 성공',
+        description: '수주 상세 조회 성공',
         schema: {
             example: {
                 success: true,
-                message: '주문 상세 정보를 성공적으로 조회했습니다.',
+                message: '수주 상세 정보를 성공적으로 조회했습니다.',
                 data: {
                     id: 1,
                     orderCode: 'ORD001',
@@ -100,11 +100,11 @@ export class OrderManagementReadController {
     })
     @ApiResponse({ 
         status: 404, 
-        description: '주문을 찾을 수 없음',
+        description: '수주를 찾을 수 없음',
         schema: {
             example: {
                 success: false,
-                message: 'ID 1인 주문을 찾을 수 없습니다.',
+                message: 'ID 1인 수주를 찾을 수 없습니다.',
                 data: null,
                 timestamp: '2025-01-15T10:30:00Z'
             }
@@ -132,11 +132,11 @@ export class OrderManagementReadController {
 
             return ApiResponseBuilder.success(
                 result,
-                '주문 상세 정보를 성공적으로 조회했습니다.',
+                '수주 상세 정보를 성공적으로 조회했습니다.',
             );
         } catch (error) {
             return ApiResponseBuilder.error(
-                error.message || '주문 상세 조회에 실패했습니다.',
+                error.message || '수주 상세 조회에 실패했습니다.',
             );
         }
     }

@@ -15,11 +15,11 @@ export class OrderManagementUpdateService {
     ) {}
 
     /**
-     * ID를 통해 주문 정보를 수정합니다.
-     * @param id 주문 ID
-     * @param updateOrderManagementDto 수정할 주문 데이터
+     * ID를 통해 수주 정보를 수정합니다.
+     * @param id 수주 ID
+     * @param updateOrderManagementDto 수정할 수주 데이터
      * @param updatedBy 수정자
-     * @returns 수정된 주문 정보
+     * @returns 수정된 수주 정보
      */
     async updateOrderManagement(
         id: number,
@@ -30,13 +30,13 @@ export class OrderManagementUpdateService {
             // 입력 데이터 검증
             OrderManagementValidationHandler.validateUpdateData(updateOrderManagementDto);
 
-            // 기존 주문 정보 조회
+            // 기존 수주 정보 조회
             const existingOrder = await this.orderManagementRepository.findOne({
                 where: { id }
             });
 
             if (!existingOrder) {
-                throw new NotFoundException(`ID ${id}인 주문을 찾을 수 없습니다.`);
+                throw new NotFoundException(`ID ${id}인 수주를 찾을 수 없습니다.`);
             }
 
             // 받은 데이터 그대로 업데이트
@@ -56,16 +56,16 @@ export class OrderManagementUpdateService {
             updateData.updatedBy = updatedBy;
             updateData.updatedAt = new Date();
 
-            // 주문 정보 업데이트
+            // 수주 정보 업데이트
             await this.orderManagementRepository.update(id, updateData);
 
-            // 업데이트된 주문 정보 조회
+            // 업데이트된 수주 정보 조회
             const updatedOrder = await this.orderManagementRepository.findOne({
                 where: { id }
             });
 
             if (!updatedOrder) {
-                throw new Error('주문 정보 업데이트 후 조회에 실패했습니다.');
+                throw new Error('수주 정보 업데이트 후 조회에 실패했습니다.');
             }
 
             return updatedOrder;

@@ -3,8 +3,8 @@ import { UpdateOrderManagementDto } from '../dto/ordermanagement-update.dto';
 
 export class OrderManagementValidationHandler {
     /**
-     * 주문 정보 수정 데이터의 유효성을 검증합니다.
-     * @param updateOrderManagementDto 수정할 주문 데이터
+     * 수주 정보 수정 데이터의 유효성을 검증합니다.
+     * @param updateOrderManagementDto 수정할 수주 데이터
      */
     static validateUpdateData(updateOrderManagementDto: UpdateOrderManagementDto): void {
         // 수량 검증
@@ -32,7 +32,7 @@ export class OrderManagementValidationHandler {
         // 날짜 검증
         if (updateOrderManagementDto.deliveryDate !== undefined && updateOrderManagementDto.orderDate !== undefined) {
             if (new Date(updateOrderManagementDto.deliveryDate) < new Date(updateOrderManagementDto.orderDate)) {
-                throw new BadRequestException('납기일은 주문일보다 늦어야 합니다.');
+                throw new BadRequestException('납기일은 수주일보다 늦어야 합니다.');
             }
         }
 
@@ -62,7 +62,7 @@ export class OrderManagementValidationHandler {
         }
 
         if (updateOrderManagementDto.orderType !== undefined && updateOrderManagementDto.orderType.length > 20) {
-            throw new BadRequestException('주문 타입은 20자를 초과할 수 없습니다.');
+            throw new BadRequestException('수주 타입은 20자를 초과할 수 없습니다.');
         }
 
         if (updateOrderManagementDto.estimateCode !== undefined && updateOrderManagementDto.estimateCode.length > 20) {
@@ -76,7 +76,7 @@ export class OrderManagementValidationHandler {
         // 날짜 형식 검증
         if (updateOrderManagementDto.orderDate !== undefined) {
             if (isNaN(Date.parse(updateOrderManagementDto.orderDate))) {
-                throw new BadRequestException('주문일은 유효한 날짜 형식이어야 합니다.');
+                throw new BadRequestException('수주일은 유효한 날짜 형식이어야 합니다.');
             }
         }
 
@@ -88,22 +88,22 @@ export class OrderManagementValidationHandler {
     }
 
     /**
-     * 주문 타입 변경 데이터의 유효성을 검증합니다.
-     * @param orderType 주문 타입
+     * 수주 타입 변경 데이터의 유효성을 검증합니다.
+     * @param orderType 수주 타입
      */
     static validateOrderType(orderType: string): void {
         if (!orderType || orderType.trim().length === 0) {
-            throw new BadRequestException('주문 타입은 비어있을 수 없습니다.');
+            throw new BadRequestException('수주 타입은 비어있을 수 없습니다.');
         }
 
         if (orderType.length > 20) {
-            throw new BadRequestException('주문 타입은 20자를 초과할 수 없습니다.');
+            throw new BadRequestException('수주 타입은 20자를 초과할 수 없습니다.');
         }
 
-        // 허용된 주문 타입 검증 (필요시 추가)
+        // 허용된 수주 타입 검증 (필요시 추가)
         const allowedOrderTypes = ['신규', 'AS', '수리', '교체', '유지보수'];
         if (!allowedOrderTypes.includes(orderType)) {
-            throw new BadRequestException(`허용되지 않는 주문 타입입니다. 허용된 타입: ${allowedOrderTypes.join(', ')}`);
+            throw new BadRequestException(`허용되지 않는 수주 타입입니다. 허용된 타입: ${allowedOrderTypes.join(', ')}`);
         }
     }
 

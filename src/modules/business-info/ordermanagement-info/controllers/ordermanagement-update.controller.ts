@@ -18,7 +18,7 @@ export class OrderManagementUpdateController {
     @Put(':id')
     @ApiOperation({ 
         summary: '수주 정보 수정', 
-        description: 'ID를 통해 주문 정보를 수정합니다. 수정하고 싶은 필드만 전송하면 됩니다.' 
+        description: 'ID를 통해 수주 정보를 수정합니다. 수정하고 싶은 필드만 전송하면 됩니다.' 
     })
     @ApiParam({ 
         name: 'id', 

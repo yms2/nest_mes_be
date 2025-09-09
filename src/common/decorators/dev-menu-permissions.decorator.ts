@@ -5,7 +5,7 @@ import { PermissionGuard } from '../guards/permission.guard';
 import { RequirePermission } from './permission.decorator';
 
 /**
- * 개발환경용 주문관리 권한 데코레이터들 (DevAuth + 권한 체크)
+ * 개발환경용 수주관리 권한 데코레이터들 (DevAuth + 권한 체크)
  */
 export const DevOrderManagementAuth = {
     create: () => applyDecorators(

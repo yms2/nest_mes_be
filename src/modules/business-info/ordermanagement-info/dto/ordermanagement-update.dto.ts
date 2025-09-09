@@ -67,7 +67,7 @@ export class UpdateOrderManagementDto {
     @Min(0)
     total?: number;
 
-    @ApiProperty({ example: '2025-01-01', description: '주문 일자', required: false })
+    @ApiProperty({ example: '2025-01-01', description: '수주 일자', required: false })
     @IsOptional()
     @IsDateString()
     orderDate?: string;

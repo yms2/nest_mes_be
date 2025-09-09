@@ -12,7 +12,7 @@ export class OrderManagementReadService {
         private readonly logService: logService,
     ) {}
 
-    //모든 주문 목록 조회}
+    //모든 수주 목록 조회}
     async getAllOrderManagement(
         page: number = 1,
         limit: number = 10,
@@ -55,12 +55,12 @@ export class OrderManagementReadService {
         const [orderManagement, total] = await queryBuilder.getManyAndCount();
 
         await this.logService.createDetailedLog({
-            moduleName: '주문관리 조회',
+            moduleName: '수주관리 조회',
             action: 'READ_SUCCESS',
             username,
             targetId: '',
-            targetName: '주문 목록 검색',
-            details: `주문 검색 조회: ${total}개 중 ${orderManagement.length}개 (검색어: ${search || '없음'}, 기간: ${startDate || '시작일 없음'} ~ ${endDate || '종료일 없음'})`,
+            targetName: '수주 목록 검색',
+            details: `수주 검색 조회: ${total}개 중 ${orderManagement.length}개 (검색어: ${search || '없음'}, 기간: ${startDate || '시작일 없음'} ~ ${endDate || '종료일 없음'})`,
         });
 
         return { orderManagement, total, page, limit, search, startDate, endDate };
@@ -70,7 +70,7 @@ export class OrderManagementReadService {
     }
 
     /**
-     * ID로 주문을 조회합니다.
+     * ID로 수주를 조회합니다.
      */
     async getOrderManagementById(id: number, username: string): Promise<OrderManagement> {
         const orderManagement = await this.orderManagementRepository.findOne({
@@ -78,16 +78,16 @@ export class OrderManagementReadService {
         });
 
         if (!orderManagement) {
-            throw new NotFoundException(`ID ${id}인 주문을 찾을 수 없습니다.`);
+            throw new NotFoundException(`ID ${id}인 수주를 찾을 수 없습니다.`);
         }
 
         await this.logService.createDetailedLog({
-            moduleName: '주문관리 조회',
+            moduleName: '수주관리 조회',
             action: 'READ_SUCCESS',
             username,
             targetId: id.toString(),
             targetName: orderManagement.orderCode,
-            details: `주문 조회: ${orderManagement.orderCode}`,
+            details: `수주 조회: ${orderManagement.orderCode}`,
         });
 
         return orderManagement;

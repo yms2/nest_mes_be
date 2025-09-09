@@ -176,7 +176,7 @@ export class CreateEstimateDto {
   estimateRemark?: string;
 
   @ApiProperty({ 
-    description: '주문관리 코드', 
+    description: '수주관리 코드', 
     example: 'ORD001', 
     required: false,
     maxLength: 20 
@@ -348,7 +348,7 @@ export class UpdateEstimateDto {
   estimateRemark?: string;
 
   @ApiProperty({ 
-    description: '주문관리 코드', 
+    description: '수주관리 코드', 
     example: 'ORD001', 
     required: false,
   })
