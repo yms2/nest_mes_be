@@ -25,36 +25,14 @@ export class EstimateManagementReadService {
     search?: string,
     startDate?: string,
     endDate?: string,
+    estimateName?: string,
+    customerName?: string,
+    projectName?: string,
+    estimateStatus?: string,
   ) {
     try {
       
       const skip = (page - 1) * limit;
-      
-      // 검색 조건 구성
-      const whereConditions: any = {};
-      
-      // 일반 검색 (견적코드, 견적명, 고객명, 프로젝트명, 제품명)
-      if (search) {
-        whereConditions.search = search;
-      }
-      
-      // 견적일 범위 검색
-      if (startDate || endDate) {
-        if (startDate && endDate) {
-          whereConditions.estimateDate = {
-            startDate: new Date(startDate),
-            endDate: new Date(endDate)
-          };
-        } else if (startDate) {
-          whereConditions.estimateDate = {
-            startDate: new Date(startDate)
-          };
-        } else if (endDate) {
-          whereConditions.estimateDate = {
-            endDate: new Date(endDate)
-          };
-        }
-      }
 
       // 쿼리 빌더로 검색 조건 적용
       const queryBuilder = this.estimateRepository
@@ -73,9 +51,25 @@ export class EstimateManagementReadService {
       // 검색 조건 적용
       if (search) {
         queryBuilder.andWhere(
-          '(estimate.estimateName LIKE :search OR estimate.customerName LIKE :search OR estimate.projectName LIKE :search OR estimate.productName LIKE :search OR estimate.employeeName LIKE :search)',
+          '(estimate.estimateCode LIKE :search OR estimate.estimateName LIKE :search OR estimate.customerName LIKE :search OR estimate.projectName LIKE :search OR estimate.productName LIKE :search OR estimate.employeeName LIKE :search)',
           { search: `%${search}%` }
         );
+      }
+      
+      if (estimateName) {
+        queryBuilder.andWhere('estimate.estimateName LIKE :estimateName', { estimateName: `%${estimateName}%` });
+      }
+
+      if (customerName) {
+        queryBuilder.andWhere('estimate.customerName LIKE :customerName', { customerName: `%${customerName}%` });
+      }
+
+      if (projectName) {
+        queryBuilder.andWhere('estimate.projectName LIKE :projectName', { projectName: `%${projectName}%` });
+      }
+
+      if (estimateStatus) {
+        queryBuilder.andWhere('estimate.estimateStatus LIKE :estimateStatus', { estimateStatus: `%${estimateStatus}%` });
       }
 
       if (startDate && endDate) {
@@ -93,9 +87,6 @@ export class EstimateManagementReadService {
         });
       }
 
-      // 생성된 쿼리 확인
-      const sql = queryBuilder.getSql();
-      
       const [estimates, total] = await queryBuilder.getManyAndCount();
       
       // 사원 전화번호 정보 추가

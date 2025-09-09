@@ -12,7 +12,7 @@ export class OrderManagementReadService {
         private readonly logService: logService,
     ) {}
 
-    //모든 수주 목록 조회}
+    //모든 수주 목록 조회
     async getAllOrderManagement(
         page: number = 1,
         limit: number = 10,
@@ -20,6 +20,10 @@ export class OrderManagementReadService {
         search?: string,
         startDate?: string,
         endDate?: string,
+        customerName?: string,
+        projectName?: string,
+        productName?: string,
+        orderType?: string,
     ) {
         try {
         const skip = (page - 1) * limit;
@@ -30,11 +34,28 @@ export class OrderManagementReadService {
             .skip(skip)
             .take(limit);
 
+        // 검색 조건 적용
         if (search) {
             queryBuilder.andWhere(
                 '(orderManagement.orderCode LIKE :search OR orderManagement.customerName LIKE :search OR orderManagement.projectName LIKE :search OR orderManagement.productName LIKE :search OR orderManagement.orderType LIKE :search)',
                 { search: `%${search}%` }
             );
+        }
+
+        if (customerName) {
+            queryBuilder.andWhere('orderManagement.customerName LIKE :customerName', { customerName: `%${customerName}%` });
+        }
+
+        if (projectName) {
+            queryBuilder.andWhere('orderManagement.projectName LIKE :projectName', { projectName: `%${projectName}%` });
+        }
+
+        if (productName) {
+            queryBuilder.andWhere('orderManagement.productName LIKE :productName', { productName: `%${productName}%` });
+        }
+
+        if (orderType) {
+            queryBuilder.andWhere('orderManagement.orderType LIKE :orderType', { orderType: `%${orderType}%` });
         }
 
         if (startDate && endDate) {
@@ -63,7 +84,7 @@ export class OrderManagementReadService {
             details: `수주 검색 조회: ${total}개 중 ${orderManagement.length}개 (검색어: ${search || '없음'}, 기간: ${startDate || '시작일 없음'} ~ ${endDate || '종료일 없음'})`,
         });
 
-        return { orderManagement, total, page, limit, search, startDate, endDate };
+        return { orderManagement, total, page, limit, search, startDate, endDate, customerName, projectName, productName, orderType };
     } catch (error) {
         throw error;
     }
