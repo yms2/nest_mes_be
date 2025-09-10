@@ -524,4 +524,176 @@ export class InventoryManagementService {
     return results;
   }
 
+  /**
+   * 품목 정보 변경 시 재고 정보 동기화 (재고가 없으면 새로 생성)
+   * @param productCode 품목 코드
+   * @param updatedBy 수정자
+   * @returns 동기화된 재고 정보
+   */
+  async syncInventoryFromProduct(
+    productCode: string,
+    updatedBy: string,
+  ): Promise<Inventory> {
+    // 1. 품목 정보 조회
+    const product = await this.productInfoRepository.findOne({
+      where: { productCode }
+    });
+
+    if (!product) {
+      throw new NotFoundException(`품목 코드 '${productCode}'에 해당하는 품목을 찾을 수 없습니다.`);
+    }
+
+    // 2. 재고 정보 조회
+    const inventory = await this.inventoryRepository.findOne({
+      where: { inventoryCode: productCode }
+    });
+
+    // 3. 재고가 없으면 새로 생성
+    if (!inventory) {
+      const newInventory = this.createInventoryEntityFromProduct(product, updatedBy);
+      return this.inventoryRepository.save(newInventory);
+    }
+
+    // 4. 변경사항 확인
+    const hasChanges = this.checkInventoryChanges(inventory, product);
+    
+    if (!hasChanges) {
+      return inventory; // 변경사항이 없으면 기존 재고 정보 반환
+    }
+
+    // 5. 재고 정보 업데이트
+    const updateData: Partial<Inventory> = {
+      updatedBy,
+      updatedAt: new Date(),
+    };
+
+    // 품목명 변경 시 재고명 업데이트
+    if (product.productName && product.productName !== inventory.inventoryName) {
+      updateData.inventoryName = product.productName;
+    }
+
+    // 품목구분 변경 시 재고구분 업데이트
+    if (product.productType && product.productType !== inventory.inventoryType) {
+      updateData.inventoryType = product.productType;
+    }
+
+    // 단위 변경 시 재고 단위 업데이트
+    if (product.productInventoryUnit && product.productInventoryUnit !== inventory.inventoryUnit) {
+      updateData.inventoryUnit = product.productInventoryUnit;
+    }
+
+    // 안전재고 변경 시 재고 안전재고 업데이트
+    if (product.safeInventory && parseInt(product.safeInventory) !== inventory.safeInventory) {
+      updateData.safeInventory = parseInt(product.safeInventory);
+    }
+
+    // 6. 업데이트 실행
+    await this.inventoryRepository.update({ inventoryCode: productCode }, updateData);
+
+    // 7. 업데이트된 재고 정보 반환
+    const updatedInventory = await this.inventoryRepository.findOne({
+      where: { inventoryCode: productCode }
+    });
+    
+    if (!updatedInventory) {
+      throw new NotFoundException('업데이트된 재고 정보를 찾을 수 없습니다.');
+    }
+    
+    return updatedInventory;
+  }
+
+  /**
+   * 여러 재고의 품목 정보 동기화
+   * @param productCodes 품목 코드 목록
+   * @param updatedBy 수정자
+   * @returns 동기화 결과
+   */
+  async syncMultipleInventoriesFromProducts(
+    productCodes: string[],
+    updatedBy: string,
+  ): Promise<{
+    success: Inventory[];
+    failed: { productCode: string; error: string }[];
+    totalProcessed: number;
+    successCount: number;
+    failedCount: number;
+  }> {
+    const results = {
+      success: [] as Inventory[],
+      failed: [] as { productCode: string; error: string }[],
+      totalProcessed: productCodes.length,
+      successCount: 0,
+      failedCount: 0,
+    };
+
+    for (const productCode of productCodes) {
+      try {
+        const updatedInventory = await this.syncInventoryFromProduct(productCode, updatedBy);
+        results.success.push(updatedInventory);
+        results.successCount++;
+      } catch (error) {
+        results.failed.push({
+          productCode,
+          error: error.message,
+        });
+        results.failedCount++;
+      }
+    }
+
+    return results;
+  }
+
+  /**
+   * 모든 품목의 재고 정보 동기화 (재고가 없으면 새로 생성)
+   * @param updatedBy 수정자
+   * @returns 동기화 결과
+   */
+  async syncAllInventoriesFromProducts(updatedBy: string): Promise<{
+    success: Inventory[];
+    failed: { productCode: string; error: string }[];
+    totalProcessed: number;
+    successCount: number;
+    failedCount: number;
+  }> {
+    // 1. 모든 품목 조회
+    const products = await this.productInfoRepository.find({
+      select: ['productCode']
+    });
+
+    const productCodes = products.map(product => product.productCode);
+
+    // 2. 일괄 동기화 실행
+    return this.syncMultipleInventoriesFromProducts(productCodes, updatedBy);
+  }
+
+  /**
+   * 재고 정보 변경사항 확인
+   * @param inventory 기존 재고 정보
+   * @param product 품목 정보
+   * @returns 변경사항 존재 여부
+   */
+  private checkInventoryChanges(
+    inventory: Inventory,
+    product: ProductInfo,
+  ): boolean {
+    const fieldsToCheck = [
+      { productField: 'productName', inventoryField: 'inventoryName' },
+      { productField: 'productType', inventoryField: 'inventoryType' },
+      { productField: 'productInventoryUnit', inventoryField: 'inventoryUnit' },
+      { productField: 'safeInventory', inventoryField: 'safeInventory', transform: (val: string) => parseInt(val) },
+    ];
+
+    return fieldsToCheck.some(({ productField, inventoryField, transform }) => {
+      const productValue = product[productField as keyof ProductInfo];
+      const inventoryValue = inventory[inventoryField as keyof Inventory];
+      
+      if (productValue === undefined || productValue === null) {
+        return false;
+      }
+
+      const transformedValue = transform ? transform(productValue as string) : productValue;
+      return transformedValue !== inventoryValue;
+    });
+  }
+
 }

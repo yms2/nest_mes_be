@@ -1,8 +1,8 @@
-import { Controller, Post, Get, Put, Param, Body, Request, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
+import { Controller, Get, Put, Param, Body, Request } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { InventoryManagementService } from '../services/inventory-management.service';
 import { DevAuth } from '@/common/decorators/dev-auth.decorator';
-import { ChangeQuantityDto, SetQuantityDto, MultipleQuantityChangeDto, MultipleQuantitySetDto } from '../dto/quantity-change.dto';
+import { ChangeQuantityDto, MultipleQuantityChangeDto } from '../dto/quantity-change.dto';
 
 @ApiTags('재고 관리')
 @Controller('inventory/management')
@@ -12,20 +12,6 @@ export class InventoryManagementController {
   constructor(
     private readonly inventoryManagementService: InventoryManagementService,
   ) {}
-
-  @Post('create-all-products')
-  @ApiOperation({ 
-    summary: '모든 품목을 재고로 등록',
-    description: '등록된 모든 품목을 재고로 등록합니다. 이미 재고로 등록된 품목은 건너뜁니다.'
-  })
-  @ApiResponse({ 
-    status: 201, 
-    description: '모든 품목의 재고 생성이 완료되었습니다.',
-  })
-  async createAllProductsAsInventory(@Request() req: any) {
-    const createdBy = req.user?.userId || 'system';
-    return this.inventoryManagementService.createAllProductsAsInventory(createdBy);
-  }
 
   @Get('all')
   @ApiOperation({ 
@@ -108,6 +94,20 @@ export class InventoryManagementController {
   ) {
     const updatedBy = req.user?.userId || 'system';
     return this.inventoryManagementService.changeMultipleInventoryQuantities(multipleQuantityChangeDto, updatedBy);
+  }
+
+  @Put('sync/all')
+  @ApiOperation({ 
+    summary: '모든 재고의 품목 정보 동기화',
+    description: '모든 재고의 품목 정보를 일괄로 동기화합니다.'
+  })
+  @ApiResponse({ 
+    status: 200, 
+    description: '모든 재고 정보가 성공적으로 동기화되었습니다.',
+  })
+  async syncAllInventoriesFromProducts(@Request() req: any) {
+    const updatedBy = req.user?.userId || 'system';
+    return this.inventoryManagementService.syncAllInventoriesFromProducts(updatedBy);
   }
 
 }
