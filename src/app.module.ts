@@ -13,6 +13,7 @@ import { BaseInfoModule } from './modules/base-info/base-info.module';
 import { LogModule } from './modules/log/log.module';
 import { BusinessInfoModule } from './modules/business-info/business-info.module';
 import { EquipmentModule } from './modules/equipment/equipment.module';
+import { InventoryModule } from './modules/inventory/inventory.module';
 @Module({
   imports: [
     RegisterModule,
@@ -21,6 +22,7 @@ import { EquipmentModule } from './modules/equipment/equipment.module';
     LogModule,
     BusinessInfoModule,
     EquipmentModule,
+    InventoryModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
