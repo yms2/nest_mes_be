@@ -21,20 +21,18 @@ export class CreateEmployeeDto {
 
     @ApiProperty({
         example: '부서',
-        description: '부서명 (필수)',
-        required: true,
+        description: '부서명 (선택)',
+        required: false,
     })
-    @IsString({ message: '부서명은 필수값입니다.' })
-    @IsNotEmpty({ message: '부서명은 필수 입력값입니다.' })
+    @OptionalString()
     department: string;
 
     @ApiProperty({
         example: '직급',
-        description: '직급 (필수)',
-        required: true,
+        description: '직급 (선택)',
+        required: false,
     })
-    @IsString({ message: '직급은 필수값입니다.' })
-    @IsNotEmpty({ message: '직급은 필수 입력값입니다.' })
+    @OptionalString()
     position: string;
 
     @ApiProperty({
@@ -66,20 +64,19 @@ export class CreateEmployeeDto {
 
     @ApiProperty({
         example: '010-1234-5678',
-        description: '직원 전화번호 (필수)',
-        required: true,
+        description: '직원 전화번호 (선택)',
+        required: false,
     })
-    @IsString({ message: '직원 전화번호는 필수값입니다.' })
-    @IsNotEmpty({ message: '직원 전화번호는 필수 입력값입니다.' })
+    @OptionalString()
     employeePhone: string;
 
     @ApiProperty({
         example: 'test@naver.com',
-        description: '직원 이메일 (필수)',
-        required: true,
+        description: '직원 이메일 (선택)',
+        required: false,
     })
     @IsEmail({}, { message: '이메일 형식이 잘못되었습니다.' })
-    @IsNotEmpty({ message: '직원 이메일은 필수 입력값입니다.' })
+    @OptionalString()
     employeeEmail: string;
 
     @ApiProperty({
@@ -101,20 +98,18 @@ export class CreateEmployeeDto {
 
     @ApiProperty({
         example: '12345',
-        description: '우편번호 (필수)',
-        required: true,
+        description: '우편번호 (선택)',
+        required: false,
     })
-    @IsString({ message: '우편번호는 필수값입니다.' })
-    @IsNotEmpty({ message: '우편번호는 필수 입력값입니다.' })
+    @OptionalString()
     zipcode: string;
 
     @ApiProperty({
         example: '서울시 강남구 역삼동',
-        description: '주소 (필수)',
-        required: true,
+        description: '주소 (선택)',
+        required: false,
     })
-    @IsString({ message: '주소는 필수값입니다.' })
-    @IsNotEmpty({ message: '주소는 필수 입력값입니다.' })
+    @OptionalString()
     address: string;
 
     @ApiProperty({

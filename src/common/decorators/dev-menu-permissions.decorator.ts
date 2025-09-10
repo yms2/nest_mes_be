@@ -281,3 +281,26 @@ export const DevEquipmentInfoAuth = {
         ApiBearerAuth('access-token')
     ),
 };
+
+export const DevWarehouseAuth = {
+    create: () => applyDecorators(
+        UseGuards(DevAuthGuard, PermissionGuard),
+        RequirePermission('warehouse', 'create'),
+        ApiBearerAuth('access-token')
+    ),
+    read: () => applyDecorators(
+        UseGuards(DevAuthGuard, PermissionGuard),
+        RequirePermission('warehouse', 'read'),
+        ApiBearerAuth('access-token')
+    ),
+    update: () => applyDecorators(
+        UseGuards(DevAuthGuard, PermissionGuard),
+        RequirePermission('warehouse', 'update'),
+        ApiBearerAuth('access-token')
+    ),
+    delete: () => applyDecorators(
+        UseGuards(DevAuthGuard, PermissionGuard),
+        RequirePermission('warehouse', 'delete'),
+        ApiBearerAuth('access-token')
+    ),
+};
