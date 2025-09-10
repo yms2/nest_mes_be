@@ -1,0 +1,64 @@
+{
+  "folders": [
+    {
+      "path": "./",
+    },
+  ],
+
+  "settings": {
+    "files.encoding": "utf8",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2,
+    "editor.formatOnPaste": false, // required
+    "editor.formatOnType": false, // required
+    "editor.formatOnSave": true, // optional
+    "editor.inlayHints.fontFamily": "Jetbrains Mono",
+    "editor.fontFamily": "Jetbrains Mono",
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit",
+      "source.fixAll.eslint": "explicit",
+    },
+    "editor.quickSuggestions": {
+      "strings": true,
+    },
+    "editor.inlineSuggest.enabled": true,
+    "workbench.editor.wrapTabs": true,
+    "workbench.editor.revealIfOpen": true,
+    "workbench.editorAssociations": {
+      "*.svg": "default",
+    },
+    "[javascript]": {
+      "editor.rulers": [100],
+      "editor.tabSize": 2,
+    },
+    "[javascriptreact]": {
+      "editor.rulers": [100],
+      "editor.tabSize": 2,
+    },
+    "[typescript]": {
+      "editor.rulers": [100],
+      "editor.tabSize": 2,
+    },
+    "[typescriptreact]": {
+      "editor.rulers": [100],
+      "editor.tabSize": 2,
+    },
+    "css.lint.unknownAtRules": "ignore",
+    "css.validate": false,
+    "editor.wordWrap": "on",
+    "chat.editor.wordWrap": "on",
+  },
+  "extensions": {
+    "recommendations": [
+      "donjayamanne.githistory",
+      "PKief.material-icon-theme",
+      "esbenp.prettier-vscode",
+      "formulahendry.auto-rename-tag",
+      "formulahendry.auto-close-tag",
+      "kamikillerto.vscode-colorize",
+      "oderwat.indent-rainbow",
+      "prisma.prisma",
+      "hassantahir.prisma-nest-helper",
+    ],
+  },
+}
