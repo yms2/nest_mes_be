@@ -31,7 +31,7 @@ export class OrderManagementUploadService {
         
         // 예상되는 헤더들
         const expectedHeaders = [
-            '수주일', '거래처명', '프로젝트명', '품목명', '수주구분', 
+            '수주일', '거래처명', '프로젝트명', '프로젝트버전', '품목명', '수주구분', 
             '수량', '단가', '공급가액', '부가세', '합계', 
             '납품예정일', '참조견적', '비고'
         ];
@@ -122,6 +122,7 @@ export class OrderManagementUploadService {
                         customerName: orderData.customerName,
                         projectCode: orderData.projectCode,
                         projectName: orderData.projectName,
+                        projectVersion: orderData.projectVersion,
                         productCode: orderData.productCode,
                         productName: orderData.productName,
                         orderType: orderData.orderType,
@@ -233,16 +234,17 @@ export class OrderManagementUploadService {
             orderDate: this.getDateValue(values[1]), // A열: 수주일
             customerName: this.getStringValue(values[2]), // B열: 거래처명
             projectName: this.getStringValue(values[3]), // C열: 프로젝트명
-            productName: this.getStringValue(values[4]), // D열: 품목명
-            orderType: this.getStringValue(values[5]), // E열: 수주구분
-            quantity: this.getNumberValue(values[6]), // F열: 수량
-            unitPrice: this.getNumberValue(values[7]), // G열: 단가
-            supplyPrice: this.getNumberValue(values[8]), // H열: 공급가액
-            vat: this.getNumberValue(values[9]), // I열: 부가세
-            total: this.getNumberValue(values[10]), // J열: 합계
-            deliveryDate: this.getDateValue(values[11]), // K열: 납품예정일
-            estimateCode: this.getStringValue(values[12]), // L열: 참조견적
-            remark: this.getStringValue(values[13]), // M열: 비고
+            projectVersion: this.getStringValue(values[4]), // D열: 프로젝트버전
+            productName: this.getStringValue(values[5]), // E열: 품목명
+            orderType: this.getStringValue(values[6]), // F열: 수주구분
+            quantity: this.getNumberValue(values[7]), // G열: 수량
+            unitPrice: this.getNumberValue(values[8]), // H열: 단가
+            supplyPrice: this.getNumberValue(values[9]), // I열: 공급가액
+            vat: this.getNumberValue(values[10]), // J열: 부가세
+            total: this.getNumberValue(values[11]), // K열: 합계
+            deliveryDate: this.getDateValue(values[12]), // L열: 납품예정일
+            estimateCode: this.getStringValue(values[13]), // M열: 참조견적
+            remark: this.getStringValue(values[14]), // N열: 비고
         };
 
         return orderData;

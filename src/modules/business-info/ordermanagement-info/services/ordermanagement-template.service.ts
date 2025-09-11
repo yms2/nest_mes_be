@@ -11,6 +11,7 @@ export class OrderManagementTemplateService {
             { header: '수주일', key: 'orderDate', width: 20, style: { numFmt: '@' } },
             { header: '거래처명', key: 'customerName', width: 20, style: { numFmt: '@' } },
             { header: '프로젝트명', key: 'projectName', width: 20, style: { numFmt: '@' } },
+            { header: '프로젝트버전', key: 'projectVersion', width: 20, style: { numFmt: '@' } },
             { header: '품목명', key: 'productName', width: 20, style: { numFmt: '@' } },
             { header: '수주구분', key: 'orderType', width: 20, style: { numFmt: '@' } },
             { header: '수량', key: 'quantity', width: 20, style: { numFmt: '@' } },

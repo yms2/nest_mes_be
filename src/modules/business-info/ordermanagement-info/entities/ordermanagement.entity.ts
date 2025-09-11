@@ -28,6 +28,10 @@ export class OrderManagement extends BaseEntity {
     @Column({ name : 'project_name', type: 'varchar', length: 20 })
     projectName: string;
 
+    @ApiProperty({ example: 'v1.0', description: '프로젝트 버전' })
+    @Column({ name : 'project_version', type: 'varchar', length: 20, nullable: true })
+    projectVersion: string;
+
     @ApiProperty({ example: 'PRD001', description: '품목 코드' })
     @Column({ name : 'product_code', type: 'varchar', length: 20 })
     productCode: string;
