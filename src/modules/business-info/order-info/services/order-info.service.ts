@@ -7,12 +7,9 @@ import { BomInfo } from '../../../base-info/bom-info/entities/bom-info.entity';
 import { ProductInfo } from '../../../base-info/product-info/product_sample/entities/product-info.entity';
 import { Inventory } from '../../../inventory/inventory-management/entities/inventory.entity';
 import { logService } from 'src/modules/log/Services/log.service';
-
 @Injectable()
 export class OrderInfoService {
     constructor(
-        @InjectRepository(OrderInfo)
-        private readonly orderInfoRepository: Repository<OrderInfo>,
         @InjectRepository(OrderManagement)
         private readonly orderManagementRepository: Repository<OrderManagement>,
         @InjectRepository(BomInfo)
@@ -116,6 +113,7 @@ export class OrderInfoService {
         for (const child of directChildren) {
             const totalQuantity = child.quantity * parentQuantity;
             
+
             // 품목 정보 조회
             const productInfo = await this.productInfoRepository.findOne({
                 where: { productCode: child.childProductCode }
@@ -199,14 +197,20 @@ export class OrderInfoService {
 
         // BOM 아이템이 있는 경우
         if (bomItems && bomItems.length > 0) {
-            for (const bomItem of bomItems) {
+            for (let i = 0; i < bomItems.length; i++) {
+                const bomItem = bomItems[i];
                 const unitPrice = bomItem.unitPrice || 0;
                 const supplyPrice = unitPrice * bomItem.totalQuantity;
                 const vat = Math.round(supplyPrice * 0.1); // 부가세 10%
                 const total = supplyPrice + vat;
 
+                // 고유한 발주 코드 생성 (기본 발주 코드 + 품목 코드 + 순번)
+                const uniqueOrderCode = `${orderManagement.orderCode}_${bomItem.childProductCode}_${String(i + 1).padStart(3, '0')}`;
+
                 const purchaseOrderItem = {
-                    orderCode: orderManagement.orderCode,
+                    customerCode: orderManagement.customerCode,
+                    customerName: orderManagement.customerName,
+                    orderCode: uniqueOrderCode,
                     projectCode: orderManagement.projectCode,
                     projectName: orderManagement.projectName,
                     projectVersion: orderManagement.projectVersion,
@@ -259,8 +263,13 @@ export class OrderInfoService {
                 const vat = Math.round(supplyPrice * 0.1); // 부가세 10%
                 const total = supplyPrice + vat;
 
+                // 고유한 발주 코드 생성 (기본 발주 코드 + 품목 코드 + 001)
+                const uniqueOrderCode = `${orderManagement.orderCode}_${orderManagement.productCode}_001`;
+
                 const purchaseOrderItem = {
-                    orderCode: orderManagement.orderCode,
+                    customerCode: orderManagement.customerCode,
+                    customerName: orderManagement.customerName,
+                    orderCode: uniqueOrderCode,
                     projectCode: orderManagement.projectCode,
                     projectName: orderManagement.projectName,
                     projectVersion: orderManagement.projectVersion,

@@ -9,6 +9,13 @@ import { CommonModule } from '../../../common/common.module';
 import { LogModule } from '../../log/log.module';
 import { OrderInfoService } from './services/order-info.service';
 import { OrderInfoController } from './controllers/order-info.controller';
+import { OrderCreateService } from './services/order-create.service';
+
+import * as services from './services';
+import * as controllers from './controllers';
+
+const serviceArray = Object.values(services);
+const controllerArray = Object.values(controllers);
 
 @Module({
     imports: [
@@ -16,8 +23,8 @@ import { OrderInfoController } from './controllers/order-info.controller';
         CommonModule,
         LogModule,
     ],
-    controllers: [OrderInfoController],
-    providers: [OrderInfoService],
-    exports: [OrderInfoService],
+    controllers: [OrderInfoController, ...controllerArray],
+    providers: [OrderInfoService, OrderCreateService, ...serviceArray],
+    exports: [OrderInfoService, OrderCreateService, ...serviceArray],
 })
 export class OrderInfoModule {}
