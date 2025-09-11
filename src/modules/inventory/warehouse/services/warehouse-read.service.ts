@@ -17,6 +17,7 @@ export class WarehouseReadService {
         page: number = 1,
         limit: number = 10,
         username: string,
+        search?: string,
         warehouseName?: string,
         warehouseLocation?: string,
         warehouseBigo?: string,
@@ -30,17 +31,26 @@ export class WarehouseReadService {
                 .skip(skip)
                 .take(limit);
 
-            // if (warehouseName && warehouseName.trim()) {
-            //     queryBuilder.andWhere('warehouse.warehouseName LIKE :warehouseName', { warehouseName: `%${warehouseName.trim()}%` });
-            // }
+            // 전체 검색 (keyword 파라미터가 있을 때만)
+            if (search && search.trim()) {
+                queryBuilder.andWhere(
+                    '(warehouse.warehouseCode LIKE :search OR warehouse.warehouseName LIKE :search OR warehouse.warehouseLocation LIKE :search OR warehouse.warehouseBigo LIKE :search)',
+                    { search: `%${search.trim()}%` }
+                );
+            }
 
-            // if (warehouseLocation && warehouseLocation.trim()) {
-            //     queryBuilder.andWhere('warehouse.warehouseLocation LIKE :warehouseLocation', { warehouseLocation: `%${warehouseLocation.trim()}%` });
-            // }
+            // 개별 필드 검색 (전체 검색이 아닐 때만)
+            if (!search && warehouseName && warehouseName.trim()) {
+                queryBuilder.andWhere('warehouse.warehouseName LIKE :warehouseName', { warehouseName: `%${warehouseName.trim()}%` });
+            }
 
-            // if (warehouseBigo && warehouseBigo.trim()) {
-            //     queryBuilder.andWhere('warehouse.warehouseBigo LIKE :warehouseBigo', { warehouseBigo: `%${warehouseBigo.trim()}%` });
-            // }
+            if (!search && warehouseLocation && warehouseLocation.trim()) {
+                queryBuilder.andWhere('warehouse.warehouseLocation LIKE :warehouseLocation', { warehouseLocation: `%${warehouseLocation.trim()}%` });
+            }
+
+            if (!search && warehouseBigo && warehouseBigo.trim()) {
+                queryBuilder.andWhere('warehouse.warehouseBigo LIKE :warehouseBigo', { warehouseBigo: `%${warehouseBigo.trim()}%` });
+            }
 
             const [warehouse, total] = await queryBuilder.getManyAndCount();
 
@@ -50,9 +60,10 @@ export class WarehouseReadService {
                 username,
                 targetId: '',
                 targetName: '창고 목록 검색',
+                details: `창고 검색 조회: ${total}개 중 ${warehouse.length}개 (검색어: ${search || '없음'})`,
             });
 
-            return { warehouse, total, page, limit, warehouseName, warehouseLocation, warehouseBigo };
+            return { warehouse, total, page, limit, search, warehouseName, warehouseLocation, warehouseBigo };
         } catch (error) {
             throw error;
         }

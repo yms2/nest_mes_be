@@ -4,7 +4,7 @@ import { WarehouseTemplateService } from '../../services/warehouse-template.serv
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { DevAuth } from '@/common/decorators/dev-auth.decorator';
 
-@ApiTags('창고정보 엑셀')
+@ApiTags('창고관리 엑셀')
 @Controller('warehouse')
 export class WarehouseTemplateController {
     constructor(
