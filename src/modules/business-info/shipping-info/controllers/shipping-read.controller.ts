@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Request, Param, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Query, Request, Param } from '@nestjs/common';
 import { ShippingReadService } from '../services/shipping-read.service';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { DevAuth } from '@/common/decorators/dev-auth.decorator';
@@ -79,7 +79,7 @@ export class ShippingReadController {
     @ApiParam({ name: 'id', type: Number, required: true, description: '조회할 출하의 ID', example: 1 })
     async getShippingById(
         @Request() req,
-        @Param('id', ParseIntPipe) id: number
+        @Param('id') id: number
     ): Promise<any> {
         try {
         const username = req.user?.username || 'unknown';

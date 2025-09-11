@@ -12,6 +12,33 @@ export class CreateShippingWithoutOrderDto {
     shippingDate: string;
 
     @ApiProperty({ 
+        example: 'PROD001', 
+        description: '품목 코드',
+        required: false 
+    })
+    @IsString()
+    @IsOptional()
+    productCode?: string;
+
+    @ApiProperty({ 
+        example: '제품명', 
+        description: '품목명',
+        required: false 
+    })
+    @IsString()
+    @IsOptional()
+    productName?: string;
+
+    @ApiProperty({ 
+        example: '개', 
+        description: '단위',
+        required: false 
+    })
+    @IsString()
+    @IsOptional()
+    unit?: string;
+
+    @ApiProperty({ 
         example: 100, 
         description: '재고 수량',
         required: true 
@@ -37,6 +64,15 @@ export class CreateShippingWithoutOrderDto {
     @IsString()
     @IsOptional()
     shippingStatus?: string;
+
+    @ApiProperty({ 
+        example: 10000, 
+        description: '단가',
+        required: false 
+    })
+    @IsNumber()
+    @IsOptional()
+    unitPrice?: number;
 
     @ApiProperty({ 
         example: 100000, 

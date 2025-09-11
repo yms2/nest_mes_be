@@ -48,8 +48,8 @@ export class ShippingUpdateService {
                     throw new NotFoundException(`수주코드 '${shipping.orderCode}'에 해당하는 수주 정보를 찾을 수 없습니다.`);
                 }
 
-                // 단가 기준으로 계산
-                const unitPrice = parseInt(orderData.unitPrice || '0') || 0;
+                // 단가 기준으로 계산 (NaN 방지)
+                const unitPrice = this.safeParseInt(orderData.unitPrice, 0);
                 const newSupplyPrice = unitPrice * newQuantity;
                 const newVat = Math.round(newSupplyPrice * 0.1); // 부가세 10%
                 const newTotal = newSupplyPrice + newVat;
@@ -151,5 +151,16 @@ export class ShippingUpdateService {
         } catch (error) {
             throw error;
         }
+    }
+
+    /**
+     * 안전한 parseInt 함수 (NaN 방지)
+     */
+    private safeParseInt(value: any, defaultValue: number = 0): number {
+        if (value === null || value === undefined || value === '') {
+            return defaultValue;
+        }
+        const parsed = parseInt(value.toString(), 10);
+        return isNaN(parsed) ? defaultValue : parsed;
     }
 }

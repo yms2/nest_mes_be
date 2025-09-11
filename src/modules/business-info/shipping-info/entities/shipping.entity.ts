@@ -15,7 +15,19 @@ export class Shipping extends BaseEntity {
 
     @ApiProperty({ example: 'ORD001', description: '수주 코드' })
     @Column({ name: 'order_code', type: 'varchar', length: 20 ,comment: '수주 코드' ,nullable: true})
-    orderCode: string; 
+    orderCode: string;
+
+    @ApiProperty({ example: 'PROD001', description: '품목 코드' })
+    @Column({ name: 'product_code', type: 'varchar', length: 20 ,comment: '품목 코드' ,nullable: true})
+    productCode: string;
+
+    @ApiProperty({ example: '제품명', description: '품목명' })
+    @Column({ name: 'product_name', type: 'varchar', length: 100 ,comment: '품목명' ,nullable: true})
+    productName: string;
+
+    @ApiProperty({ example: '개', description: '단위' })
+    @Column({ name: 'unit', type: 'varchar', length: 20 ,comment: '단위' ,nullable: true})
+    unit: string; 
 
     @ApiProperty({ example: '100', description: '재고 수량' })
     @Column({ name: 'inventory_quantity', type: 'int' ,comment: '재고 수량' })
@@ -29,6 +41,11 @@ export class Shipping extends BaseEntity {
     @Column({ name: 'shipping_status', type: 'varchar', length: 20 ,comment: '상태' ,nullable: true})
     shippingStatus: string;
     
+
+    @ApiProperty({ example: '100', description: '단가' })
+    @Column({ name: 'unit_price', type: 'int' ,comment: '단가' ,nullable: true})
+    unitPrice: string;
+
     @ApiProperty({ example: '100', description: '공급가액' })
     @Column({ name: 'supply_price', type: 'int' ,comment: '공급가액' ,nullable: true})
     supplyPrice: string;

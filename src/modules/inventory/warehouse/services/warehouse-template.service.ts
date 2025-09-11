@@ -8,7 +8,6 @@ export class WarehouseTemplateService {
         const worksheet = workbook.addWorksheet('창고정보양식');
 
         worksheet.columns = [
-            { header: '창고코드', key: 'warehouseCode', width: 20, style: { numFmt: '@' } },
             { header: '창고명', key: 'warehouseName', width: 20, style: { numFmt: '@' } },
             { header: '창고위치', key: 'warehouseLocation', width: 20, style: { numFmt: '@' } },
             { header: '창고비고', key: 'warehouseBigo', width: 20, style: { numFmt: '@' } },
@@ -20,7 +19,7 @@ export class WarehouseTemplateService {
             cell.alignment = { horizontal: 'center', vertical: 'middle' };
         })
 
-        const requiredFields = ['A1', 'B1', 'C1', 'D1'];
+        const requiredFields = ['A1'];
         requiredFields.forEach((address) => {
             const cell = worksheet.getCell(address);
             cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFF0000' },

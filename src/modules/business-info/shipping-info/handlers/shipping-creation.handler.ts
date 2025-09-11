@@ -37,10 +37,10 @@ export class ShippingCreationHandler {
         remark?: string,
         username: string = 'system'
     ): Partial<Shipping> {
-        // 수주 데이터에서 가격 정보 추출 (문자열을 숫자로 변환)
-        const orderSupplyPrice = parseInt(orderData.supplyPrice) || 0;
-        const orderVat = parseInt(orderData.vat) || 0;
-        const orderTotal = parseInt(orderData.total) || 0;
+        // 수주 데이터에서 가격 정보 추출 (문자열을 숫자로 변환, NaN 방지)
+        const orderSupplyPrice = this.safeParseInt(orderData.supplyPrice, 0);
+        const orderVat = this.safeParseInt(orderData.vat, 0);
+        const orderTotal = this.safeParseInt(orderData.total, 0);
         const orderQuantity = orderData.quantity || 1; // 수주 수량
         
         // 지시수량에 비례한 가격 계산
@@ -80,7 +80,7 @@ export class ShippingCreationHandler {
             .where('shipping.orderCode = :orderCode', { orderCode })
             .getRawOne();
 
-        const shippedQuantity = parseInt(totalShippedQuantity?.totalShipped) || 0;
+        const shippedQuantity = this.safeParseInt(totalShippedQuantity?.totalShipped, 0);
         
         return {
             shippedQuantity,
@@ -96,5 +96,16 @@ export class ShippingCreationHandler {
         ordersWithShippedQuantity: any[]
     ): any[] {
         return ordersWithShippedQuantity.filter(order => order.remainingQuantity > 0);
+    }
+
+    /**
+     * 안전한 parseInt 함수 (NaN 방지)
+     */
+    private safeParseInt(value: any, defaultValue: number = 0): number {
+        if (value === null || value === undefined || value === '') {
+            return defaultValue;
+        }
+        const parsed = parseInt(value.toString(), 10);
+        return isNaN(parsed) ? defaultValue : parsed;
     }
 }

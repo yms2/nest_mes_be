@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Shipping } from '../entities/shipping.entity';
 import { OrderManagement } from '../../ordermanagement-info/entities/ordermanagement.entity';
+import { ProductInfo } from '../../../base-info/product-info/product_sample/entities/product-info.entity';
+import { Employee } from '../../../base-info/employee-info/entities/employee.entity';
 import { logService } from 'src/modules/log/Services/log.service';
 import { ShippingCreationHandler } from '../handlers/shipping-creation.handler';
 
@@ -13,6 +15,10 @@ export class ShippingCreateService {
         private readonly shippingRepository: Repository<Shipping>,
         @InjectRepository(OrderManagement)
         private readonly orderManagementRepository: Repository<OrderManagement>,
+        @InjectRepository(ProductInfo)
+        private readonly productRepository: Repository<ProductInfo>,
+        @InjectRepository(Employee)
+        private readonly employeeRepository: Repository<Employee>,
         private readonly logService: logService,
         private readonly shippingCreationHandler: ShippingCreationHandler,
     ) {}
@@ -84,15 +90,57 @@ export class ShippingCreateService {
         inventoryQuantity: number,
         shippingOrderQuantity: number,
         shippingStatus?: string,
+        unitPrice?: number,
         supplyPrice?: number,
         vat?: number,
         total?: number,
         employeeCode?: string,
         employeeName?: string,
         remark?: string,
+        productCode?: string,
+        productName?: string,
+        unit?: string,
         username: string = 'system'
     ) {
         try {
+            // 품목명으로 품목 정보 조회
+            let productInfo: ProductInfo | null = null;
+            if (productName) {
+                productInfo = await this.productRepository.findOne({
+                    where: { productName }
+                });
+                
+                if (productInfo) {
+                    productCode = productInfo.productCode;
+                    unit = productInfo.productInventoryUnit;
+                }
+            }
+
+            // 사원명으로 사원코드 조회
+            let employeeInfo: Employee | null = null;
+            if (employeeName && !employeeCode) {
+                employeeInfo = await this.employeeRepository.findOne({
+                    where: { employeeName }
+                });
+                
+                if (employeeInfo) {
+                    employeeCode = employeeInfo.employeeCode;
+                }
+            }
+
+            // 단가 기반 가격 계산
+            let calculatedUnitPrice = unitPrice || 0;
+            let calculatedSupplyPrice = supplyPrice || 0;
+            let calculatedVat = vat || 0;
+            let calculatedTotal = total || 0;
+
+            if (productInfo && productInfo.productPriceSale && shippingOrderQuantity > 0) {
+                calculatedUnitPrice = this.safeParseInt(productInfo.productPriceSale, 0);
+                calculatedSupplyPrice = calculatedUnitPrice * shippingOrderQuantity;
+                calculatedVat = Math.round(calculatedSupplyPrice * 0.1); // 부가세 10%
+                calculatedTotal = calculatedSupplyPrice + calculatedVat;
+            }
+
             // 출하코드 자동 생성
             const shippingCode = await this.shippingCreationHandler.generateShippingCode(this.shippingRepository);
             
@@ -101,12 +149,16 @@ export class ShippingCreateService {
                 shippingCode,
                 shippingDate: new Date(shippingDate),
                 orderCode: undefined, // No order code for this type of shipping
+                productCode,
+                productName,
+                unit,
                 inventoryQuantity,
                 shippingOrderQuantity,
                 shippingStatus: shippingStatus || '지시 완료',
-                supplyPrice: supplyPrice?.toString() || '0',
-                vat: vat?.toString() || '0',
-                total: total?.toString() || '0',
+                unitPrice: calculatedUnitPrice.toString(),
+                supplyPrice: calculatedSupplyPrice.toString(),
+                vat: calculatedVat.toString(),
+                total: calculatedTotal.toString(),
                 employeeCode,
                 employeeName,
                 remark,
@@ -224,5 +276,16 @@ export class ShippingCreateService {
         } catch (error) {
             throw error;
         }
+    }
+
+    /**
+     * 안전한 parseInt 함수 (NaN 방지)
+     */
+    private safeParseInt(value: any, defaultValue: number = 0): number {
+        if (value === null || value === undefined || value === '') {
+            return defaultValue;
+        }
+        const parsed = parseInt(value.toString(), 10);
+        return isNaN(parsed) ? defaultValue : parsed;
     }
 }

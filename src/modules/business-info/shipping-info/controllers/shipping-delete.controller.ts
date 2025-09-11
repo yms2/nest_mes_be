@@ -1,4 +1,4 @@
-import { Controller, Delete, Param, Request, ParseIntPipe, Body } from '@nestjs/common';
+import { Controller, Delete, Param, Request, Body } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiParam, ApiBody, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { DevAuth } from '@/common/decorators/dev-auth.decorator';
 import { ShippingDeleteService } from '../services/shipping-delete.service';
@@ -25,7 +25,7 @@ export class ShippingDeleteController {
     @ApiResponse({ status: 500, description: '서버 오류' })
     async deleteShipping(
         @Request() req,
-        @Param('id', ParseIntPipe) id: number
+        @Param('id') id: number
     ): Promise<any> {
         try {
             const username = req.user?.username || 'unknown';

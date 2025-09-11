@@ -2,6 +2,7 @@ import { Controller, Get, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { WarehouseTemplateService } from '../../services/warehouse-template.service';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { DevAuth } from '@/common/decorators/dev-auth.decorator';
 
 @ApiTags('창고정보 엑셀')
 @Controller('warehouse')
@@ -10,7 +11,8 @@ export class WarehouseTemplateController {
         private readonly warehouseTemplateService: WarehouseTemplateService
     ) {}
 
-    @Get('download-template')
+    @Get('/excel/download-template')
+    @DevAuth()
     @ApiOperation({ summary: '창고정보 엑셀 템플릿 다운로드' })
     @ApiResponse({ status: 200, description: '창고정보 엑셀 템플릿 다운로드' })
     async downloadTemplate(@Res() res: Response) {
