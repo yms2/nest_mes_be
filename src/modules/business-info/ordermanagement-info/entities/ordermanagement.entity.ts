@@ -4,11 +4,11 @@ import { Entity, Column } from 'typeorm';
 
 @Entity()
 export class OrderManagement extends BaseEntity {
-    @ApiProperty({ example: 'ORD001', description: '주문 코드 (자동 생성)' })
-    @Column({ name: 'order_code', type: 'varchar', length: 20 })
+    @ApiProperty({ example: 'ORD001', description: '수주 코드 (자동 생성)' })
+    @Column({ name: 'order_code', type: 'varchar', length: 20, unique: true })
     orderCode: string;
 
-    @ApiProperty({ example: '2025-01-01', description: '주문 일자' })
+    @ApiProperty({ example: '2025-01-01', description: '수주 일자' })
     @Column({ name: 'order_date', type: 'date' })
     orderDate: Date;
 
@@ -27,6 +27,10 @@ export class OrderManagement extends BaseEntity {
     @ApiProperty({ example: '프로젝트 이름', description: '프로젝트 이름' })
     @Column({ name : 'project_name', type: 'varchar', length: 20 })
     projectName: string;
+
+    @ApiProperty({ example: 'v1.0', description: '프로젝트 버전' })
+    @Column({ name : 'project_version', type: 'varchar', length: 20, nullable: true })
+    projectVersion: string;
 
     @ApiProperty({ example: 'PRD001', description: '품목 코드' })
     @Column({ name : 'product_code', type: 'varchar', length: 20 })

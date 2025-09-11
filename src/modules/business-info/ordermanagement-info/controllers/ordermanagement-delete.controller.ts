@@ -13,7 +13,7 @@ interface AuthenticatedRequest extends Request {
     };
 }
 
-@ApiTags('주문관리')
+@ApiTags('수주관리')
 @Controller('order-management')
 export class OrderManagementDeleteController {
     constructor(
@@ -24,13 +24,13 @@ export class OrderManagementDeleteController {
     @DevOrderManagementAuth.delete()
     @HttpCode(HttpStatus.OK)
     @ApiOperation({
-        summary: '주문 삭제',
-        description: '주문을 완전히 삭제합니다 (세부품목 포함).',
+        summary: '수주 삭제',
+        description: '수주을 완전히 삭제합니다 (세부품목 포함).',
     })
-    @ApiParam({ name: 'id', description: '주문 ID', type: Number })
+    @ApiParam({ name: 'id', description: '수주 ID', type: Number })
     @ApiResponse({
         status: 200,
-        description: '주문 삭제 성공',
+        description: '수주 삭제 성공',
         schema: {
             type: 'object',
             properties: {
@@ -44,7 +44,7 @@ export class OrderManagementDeleteController {
         const deletedOrder = await this.orderManagementDeleteService.deleteOrderManagement(id, username);
         
         return {
-            message: `주문(ID: ${id})이 성공적으로 삭제되었습니다.`,
+            message: `수주(ID: ${id})이 성공적으로 삭제되었습니다.`,
             data: deletedOrder
         };
     }

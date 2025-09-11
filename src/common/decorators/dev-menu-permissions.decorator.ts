@@ -5,7 +5,7 @@ import { PermissionGuard } from '../guards/permission.guard';
 import { RequirePermission } from './permission.decorator';
 
 /**
- * 개발환경용 주문관리 권한 데코레이터들 (DevAuth + 권한 체크)
+ * 개발환경용 수주관리 권한 데코레이터들 (DevAuth + 권한 체크)
  */
 export const DevOrderManagementAuth = {
     create: () => applyDecorators(
@@ -278,6 +278,29 @@ export const DevEquipmentInfoAuth = {
     delete: () => applyDecorators(
         UseGuards(DevAuthGuard, PermissionGuard),
         RequirePermission('facilityInfo', 'delete'),
+        ApiBearerAuth('access-token')
+    ),
+};
+
+export const DevWarehouseAuth = {
+    create: () => applyDecorators(
+        UseGuards(DevAuthGuard, PermissionGuard),
+        RequirePermission('warehouse', 'create'),
+        ApiBearerAuth('access-token')
+    ),
+    read: () => applyDecorators(
+        UseGuards(DevAuthGuard, PermissionGuard),
+        RequirePermission('warehouse', 'read'),
+        ApiBearerAuth('access-token')
+    ),
+    update: () => applyDecorators(
+        UseGuards(DevAuthGuard, PermissionGuard),
+        RequirePermission('warehouse', 'update'),
+        ApiBearerAuth('access-token')
+    ),
+    delete: () => applyDecorators(
+        UseGuards(DevAuthGuard, PermissionGuard),
+        RequirePermission('warehouse', 'delete'),
         ApiBearerAuth('access-token')
     ),
 };

@@ -3,7 +3,7 @@ import { IsNotEmpty, IsString, IsNumber, IsDateString, IsOptional } from 'class-
 
 export class CreateOrderManagementDto {
 
-    @ApiProperty({ example: '2025-01-01', description: '주문 일자' })
+    @ApiProperty({ example: '2025-01-01', description: '수주 일자' })
     @IsNotEmpty()
     @IsDateString()
     orderDate: Date;
@@ -27,6 +27,11 @@ export class CreateOrderManagementDto {
     @IsNotEmpty()
     @IsString()
     projectName: string;
+
+    @ApiProperty({ example: 'v1.0', description: '프로젝트 버전' })
+    @IsOptional()
+    @IsString()
+    projectVersion?: string;
 
     @ApiProperty({ example: 'PRD001', description: '품목 코드' })
     @IsNotEmpty()

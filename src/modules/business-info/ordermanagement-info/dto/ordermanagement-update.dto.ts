@@ -22,6 +22,11 @@ export class UpdateOrderManagementDto {
     @IsString()
     projectName?: string;
 
+    @ApiProperty({ example: 'v1.0', description: '프로젝트 버전', required: false })
+    @IsOptional()
+    @IsString()
+    projectVersion?: string;
+
     @ApiProperty({ example: 'PRD001', description: '품목 코드', required: false })
     @IsOptional()
     @IsString()
@@ -67,7 +72,7 @@ export class UpdateOrderManagementDto {
     @Min(0)
     total?: number;
 
-    @ApiProperty({ example: '2025-01-01', description: '주문 일자', required: false })
+    @ApiProperty({ example: '2025-01-01', description: '수주 일자', required: false })
     @IsOptional()
     @IsDateString()
     orderDate?: string;

@@ -48,6 +48,30 @@ export class EstimateManagementReadController {
     description: '견적일 종료일 (YYYY-MM-DD)',
     example: '2025-01-31'
   })
+  @ApiQuery({ 
+    name: 'estimateName', 
+    required: false, 
+    description: '견적명 (포함 검색)',
+    example: '2025년 1분기 스마트폰 견적'
+  })
+  @ApiQuery({ 
+    name: 'customerName', 
+    required: false, 
+    description: '고객명 (포함 검색)',
+    example: '삼성전자'
+  })
+  @ApiQuery({ 
+    name: 'projectName', 
+    required: false, 
+    description: '프로젝트명 (포함 검색)',
+    example: '스마트폰 개발'
+  })
+  @ApiQuery({ 
+    name: 'estimateStatus', 
+    required: false, 
+    description: '견적상태 (포함 검색)',
+    example: '견적중'
+  })
   @ApiResponse({ 
     status: 200, 
     description: '견적 목록 조회 성공',
@@ -105,6 +129,10 @@ export class EstimateManagementReadController {
     @Query('search') search?: string,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
+    @Query('estimateName') estimateName?: string,
+    @Query('customerName') customerName?: string,
+    @Query('projectName') projectName?: string,
+    @Query('estimateStatus') estimateStatus?: string,
   ): Promise<any> {
     try {
       const username = req.user?.username || 'unknown';
@@ -115,6 +143,10 @@ export class EstimateManagementReadController {
         search,
         startDate,
         endDate,
+        estimateName,
+        customerName,
+        projectName,
+        estimateStatus,
       );
       
       return ApiResponseBuilder.success(

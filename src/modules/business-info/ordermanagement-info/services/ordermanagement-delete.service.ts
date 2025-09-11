@@ -19,29 +19,29 @@ export class OrderManagementDeleteService {
             });
 
             if (!existingOrderManagement) {
-                throw new NotFoundException(`ID ${id}인 주문을 찾을 수 없습니다.`);
+                throw new NotFoundException(`ID ${id}인 수주를 찾을 수 없습니다.`);
             }
 
             const deletedOrderManagement = await this.orderManagementRepository.remove(existingOrderManagement);
             
             await this.logService.createDetailedLog({
-                moduleName: '주문관리 삭제',
+                moduleName: '수주관리 삭제',
                 action: 'DELETE_SUCCESS',
                 username,
                 targetId: id.toString(),
                 targetName: `${existingOrderManagement.orderCode} - ${existingOrderManagement.customerName}`,
-                details: `주문 삭제 성공: ${existingOrderManagement.orderCode} (고객: ${existingOrderManagement.customerName}, 프로젝트: ${existingOrderManagement.projectName})`,
+                details: `수주 삭제 성공: ${existingOrderManagement.orderCode} (고객: ${existingOrderManagement.customerName}, 프로젝트: ${existingOrderManagement.projectName})`,
             });
 
             return deletedOrderManagement;
         } catch (error) {
             await this.logService.createDetailedLog({
-                moduleName: '주문관리 삭제',
+                moduleName: '수주관리 삭제',
                 action: 'DELETE_FAIL',
                 username,
                 targetId: id.toString(),
                 targetName: '',
-                details: `주문 삭제 실패: ${error.message}`,
+                details: `수주 삭제 실패: ${error.message}`,
             }).catch(() => {});
 
             throw error;
@@ -58,35 +58,35 @@ export class OrderManagementDeleteService {
                     deletedOrderManagements.push(deletedOrderManagement);
                 } catch (error) {
                     await this.logService.createDetailedLog({
-                        moduleName: '주문관리 일괄삭제',
+                        moduleName: '수주관리 일괄삭제',
                         action: 'BATCH_DELETE_PARTIAL_FAIL',
                         username,
                         targetId: id.toString(),
                         targetName: '',
-                        details: `주문 일괄 삭제 중 개별 실패: ${error.message}`,
+                        details: `수주 일괄 삭제 중 개별 실패: ${error.message}`,
                     }).catch(() => {});
                     
                 }
             }
 
             await this.logService.createDetailedLog({
-                moduleName: '주문관리 일괄삭제',
+                moduleName: '수주관리 일괄삭제',
                 action: 'BATCH_DELETE_SUCCESS',
                 username,
                 targetId: ids.join(','),
                 targetName: '',
-                details: `주문 일괄 삭제 완료: ${deletedOrderManagements.length}개 성공`,
+                details: `수주 일괄 삭제 완료: ${deletedOrderManagements.length}개 성공`,
             });
 
             return deletedOrderManagements;
         } catch (error) {
             await this.logService.createDetailedLog({
-                moduleName: '주문관리 일괄삭제',
+                moduleName: '수주관리 일괄삭제',
                 action: 'BATCH_DELETE_FAIL',
                 username,
                 targetId: ids.join(','),
                 targetName: '',
-                details: `주문 일괄 삭제 실패: ${error.message}`,
+                details: `수주 일괄 삭제 실패: ${error.message}`,
             }).catch(() => {});
 
             throw error;

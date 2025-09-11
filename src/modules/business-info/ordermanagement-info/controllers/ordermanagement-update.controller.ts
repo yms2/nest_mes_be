@@ -4,7 +4,7 @@ import { OrderManagementUpdateService } from '../services/ordermanagement-update
 import { UpdateOrderManagementDto } from '../dto/ordermanagement-update.dto';
 import { DevAuth } from '@/common/decorators/dev-auth.decorator';
 
-@ApiTags('주문관리')
+@ApiTags('수주관리')
 @DevAuth()
 @Controller('order-management')
 export class OrderManagementUpdateController {
@@ -13,24 +13,24 @@ export class OrderManagementUpdateController {
     ) {}
 
     /**
-     * ID를 통해 주문 정보를 수정합니다.
+     * ID를 통해 수주 정보를 수정합니다.
      */
     @Put(':id')
     @ApiOperation({ 
-        summary: '주문 정보 수정', 
-        description: 'ID를 통해 주문 정보를 수정합니다. 수정하고 싶은 필드만 전송하면 됩니다.' 
+        summary: '수주 정보 수정', 
+        description: 'ID를 통해 수주 정보를 수정합니다. 수정하고 싶은 필드만 전송하면 됩니다.' 
     })
     @ApiParam({ 
         name: 'id', 
-        description: '수정할 주문의 ID', 
+        description: '수정할 수주의 ID', 
         example: 1 
     })
     @ApiBody({ 
         type: UpdateOrderManagementDto,
-        description: '수정할 주문 데이터',
+        description: '수정할 수주 데이터',
         examples: {
             '전체 업데이트': {
-                summary: '주문 정보 전체 업데이트',
+                summary: '수주 정보 전체 업데이트',
                 value: {
                     customerCode: 'CUS002',
                     customerName: 'LG전자',
@@ -54,7 +54,7 @@ export class OrderManagementUpdateController {
     })
     @ApiResponse({ 
         status: 200, 
-        description: '주문 정보 수정 성공',
+        description: '수주 정보 수정 성공',
         schema: {
             type: 'object',
             properties: {
@@ -97,11 +97,11 @@ export class OrderManagementUpdateController {
     })
     @ApiResponse({ 
         status: 404, 
-        description: '주문을 찾을 수 없음',
+        description: '수주를 찾을 수 없음',
         schema: {
             type: 'object',
             properties: {
-                message: { type: 'string', example: 'ID 1인 주문을 찾을 수 없습니다.' },
+                message: { type: 'string', example: 'ID 1인 수주를 찾을 수 없습니다.' },
                 error: { type: 'string', example: 'Not Found' },
                 statusCode: { type: 'number', example: 404 }
             }

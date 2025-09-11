@@ -5,7 +5,7 @@ import { PermissionGuard } from '../guards/permission.guard';
 import { RequirePermission } from './permission.decorator';
 
 /**
- * 주문관리 권한 데코레이터들
+ * 수주관리 권한 데코레이터들
  */
 export const OrderManagementAuth = {
     create: () => applyDecorators(
