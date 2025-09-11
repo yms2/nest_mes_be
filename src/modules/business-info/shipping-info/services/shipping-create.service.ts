@@ -77,6 +77,75 @@ export class ShippingCreateService {
     }
 
     /**
+     * 수주없이 출하 등록
+     */
+    async createShippingWithoutOrder(
+        shippingDate: string,
+        inventoryQuantity: number,
+        shippingOrderQuantity: number,
+        shippingStatus?: string,
+        supplyPrice?: number,
+        vat?: number,
+        total?: number,
+        employeeCode?: string,
+        employeeName?: string,
+        remark?: string,
+        username: string = 'system'
+    ) {
+        try {
+            // 출하코드 자동 생성
+            const shippingCode = await this.shippingCreationHandler.generateShippingCode(this.shippingRepository);
+            
+            // 출하 데이터 생성 (수주 없이)
+            const shippingData = this.shippingRepository.create({
+                shippingCode,
+                shippingDate: new Date(shippingDate),
+                orderCode: undefined, // No order code for this type of shipping
+                inventoryQuantity,
+                shippingOrderQuantity,
+                shippingStatus: shippingStatus || '지시 완료',
+                supplyPrice: supplyPrice?.toString() || '0',
+                vat: vat?.toString() || '0',
+                total: total?.toString() || '0',
+                employeeCode,
+                employeeName,
+                remark,
+                createdBy: username,
+                createdAt: new Date(),
+                updatedAt: new Date()
+            });
+            
+            // 출하 데이터 저장
+            const savedShipping = await this.shippingRepository.save(shippingData);
+            
+            // Log the creation
+            await this.logService.createDetailedLog({
+                moduleName: '출하관리 생성',
+                action: 'CREATE_SUCCESS',
+                username,
+                targetId: savedShipping.id.toString(),
+                targetName: savedShipping.shippingCode,
+                details: `수주없이 출하 등록: ${savedShipping.shippingCode}`,
+            });
+            
+            return savedShipping;
+            
+        } catch (error) {
+            // Log the failure
+            await this.logService.createDetailedLog({
+                moduleName: '출하관리 생성',
+                action: 'CREATE_FAIL',
+                username,
+                targetId: '',
+                targetName: '수주없이 출하',
+                details: `수주없이 출하 등록 실패: ${error.message}`,
+            }).catch(() => {});
+            
+            throw error;
+        }
+    }
+
+    /**
      * 수주코드로 수주 데이터 조회
      */
     private async getOrderDataByCode(orderCode: string): Promise<OrderManagement> {

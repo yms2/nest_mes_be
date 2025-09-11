@@ -14,7 +14,7 @@ export class Shipping extends BaseEntity {
     shippingDate: Date;
 
     @ApiProperty({ example: 'ORD001', description: '수주 코드' })
-    @Column({ name: 'order_code', type: 'varchar', length: 20 ,comment: '수주 코드' })
+    @Column({ name: 'order_code', type: 'varchar', length: 20 ,comment: '수주 코드' ,nullable: true})
     orderCode: string; 
 
     @ApiProperty({ example: '100', description: '재고 수량' })
