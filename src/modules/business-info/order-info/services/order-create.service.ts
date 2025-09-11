@@ -19,7 +19,6 @@ export class OrderCreateService {
      */
     async createOrderInfo(createOrderInfoDto: CreateOrderInfoDto) {
         try {
-            console.log(`[발주 등록] 시작 - 발주코드: ${createOrderInfoDto.orderCode}`);
 
             // 발주 정보 생성
             const orderInfo = this.orderInfoRepository.create({
@@ -33,7 +32,6 @@ export class OrderCreateService {
             // 발주 정보 저장
             const savedOrderInfo = await this.orderInfoRepository.save(orderInfo);
 
-            console.log(`[발주 등록] 완료 - ID: ${savedOrderInfo.id}`);
 
             // 로그 기록
             await this.logService.createDetailedLog({
@@ -52,7 +50,6 @@ export class OrderCreateService {
             };
 
         } catch (error) {
-            console.error(`[발주 등록] 오류:`, error);
             
             // 로그 기록
             await this.logService.createDetailedLog({
@@ -77,7 +74,6 @@ export class OrderCreateService {
                 throw new Error('저장할 발주 아이템이 없습니다.');
             }
 
-            console.log(`[발주 저장] 저장할 발주 아이템 수: ${purchaseOrderItems.length}`);
 
             // 기존 발주 아이템 삭제 (같은 수주 코드의 기존 발주 아이템들)
             const baseOrderCode = purchaseOrderItems[0].orderCode.split('_')[0]; // 기본 수주 코드 추출
@@ -86,7 +82,6 @@ export class OrderCreateService {
                 .delete()
                 .where("orderCode LIKE :baseOrderCode", { baseOrderCode: `${baseOrderCode}_%` })
                 .execute();
-            console.log(`[발주 저장] 기존 발주 아이템 삭제 완료: ${baseOrderCode} 관련 모든 발주`);
 
             // 새로운 발주 아이템들 저장
             const savedItems: any[] = [];
@@ -105,7 +100,6 @@ export class OrderCreateService {
                 savedItems.push(savedItem);
             }
 
-            console.log(`[발주 저장] 발주 아이템 저장 완료: ${savedItems.length}개`);
 
             // 로그 기록
             await this.logService.createDetailedLog({
@@ -128,7 +122,6 @@ export class OrderCreateService {
             };
 
         } catch (error) {
-            console.error(`[발주 저장] 오류:`, error);
             
             // 로그 기록
             await this.logService.createDetailedLog({
@@ -149,17 +142,14 @@ export class OrderCreateService {
      */
     async createAndSavePurchaseOrder(purchaseOrderItems: any[], username: string = 'system') {
         try {
-            console.log(`[발주 생성 및 저장] 시작 - 아이템 수: ${purchaseOrderItems.length}`);
             
             // 발주 아이템 저장
             const saveResult = await this.savePurchaseOrderItems(purchaseOrderItems, username);
             
-            console.log(`[발주 생성 및 저장] 완료 - 저장된 아이템 수: ${saveResult.savedCount}`);
             
             return saveResult;
 
         } catch (error) {
-            console.error(`[발주 생성 및 저장] 오류:`, error);
             throw error;
         }
     }
@@ -201,7 +191,6 @@ export class OrderCreateService {
             return new Date(dateValue);
         }
 
-        console.warn(`[날짜 변환] 유효하지 않은 날짜 값: ${dateValue}`);
         return null;
     }
 

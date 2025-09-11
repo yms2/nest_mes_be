@@ -18,7 +18,6 @@ export class OrderUpdateService {
      */
     async updateOrderInfo(id: number, updateOrderInfoDto: UpdateOrderInfoDto, username: string = 'system') {
         try {
-            console.log(`[발주 수정] 시작 - ID: ${id}`);
 
             // 기존 발주 정보 조회
             const existingOrderInfo = await this.orderInfoRepository.findOne({ where: { id } });
@@ -64,7 +63,6 @@ export class OrderUpdateService {
                 throw new Error('수정된 발주 정보를 조회할 수 없습니다.');
             }
 
-            console.log(`[발주 수정] 완료 - ID: ${id}`);
 
             // 로그 기록
             await this.logService.createDetailedLog({
@@ -83,7 +81,6 @@ export class OrderUpdateService {
             };
 
         } catch (error) {
-            console.error(`[발주 수정] 오류:`, error);
             
             // 로그 기록
             await this.logService.createDetailedLog({
@@ -104,7 +101,6 @@ export class OrderUpdateService {
      */
     private async updatePurchaseOrderItem(id: number, updateData: any, username: string = 'system') {
         try {
-            console.log(`[발주 수정] 시작 - ID: ${id}`);
 
             // 기존 발주 아이템 조회
             const existingItem = await this.orderInfoRepository.findOne({ where: { id } });
@@ -150,7 +146,6 @@ export class OrderUpdateService {
                 throw new Error('수정된 발주 아이템을 조회할 수 없습니다.');
             }
 
-            console.log(`[발주 수정] 완료 - ID: ${id}`);
 
             return {
                 success: true,
@@ -159,7 +154,6 @@ export class OrderUpdateService {
             };
 
         } catch (error) {
-            console.error(`[발주 수정] 오류:`, error);
             throw error;
         }
     }
@@ -169,7 +163,6 @@ export class OrderUpdateService {
      */
     async updateMultiplePurchaseOrderItems(updateItems: Array<{id: number, data: any}>, username: string = 'system') {
         try {
-            console.log(`[발주 일괄 수정] 시작 - 아이템 수: ${updateItems.length}`);
 
             const updatedItems: any[] = [];
             const failedItems: any[] = [];
@@ -186,7 +179,6 @@ export class OrderUpdateService {
                 }
             }
 
-            console.log(`[발주 일괄 수정] 완료 - 성공: ${updatedItems.length}개, 실패: ${failedItems.length}개`);
 
             // 로그 기록
             await this.logService.createDetailedLog({
@@ -208,7 +200,6 @@ export class OrderUpdateService {
             };
 
         } catch (error) {
-            console.error(`[발주 일괄 수정] 오류:`, error);
             
             // 로그 기록
             await this.logService.createDetailedLog({
@@ -262,7 +253,6 @@ export class OrderUpdateService {
             return new Date(dateValue);
         }
 
-        console.warn(`[날짜 변환] 유효하지 않은 날짜 값: ${dateValue}`);
         return null;
     }
 }

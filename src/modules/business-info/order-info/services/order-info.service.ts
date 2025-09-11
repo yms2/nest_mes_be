@@ -37,11 +37,9 @@ export class OrderInfoService {
 
             // 2. BOM 전개 (재귀적으로 하위 품목들을 모두 조회)
             const rawBomItems = await this.explodeBom(orderManagement.productCode, orderManagement.quantity);
-            console.log(`[BOM 조회] 원본 BOM 아이템 수: ${rawBomItems.length}`);
 
             // 3. BOM 아이템 합산 (같은 품목 수량 합산)
             const bomItems = this.consolidateBomItems(rawBomItems);
-            console.log(`[BOM 조회] 합산 후 BOM 아이템 수: ${bomItems.length}`);
 
             // 3. 발주 정보 생성
             const purchaseOrderItems = await this.generatePurchaseOrderItems(
@@ -49,7 +47,6 @@ export class OrderInfoService {
                 bomItems
             );
 
-            console.log(`[BOM 조회] 생성된 발주 아이템 수: ${purchaseOrderItems.length}`);
 
             // 4. 로그 기록
             await this.logService.createDetailedLog({
@@ -86,17 +83,14 @@ export class OrderInfoService {
     private async explodeBom(parentProductCode: string, parentQuantity: number, level: number = 1, visited: Set<string> = new Set()): Promise<any[]> {
         const bomItems: any[] = [];
 
-        console.log(`[BOM 전개] 상위품목코드: ${parentProductCode}, 수량: ${parentQuantity}, 레벨: ${level}`);
 
         // 무한 루프 방지: 이미 방문한 품목인지 확인
         if (visited.has(parentProductCode)) {
-            console.log(`[BOM 전개] 순환 참조 감지: ${parentProductCode}는 이미 처리되었습니다.`);
             return bomItems;
         }
 
         // 최대 레벨 제한 (10단계 이상은 처리하지 않음)
         if (level > 10) {
-            console.log(`[BOM 전개] 최대 레벨 초과: ${parentProductCode}는 레벨 ${level}에서 처리 중단됩니다.`);
             return bomItems;
         }
 
@@ -108,7 +102,6 @@ export class OrderInfoService {
             where: { parentProductCode }
         });
 
-        console.log(`[BOM 전개] 조회된 하위 품목 수: ${directChildren.length}`);
 
         for (const child of directChildren) {
             const totalQuantity = child.quantity * parentQuantity;
@@ -176,7 +169,6 @@ export class OrderInfoService {
                     existingItem.parentProductCode = item.parentProductCode;
                 }
                 
-                console.log(`[BOM 합산] 품목 ${key}: 수량 합산 (${existingItem.totalQuantity})`);
             } else {
                 // 새로운 아이템 추가
                 consolidatedMap.set(key, { ...item });
@@ -184,7 +176,6 @@ export class OrderInfoService {
         }
 
         const consolidatedItems = Array.from(consolidatedMap.values());
-        console.log(`[BOM 합산] 원본 아이템 수: ${bomItems.length}, 합산 후 아이템 수: ${consolidatedItems.length}`);
         
         return consolidatedItems;
     }
@@ -246,7 +237,6 @@ export class OrderInfoService {
             }
         } else {
             // BOM 아이템이 없는 경우, 수주 품목 자체를 발주 아이템으로 생성
-            console.log(`[BOM 조회] BOM 데이터가 없어 수주 품목 자체를 발주 아이템으로 생성합니다.`);
             
             const productInfo = await this.productInfoRepository.findOne({
                 where: { productCode: orderManagement.productCode }
