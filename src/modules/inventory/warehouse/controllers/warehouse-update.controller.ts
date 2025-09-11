@@ -1,4 +1,4 @@
-import { Controller, Put, Param, Body, Request, ParseIntPipe } from '@nestjs/common';
+import { Controller, Put, Param, Body, Request } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
 import { WarehouseUpdateService } from '../services/warehouse-update.service';
 import { CreateWarehouseDto } from '../dto/warehouse-create.dto';
@@ -24,7 +24,7 @@ export class WarehouseUpdateController {
     @ApiResponse({ status: 500, description: '서버 오류' })
     async updateWarehouse(
         @Request() req,
-        @Param('id', ParseIntPipe) id: number,
+        @Param('id') id: number,
         @Body() updateWarehouseDto: CreateWarehouseDto
     ): Promise<any> {
         try {

@@ -1,1 +1,1 @@
-export * from './warehouse.excel.controller';
+export * from './warehouse-template.controller';

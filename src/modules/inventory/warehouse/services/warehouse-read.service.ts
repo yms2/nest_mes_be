@@ -19,7 +19,7 @@ export class WarehouseReadService {
         username: string,
         warehouseName?: string,
         warehouseLocation?: string,
-        warehouseNote?: string,
+        warehouseBigo?: string,
     ) {
         try {
             const skip = (page - 1) * limit;
@@ -30,17 +30,17 @@ export class WarehouseReadService {
                 .skip(skip)
                 .take(limit);
 
-            if (warehouseName) {
-                queryBuilder.andWhere('warehouse.warehouseName LIKE :warehouseName', { warehouseName: `%${warehouseName}%` });
-            }
+            // if (warehouseName && warehouseName.trim()) {
+            //     queryBuilder.andWhere('warehouse.warehouseName LIKE :warehouseName', { warehouseName: `%${warehouseName.trim()}%` });
+            // }
 
-            if (warehouseLocation) {
-                queryBuilder.andWhere('warehouse.warehouseLocation LIKE :warehouseLocation', { warehouseLocation: `%${warehouseLocation}%` });
-            }
+            // if (warehouseLocation && warehouseLocation.trim()) {
+            //     queryBuilder.andWhere('warehouse.warehouseLocation LIKE :warehouseLocation', { warehouseLocation: `%${warehouseLocation.trim()}%` });
+            // }
 
-            if (warehouseNote) {
-                queryBuilder.andWhere('warehouse.warehouseBigo LIKE :warehouseNote', { warehouseNote: `%${warehouseNote}%` });
-            }
+            // if (warehouseBigo && warehouseBigo.trim()) {
+            //     queryBuilder.andWhere('warehouse.warehouseBigo LIKE :warehouseBigo', { warehouseBigo: `%${warehouseBigo.trim()}%` });
+            // }
 
             const [warehouse, total] = await queryBuilder.getManyAndCount();
 
@@ -52,10 +52,16 @@ export class WarehouseReadService {
                 targetName: '창고 목록 검색',
             });
 
-            return { warehouse, total, page, limit, warehouseName, warehouseLocation, warehouseNote };
+            return { warehouse, total, page, limit, warehouseName, warehouseLocation, warehouseBigo };
         } catch (error) {
             throw error;
         }
+    }
+
+    async getAllWarehouses(): Promise<Warehouse[]> {
+        return this.warehouseRepository.find({
+            order: { warehouseCode: 'ASC' }
+        });
     }
 
     async getWarehouseById(id: number, username: string): Promise<Warehouse> {

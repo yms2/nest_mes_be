@@ -1,6 +1,5 @@
 import { Controller, Get, Query, Res, Post, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { Response } from 'express';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiQuery, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { DevAuth } from 'src/common/decorators/dev-auth.decorator';
 import { InventoryManagementService } from '../services/inventory-management.service';

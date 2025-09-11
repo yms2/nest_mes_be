@@ -1,4 +1,4 @@
-import { Controller, Delete, Param, ParseIntPipe, Req } from '@nestjs/common';
+import { Controller, Delete, Param, Req } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { WarehouseDeleteService } from '../services/warehouse-delete.service';
 import { ApiResponseBuilder } from '@/common/interfaces/api-response.interface';
@@ -22,7 +22,7 @@ export class WarehouseDeleteController {
     @ApiResponse({ status: 500, description: '서버 오류' })
     async deleteWarehouse(
         @Req() req: Request & { user: { username: string } },
-        @Param('id', ParseIntPipe) id: number
+        @Param('id') id: number
     ): Promise<any> {
         try {
             const username = req.user?.username || 'unknown';

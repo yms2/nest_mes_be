@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseIntPipe, Query, Request } from '@nestjs/common';
+import { Controller, Get, Param, Query, Request } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery, ApiBearerAuth, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { WarehouseReadService } from '../services/warehouse-read.service';
 import { DevWarehouseAuth } from '@/common/decorators/dev-menu-permissions.decorator';
@@ -18,14 +18,14 @@ export class WarehouseReadController {
     @ApiQuery({ name: 'limit', type: Number, required: false, description: '페이지당 항목 수', example: 10 })
     @ApiQuery({ name: 'warehouseName', type: String, required: false, description: '창고명 (포함 검색)', example: '창고1' })
     @ApiQuery({ name: 'warehouseLocation', type: String, required: false, description: '창고 위치 (포함 검색)', example: '서울' })
-    @ApiQuery({ name: 'warehouseNote', type: String, required: false, description: '창고 비고 (포함 검색)', example: '창고1' })
+    @ApiQuery({ name: 'warehouseBigo', type: String, required: false, description: '창고 비고 (포함 검색)', example: '창고1' })
     async getAllWarehouse(
         @Request() req,
         @Query('page') page: number = 1,
         @Query('limit') limit: number = 10,
         @Query('warehouseName') warehouseName?: string,
         @Query('warehouseLocation') warehouseLocation?: string,
-        @Query('warehouseNote') warehouseNote?: string,
+        @Query('warehouseBigo') warehouseBigo?: string,
     ): Promise<any> {
         try {
             const username = req.user?.username || 'unknown';
@@ -35,7 +35,7 @@ export class WarehouseReadController {
                 username,
                 warehouseName,
                 warehouseLocation,
-                warehouseNote,
+                warehouseBigo,
             );
 
             return ApiResponseBuilder.success(result, '창고 목록을 성공적으로 조회했습니다.');
@@ -85,7 +85,7 @@ export class WarehouseReadController {
     })
     async getWarehouseById(
         @Request() req, 
-        @Param('id', ParseIntPipe) id: number
+        @Param('id') id: number
     ): Promise<any> {
         try {
             const username = req.user?.username || 'unknown';
