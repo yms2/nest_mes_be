@@ -43,7 +43,10 @@ export class WarehouseTemplateController {
         status: 200, 
         description: '창고관리 엑셀 파일이 성공적으로 다운로드되었습니다.',
     })
-    async downloadExcel(@Res() res: Response, @Query() query: any) {
+    async downloadExcel(
+        @Res() res: Response, 
+        @Query() query: any,
+    ) {
         try {
             const {
                 keyword,
@@ -54,9 +57,9 @@ export class WarehouseTemplateController {
                 warehouseBigo
             } = query;
 
-            let result: any;
-            let searchKeyword: string | undefined;
 
+            let result;
+            let searchKeyword = '';
             // 페이지네이션 파라미터 처리
             const pageNum = this.safeParseInt(page, 1);
             const limitNum = this.safeParseInt(limit, 99999);
