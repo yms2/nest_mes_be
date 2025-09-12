@@ -281,12 +281,60 @@ export class InventoryManagementService {
   }
 
   /**
-   * 모든 재고 조회
+   * 모든 재고 조회 (검색 및 필터링 기능 포함)
    */
-  async findAllInventories(): Promise<Inventory[]> {
-    return this.inventoryRepository.find({
-      order: { createdAt: 'DESC' }
-    });
+  async findAllInventories(searchParams?: {
+    page: number;
+    limit: number;
+    search?: string;
+    productType?: string;
+    productName?: string;
+  }): Promise<{ inventories: Inventory[]; total: number; page: number; limit: number; totalPages: number }> {
+    const queryBuilder = this.inventoryRepository.createQueryBuilder('inventory');
+
+    // 검색 조건 추가
+    if (searchParams?.search) {
+      queryBuilder.andWhere(
+        '(inventory.inventoryName LIKE :search OR inventory.inventoryCode LIKE :search)',
+        { search: `%${searchParams.search}%` }
+      );
+    }
+
+    if (searchParams?.productType) {
+      queryBuilder.andWhere('inventory.inventoryType = :productType', {
+        productType: searchParams.productType
+      });
+    }
+
+    if (searchParams?.productName) {
+      queryBuilder.andWhere('inventory.inventoryName LIKE :productName', {
+        productName: `%${searchParams.productName}%`
+      });
+    }
+
+    // 정렬 (기본값: 최신순)
+    queryBuilder.orderBy('inventory.createdAt', 'DESC');
+
+    // 전체 개수 조회
+    const total = await queryBuilder.getCount();
+
+    // 페이지네이션
+    const page = searchParams?.page || 1;
+    const limit = searchParams?.limit || 10;
+    const offset = (page - 1) * limit;
+    
+    queryBuilder.skip(offset).take(limit);
+
+    const inventories = await queryBuilder.getMany();
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      inventories,
+      total,
+      page,
+      limit,
+      totalPages
+    };
   }
 
   /**
