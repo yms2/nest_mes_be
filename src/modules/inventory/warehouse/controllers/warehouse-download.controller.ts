@@ -14,7 +14,7 @@ export class WarehouseDownloadController {
         private readonly warehouseReadService: WarehouseReadService,
     ) {}
 
-    @Get('excel/download-excel')
+    @Get('download-excel')
     @ApiOperation({ 
         summary: '창고관리 엑셀 다운로드',
         description: '창고관리 데이터를 엑셀 파일로 다운로드합니다.'
