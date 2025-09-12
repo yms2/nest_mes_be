@@ -65,30 +65,21 @@ export class WarehouseTemplateController {
             const limitNum = this.safeParseInt(limit, 99999);
 
             // 검색 조건에 따른 데이터 조회
+
             if (keyword && keyword.trim()) {
                 searchKeyword = keyword.trim();
-                result = await this.warehouseReadService.getAllWarehouse(
-                    pageNum, limitNum, 'system', searchKeyword
-                );
+                result = await this.warehouseReadService.getAllWarehouse(1, 99999, 'system', searchKeyword);
             } else if (warehouseName && warehouseName.trim()) {
-                searchKeyword = `창고명: ${warehouseName.trim()}`;
-                result = await this.warehouseReadService.getAllWarehouse(
-                    pageNum, limitNum, 'system', undefined, warehouseName.trim()
-                );
+                searchKeyword = warehouseName.trim();
+                result = await this.warehouseReadService.getAllWarehouse(1, 99999, 'system', searchKeyword);
             } else if (warehouseLocation && warehouseLocation.trim()) {
-                searchKeyword = `창고위치: ${warehouseLocation.trim()}`;
-                result = await this.warehouseReadService.getAllWarehouse(
-                    pageNum, limitNum, 'system', undefined, undefined, warehouseLocation.trim()
-                );
+                searchKeyword = warehouseLocation.trim();
+                result = await this.warehouseReadService.getAllWarehouse(1, 99999, 'system', searchKeyword);
             } else if (warehouseBigo && warehouseBigo.trim()) {
-                searchKeyword = `창고비고: ${warehouseBigo.trim()}`;
-                result = await this.warehouseReadService.getAllWarehouse(
-                    pageNum, limitNum, 'system', undefined, undefined, undefined, warehouseBigo.trim()
-                );
+                searchKeyword = warehouseBigo.trim();
+                result = await this.warehouseReadService.getAllWarehouse(1, 99999, 'system', searchKeyword);
             } else {
-                result = await this.warehouseReadService.getAllWarehouse(
-                    pageNum, limitNum, 'system'
-                );
+                result = await this.warehouseReadService.getAllWarehouse(1, 99999, 'system');
             }
 
             // 데이터가 없으면 빈 엑셀 파일 생성

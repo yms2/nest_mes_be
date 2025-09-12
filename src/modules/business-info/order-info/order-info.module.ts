@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrderInfo } from './entities/order-info.entity';
+import { OrderMain } from './entities/order-main.entity';
 import { OrderManagement } from '../ordermanagement-info/entities/ordermanagement.entity';
 import { BomInfo } from '../../base-info/bom-info/entities/bom-info.entity';
 import { ProductInfo } from '../../base-info/product-info/product_sample/entities/product-info.entity';
@@ -19,7 +20,7 @@ const controllerArray = Object.values(controllers);
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([OrderInfo, OrderManagement, BomInfo, ProductInfo, Inventory]),
+        TypeOrmModule.forFeature([OrderInfo, OrderMain, OrderManagement, BomInfo, ProductInfo, Inventory]),
         CommonModule,
         LogModule,
     ],

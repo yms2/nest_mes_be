@@ -58,6 +58,7 @@ export class OrderInfoService {
             });
 
             return {
+                orderManagement,
                 purchaseOrderItems,
             };
 
