@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -14,6 +14,9 @@ import { LogModule } from './modules/log/log.module';
 import { BusinessInfoModule } from './modules/business-info/business-info.module';
 import { EquipmentModule } from './modules/equipment/equipment.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
+import { APMModule } from './common/apm/apm.module';
+import { APMMiddleware } from './common/apm/middleware/apm.middleware';
+
 @Module({
   imports: [
     RegisterModule,
@@ -23,6 +26,7 @@ import { InventoryModule } from './modules/inventory/inventory.module';
     BusinessInfoModule,
     EquipmentModule,
     InventoryModule,
+    APMModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
@@ -46,4 +50,10 @@ import { InventoryModule } from './modules/inventory/inventory.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(APMMiddleware)
+      .forRoutes('*'); // 모든 라우트에 APM 미들웨어 적용
+  }
+}

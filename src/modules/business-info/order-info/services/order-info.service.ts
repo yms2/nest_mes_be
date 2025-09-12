@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { OrderInfo } from '../entities/order-info.entity';
 import { OrderManagement } from '../../ordermanagement-info/entities/ordermanagement.entity';
 import { BomInfo } from '../../../base-info/bom-info/entities/bom-info.entity';
 import { ProductInfo } from '../../../base-info/product-info/product_sample/entities/product-info.entity';
