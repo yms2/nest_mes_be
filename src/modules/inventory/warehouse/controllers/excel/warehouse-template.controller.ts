@@ -5,9 +5,11 @@ import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { DevAuth } from '@/common/decorators/dev-auth.decorator';
 import { WarehouseReadService } from '../../services/warehouse-read.service';
 import { WarehouseDownloadService } from '../../services/warehouse-download.service';
+import { Auth } from '@/common/decorators/auth.decorator';
 
+@DevAuth()
 @ApiTags('창고관리 엑셀')
-@Controller('warehouse')
+@Controller('warehouse/excel')
 export class WarehouseTemplateController {
     constructor(
         private readonly warehouseTemplateService: WarehouseTemplateService,
@@ -15,8 +17,7 @@ export class WarehouseTemplateController {
         private readonly warehouseReadService: WarehouseReadService,
     ) {}
 
-    @Get('/excel/download-template')
-    @DevAuth()
+    @Get('download-template')
     @ApiOperation({ summary: '창고정보 엑셀 템플릿 다운로드' })
     @ApiResponse({ status: 200, description: '창고정보 엑셀 템플릿 다운로드' })
     async downloadTemplate(@Res() res: Response) {
@@ -27,7 +28,7 @@ export class WarehouseTemplateController {
         res.end(buffer);
     }
     
-    @Get('/excel/download-excel')
+    @Get('download-excel')
     @ApiOperation({ 
         summary: '창고관리 엑셀 다운로드',
         description: '창고관리 데이터를 엑셀 파일로 다운로드합니다.'
