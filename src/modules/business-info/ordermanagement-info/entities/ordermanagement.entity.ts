@@ -72,6 +72,10 @@ export class OrderManagement extends BaseEntity {
     @Column({ name : 'estimate_code', type: 'varchar', length: 20 })
     estimateCode: string;
 
+    @ApiProperty({ example: '견적내용', description: '견적내용' })
+    @Column({ name : 'estimate_content', type: 'varchar', length: 20 })
+    estimateContent: string;
+
     @ApiProperty({ example: '100', description: '비고' })
     @Column({ name : 'remark', type: 'varchar', length: 20 })
     remark: string;

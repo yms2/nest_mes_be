@@ -188,12 +188,12 @@ export class EstimateManagementCreateService {
     } = createEstimateDto;
 
     // 필수 필드 검증 (projectCode는 자동 생성되므로 제외)
-    if (!estimateDate || !estimateVersion || !estimateName || !customerCode || !customerName || 
-        !projectName || !productCode || !productName || 
-        !productQuantity || !estimateStatus || !estimatePrice || 
-        !employeeCode || !employeeName) {
-      throw new BadRequestException('필수 필드가 누락되었습니다.');
-    }
+    // if (!estimateDate || !estimateVersion || !estimateName || !customerCode || !customerName || 
+    //     !projectName || !productCode || !productName || 
+    //     !productQuantity || !estimateStatus || !estimatePrice || 
+    //     !employeeCode || !employeeName) {
+    //   throw new BadRequestException('필수 필드가 누락되었습니다.');
+    // }
 
     // 수량 검증
     if (productQuantity <= 0) {

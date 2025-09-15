@@ -83,6 +83,11 @@ export class CreateOrderManagementDto {
     @IsString()
     estimateCode?: string;
 
+    @ApiProperty({ example: '견적내용', description: '견적내용' })
+    @IsOptional()
+    @IsString()
+    estimateContent?: string;
+
     @ApiProperty({ example: '비고사항', description: '비고' })
     @IsOptional()
     @IsString()

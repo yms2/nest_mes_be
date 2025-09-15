@@ -33,7 +33,7 @@ export class OrderManagementCreateController {
   ) {}
 
   @Post('create')
-  @AuthWithPermission('orderReceiveManage', 'create')
+  @DevAuth()
   @UsePipes(new ValidationPipe())
   @ApiOperation({
     summary: '수주관리 등록',
@@ -140,14 +140,22 @@ export class OrderManagementCreateController {
 
 
     } catch (error) {
-    
       await this.writeCreateFailLog(createOrderManagementDto, req.user.username, error);
-     
-
+      
+      // 개발 환경에서는 상세한 오류 정보 제공
+      const isDevelopment = process.env.NODE_ENV === 'development';
+      
       throw new HttpException(
         {
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: '수주 등록 중 오류가 발생했습니다.',
+          message: isDevelopment 
+            ? `수주 등록 중 오류가 발생했습니다: ${error.message}` 
+            : '수주 등록 중 오류가 발생했습니다.',
+          ...(isDevelopment && { 
+            error: error.message,
+            stack: error.stack,
+            details: error
+          })
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
