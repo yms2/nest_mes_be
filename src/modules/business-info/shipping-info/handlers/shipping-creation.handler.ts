@@ -53,6 +53,10 @@ export class ShippingCreationHandler {
             shippingCode,
             shippingDate: new Date(),
             orderCode: orderData.orderCode,
+            productCode: orderData.productCode,
+            productName: orderData.productName,
+            projectCode: orderData.projectCode,
+            projectName: orderData.projectName,
             inventoryQuantity: orderData.quantity, // 수주 수량을 재고 수량으로 설정
             shippingOrderQuantity,
             shippingStatus: shippingOrderQuantity > 0 ? '지시완료' : '지시대기',

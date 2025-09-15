@@ -35,17 +35,38 @@ export class ShippingUpdateService {
                 throw new NotFoundException(`ID ${id}인 출하를 찾을 수 없습니다.`);
             }
 
+            // 수주코드가 변경된 경우 프로젝트 정보 업데이트
+            if (updateShippingDto.orderCode && updateShippingDto.orderCode !== shipping.orderCode) {
+                const orderData = await this.orderManagementRepository.findOne({
+                    where: { orderCode: updateShippingDto.orderCode }
+                });
+
+                if (!orderData) {
+                    throw new NotFoundException(`수주코드 '${updateShippingDto.orderCode}'에 해당하는 수주 정보를 찾을 수 없습니다.`);
+                }
+
+                // 프로젝트 정보 업데이트
+                updateShippingDto = {
+                    ...updateShippingDto,
+                    projectCode: orderData.projectCode,
+                    projectName: orderData.projectName,
+                    productCode: orderData.productCode,
+                    productName: orderData.productName
+                } as any;
+            }
+
             // 수량이 변경된 경우 가격 재계산
             if (updateShippingDto.shippingOrderQuantity !== undefined) {
                 const newQuantity = updateShippingDto.shippingOrderQuantity;
                 
                 // 수주코드로 수주 정보 조회하여 단가 가져오기
+                const orderCode = updateShippingDto.orderCode || shipping.orderCode;
                 const orderData = await this.orderManagementRepository.findOne({
-                    where: { orderCode: shipping.orderCode }
+                    where: { orderCode }
                 });
 
                 if (!orderData) {
-                    throw new NotFoundException(`수주코드 '${shipping.orderCode}'에 해당하는 수주 정보를 찾을 수 없습니다.`);
+                    throw new NotFoundException(`수주코드 '${orderCode}'에 해당하는 수주 정보를 찾을 수 없습니다.`);
                 }
 
                 // 단가 기준으로 계산 (NaN 방지)
