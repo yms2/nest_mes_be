@@ -29,8 +29,8 @@ export class OrderManagementCreateService {
             // 오늘 날짜의 마지막 수주 코드 조회
             const lastOrder = await this.orderManagementRepository
                 .createQueryBuilder('order')
-                .where('order.orderCode LIKE :orderCode', { orderCode: `ORD${dateStr}%` })
-                .orderBy('order.orderCode', 'DESC')
+                .where('order.orderManagementCode LIKE :orderManagementCode', { orderManagementCode: `ORD${dateStr}%` })
+                .orderBy('order.orderManagementCode', 'DESC')
                 .getOne();
 
             let sequence = 1;

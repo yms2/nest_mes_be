@@ -75,5 +75,9 @@ export class OrderManagement extends BaseEntity {
     @ApiProperty({ example: '100', description: '비고' })
     @Column({ name : 'remark', type: 'varchar', length: 20 })
     remark: string;
+
+    @ApiProperty({ example: '승인', description: '승인 정보' })
+    @Column({ name : 'approval_info', type: 'varchar', length: 20, default: '대기' })
+    approvalInfo: string;
     
 }

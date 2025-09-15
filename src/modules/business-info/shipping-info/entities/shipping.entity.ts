@@ -25,6 +25,14 @@ export class Shipping extends BaseEntity {
     @Column({ name: 'product_name', type: 'varchar', length: 100 ,comment: '품목명' ,nullable: true})
     productName: string;
 
+    @ApiProperty({ example: 'PRJ001', description: '프로젝트 코드' })
+    @Column({ name: 'project_code', type: 'varchar', length: 20 ,comment: '프로젝트 코드' ,nullable: true})
+    projectCode: string;
+
+    @ApiProperty({ example: '프로젝트 이름', description: '프로젝트 이름' })
+    @Column({ name: 'project_name', type: 'varchar', length: 100 ,comment: '프로젝트 이름' ,nullable: true})
+    projectName: string;
+
     @ApiProperty({ example: '개', description: '단위' })
     @Column({ name: 'unit', type: 'varchar', length: 20 ,comment: '단위' ,nullable: true})
     unit: string; 

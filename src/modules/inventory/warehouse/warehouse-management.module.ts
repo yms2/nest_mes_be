@@ -18,7 +18,7 @@ const serviceArray = Object.values(services);
         LogModule,
     ],
     controllers: controllerArray,
-    providers: [...serviceArray],
-    exports: [...serviceArray],
+    providers: serviceArray,
+    exports: serviceArray,
 })
 export class WarehouseManagementModule {}

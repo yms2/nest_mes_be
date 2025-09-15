@@ -59,4 +59,31 @@ export class UpdateShippingDto {
     @IsString()
     @IsDateString()
     shippingDate?: string;
+
+    @ApiProperty({ 
+        example: 'ORD001', 
+        description: '수주코드',
+        required: false
+    })
+    @IsOptional()
+    @IsString()
+    orderCode?: string;
+
+    @ApiProperty({ 
+        example: 'PRJ001', 
+        description: '프로젝트코드',
+        required: false
+    })
+    @IsOptional()
+    @IsString()
+    projectCode?: string;
+
+    @ApiProperty({ 
+        example: '프로젝트명', 
+        description: '프로젝트명',
+        required: false
+    })
+    @IsOptional()
+    @IsString()
+    projectName?: string;
 }

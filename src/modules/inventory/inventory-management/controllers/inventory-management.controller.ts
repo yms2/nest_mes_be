@@ -1,5 +1,5 @@
-import { Controller, Get, Put, Param, Body, Request } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
+import { Controller, Get, Put, Param, Body, Request, Query } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { InventoryManagementService } from '../services/inventory-management.service';
 import { DevAuth } from '@/common/decorators/dev-auth.decorator';
 import { ChangeQuantityDto, MultipleQuantityChangeDto } from '../dto/quantity-change.dto';
@@ -16,14 +16,64 @@ export class InventoryManagementController {
   @Get('all')
   @ApiOperation({ 
     summary: '모든 재고 조회',
-    description: '등록된 모든 재고 정보를 조회합니다.'
+    description: '등록된 모든 재고 정보를 조회합니다. 검색 및 필터링 기능을 제공합니다.'
   })
   @ApiResponse({ 
     status: 200, 
-    description: '모든 재고 정보를 반환합니다.',
+    description: '재고 정보를 반환합니다.',
+    schema: {
+      example: {
+        success: true,
+        message: '재고 정보를 성공적으로 조회했습니다.',
+        data: {
+          inventories: [
+            {
+              id: 1,
+              inventoryName: '제품명',
+              inventoryCode: 'P001',
+              inventoryType: '완제품',
+              inventoryQuantity: 100,
+              inventoryUnit: 10000,
+              inventoryLocation: 1000000,
+              safeInventory: 1000000,
+              createdAt: '2025-01-12T00:00:00.000Z'
+            }
+          ],
+          total: 1,
+          page: 1,
+          limit: 10,
+          totalPages: 1
+        },  
+        timestamp: '2025-01-12T00:00:00.000Z'
+      }
+    }
   })
-  async findAllInventories() {
-    return this.inventoryManagementService.findAllInventories();
+  @ApiQuery({ name: 'page', required: false, description: '페이지 번호 (기본값: 1)' })
+  @ApiQuery({ name: 'limit', required: false, description: '페이지당 개수 (기본값: 10)' })
+  @ApiQuery({ name: 'search', required: false, description: '검색 키워드 (품목명, 품목코드)' })
+  @ApiQuery({ name: 'productType', required: false, description: '품목구분 (완제품, 반제품, 원자재)' })
+  @ApiQuery({ name: 'productName', required: false, description: '품목명 (부분 검색 가능)' })
+
+
+  async findAllInventories(@Query() query: any) {
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      productType,
+      productName,
+
+    } = query;
+
+    return this.inventoryManagementService.findAllInventories({
+      page: parseInt(page),
+      limit: parseInt(limit),
+      search,
+
+      productType,
+      productName,
+
+    });
   }
 
   @Get('by-type/:productType')
