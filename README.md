@@ -38,6 +38,8 @@
 - 📈 **실시간 성능 모니터링**
 - 📦 **Excel 업로드/다운로드**
 - 🏷️ **바코드/QR코드 생성**
+- 🔄 **자동 재고 연동** (입고/납품 시 실시간 반영)
+- 📋 **LOT 기반 재고 관리**
 
 ## 🚀 주요 기능
 
@@ -57,14 +59,18 @@
 
 ### 📦 재고 관리
 - ✅ **창고 관리**: 창고별 재고 현황 관리
-- ✅ **입고 관리**: 자재/제품 입고 처리
+- ✅ **입고 관리**: 자재/제품 입고 처리 (재고 자동 증가)
 - ✅ **출고 관리**: 자재/제품 출고 처리
+- ✅ **납품 관리**: 납품 처리 (재고 자동 차감)
+- ✅ **LOT 관리**: LOT별 재고 추적 및 관리
 - ✅ **재고 조정**: 재고 수량 조정 및 이력 관리
+- ✅ **재고 연동**: 입고/납품 시 자동 재고 반영
 
 ### 💼 영업 관리
 - ✅ **견적 관리**: 견적서 작성/수정/승인
 - ✅ **주문 관리**: 주문서 및 주문 이력 관리
-- ✅ **납품 관리**: 출하 및 납품 관리
+- ✅ **출하 관리**: 출하 정보 및 상태 관리
+- ✅ **납품 관리**: 납품 등록/수정/삭제 (재고 연동)
 - ✅ **매출 관리**: 매출 현황 및 분석
 
 ### 🔍 품질 관리
@@ -146,10 +152,11 @@ src/
 │   │   ├── order-info/             # 주문 관리
 │   │   ├── ordermanagement-info/   # 주문 관리 상세
 │   │   ├── shipping-info/          # 출하 관리
-│   │   └── receiving-management/   # 입고 관리
+│   │   ├── receiving-management/   # 입고 관리 (재고 연동)
+│   │   └── delivery-management-info/ # 납품 관리 (재고 연동)
 │   ├── inventory/                  # 재고 관리
 │   │   ├── warehouse/              # 창고 관리
-│   │   ├── inventory-management/   # 재고 관리
+│   │   ├── inventory-management/   # 재고 관리 (LOT 관리 포함)
 │   │   └── inventory-logs/         # 재고 로그
 │   ├── production/                 # 생산 관리
 │   │   ├── plan/                   # 생산 계획
@@ -257,6 +264,8 @@ Authorization: Bearer <your-jwt-token>
 - `GET /api/warehouse/excel/download` - 창고 정보 엑셀 다운로드
 - `POST /api/inventory-management` - 재고 관리
 - `GET /api/inventory-management` - 재고 현황 조회
+- `GET /api/inventory-lot` - LOT별 재고 조회
+- `POST /api/inventory-lot` - LOT 재고 생성/수정
 
 #### 생산 관리
 - `POST /api/production/plan` - 생산 계획 생성
@@ -271,6 +280,12 @@ Authorization: Bearer <your-jwt-token>
 - `GET /api/order-info` - 주문서 조회
 - `POST /api/shipping-info` - 출하 정보 생성
 - `GET /api/shipping-info` - 출하 정보 조회
+- `POST /api/receiving-management` - 입고 정보 생성 (재고 자동 증가)
+- `PUT /api/receiving-management/:id` - 입고 정보 수정 (재고 자동 조정)
+- `DELETE /api/receiving-management/:id` - 입고 정보 삭제 (재고 롤백)
+- `POST /api/delivery-info` - 납품 정보 생성 (재고 자동 차감)
+- `PUT /api/delivery-info/:deliveryCode` - 납품 정보 수정 (재고 자동 조정)
+- `DELETE /api/delivery-info/:id` - 납품 정보 삭제 (재고 롤백)
 
 #### APM 모니터링
 - `GET /api/apm/stats` - APM 통계 조회
