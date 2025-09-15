@@ -5,6 +5,7 @@ import { Receiving } from '../entities/receiving.entity';
 import { logService } from '../../../log/Services/log.service';
 import { Inventory } from '../../../inventory/inventory-management/entities/inventory.entity';
 import { InventoryManagementService } from '../../../inventory/inventory-management/services/inventory-management.service';
+import { InventoryLotService } from '../../../inventory/inventory-management/services/inventory-lot.service';
 import { ChangeQuantityDto } from '../../../inventory/inventory-management/dto/quantity-change.dto';
 
 @Injectable()
@@ -16,10 +17,11 @@ export class ReceivingDeleteService {
         private readonly inventoryRepository: Repository<Inventory>,
         private readonly logService: logService,
         private readonly inventoryManagementService: InventoryManagementService,
+        private readonly inventoryLotService: InventoryLotService,
     ) {}
 
     /**
-     * ID로 입고 정보를 삭제합니다.
+     * ID로 입고 정보를 삭제합니다. (하드 삭제)
      */
     async deleteReceiving(id: number, username: string = 'system') {
         try {
@@ -29,54 +31,21 @@ export class ReceivingDeleteService {
             });
 
             if (!existingReceiving) {
-                throw new NotFoundException(`ID ${id}에 해당하는 입고 정보를 찾을 수 없습니다.`);
+                throw new NotFoundException(`ID ${id}에 해당하는 입고를 찾을 수 없습니다.`);
             }
 
-            // 재고 수량 감소 처리 (삭제 전에 실행)
-            if (existingReceiving.productCode && existingReceiving.quantity > 0) {
-                try {
-                    const changeQuantityDto: ChangeQuantityDto = {
-                        inventoryCode: existingReceiving.productCode,
-                        quantityChange: -existingReceiving.quantity, // 음수로 감소
-                        reason: `입고 삭제 - ${existingReceiving.receivingCode}`
-                    };
+            // 재고 롤백 (삭제된 입고의 수량만큼 복구)
+            await this.rollbackInventory(existingReceiving, username, true); // isDelete = true
 
-                    await this.inventoryManagementService.changeInventoryQuantity(
-                        changeQuantityDto,
-                        username
-                    );
-
-                    // 재고 감소 로그 기록
-                    await this.logService.createDetailedLog({
-                        moduleName: '재고관리',
-                        action: 'INVENTORY_DECREASE',
-                        username,
-                        targetId: existingReceiving.productCode,
-                        details: `입고 삭제로 인한 재고 감소: ${existingReceiving.productCode} (${existingReceiving.productName}) -${existingReceiving.quantity}`
-                    });
-
-                } catch (inventoryError) {
-                    // 재고 처리 실패 시 로그만 기록하고 삭제는 계속 진행
-                    await this.logService.createDetailedLog({
-                        moduleName: '재고관리',
-                        action: 'INVENTORY_DECREASE_FAILED',
-                        username,
-                        targetId: existingReceiving.productCode,
-                        details: `입고 삭제 후 재고 감소 실패: ${existingReceiving.productCode} - ${inventoryError.message}`
-                    });
-                }
-            }
-
-            // 삭제 실행
+            // 하드 삭제 실행
             await this.receivingRepository.delete(id);
 
-            // 로그 기록
             await this.logService.createDetailedLog({
                 moduleName: '입고관리',
-                action: 'DELETE_SUCCESS',
+                action: `입고 삭제: ID ${id} (${existingReceiving.receivingCode})`,
                 username,
                 targetId: existingReceiving.receivingCode,
-                details: `입고 정보 삭제: ${existingReceiving.receivingCode} (품목: ${existingReceiving.productName}, 수량: ${existingReceiving.quantity})`
+                details: `입고가 삭제되었습니다. 재고 ${existingReceiving.quantity}개 복구됨.`
             });
 
             return {
@@ -86,19 +55,64 @@ export class ReceivingDeleteService {
             };
 
         } catch (error) {
-            // 로그 기록
             await this.logService.createDetailedLog({
                 moduleName: '입고관리',
-                action: 'DELETE_FAILED',
+                action: `입고 삭제 실패: ID ${id}`,
                 username,
                 targetId: id.toString(),
-                details: error.message
+                details: `오류: ${error.message}`
             });
 
             if (error instanceof NotFoundException) {
                 throw error;
             }
             throw new BadRequestException(`입고 정보 삭제 중 오류가 발생했습니다: ${error.message}`);
+        }
+    }
+
+    /**
+     * 입고로 인한 재고 증가 롤백
+     */
+    private async rollbackInventory(receiving: Receiving, username: string, isDelete: boolean = false): Promise<void> {
+        try {
+            const rollbackDto: ChangeQuantityDto = {
+                inventoryCode: receiving.productCode,
+                quantityChange: -receiving.quantity,
+                reason: isDelete 
+                    ? `입고 삭제 - 재고 복구 (입고코드: ${receiving.receivingCode})`
+                    : `입고 수정 - 기존 증가 롤백 (입고코드: ${receiving.receivingCode})`
+            };
+            await this.inventoryManagementService.changeInventoryQuantity(rollbackDto, username);
+
+            // LOT 재고도 롤백
+            if (receiving.lotCode) {
+                await this.inventoryLotService.decreaseLotInventory(
+                    receiving.productCode,
+                    receiving.lotCode,
+                    receiving.quantity,
+                    username
+                );
+            }
+
+            await this.logService.createDetailedLog({
+                moduleName: '재고관리',
+                action: 'INVENTORY_ROLLBACK',
+                username,
+                targetId: receiving.productCode,
+                targetName: receiving.productName,
+                details: `입고 ${isDelete ? '삭제' : '수정'}로 인한 재고 롤백: ${receiving.quantity}개 (입고코드: ${receiving.receivingCode})`
+            });
+        } catch (error) {
+            await this.logService.createDetailedLog({
+                moduleName: '재고관리',
+                action: 'INVENTORY_ROLLBACK_FAIL',
+                username,
+                targetId: receiving.productCode,
+                targetName: receiving.productName,
+                details: `입고 ${isDelete ? '삭제' : '수정'} 재고 롤백 실패: ${error.message} (입고코드: ${receiving.receivingCode})`
+            });
+            console.error('재고 롤백 실패:', error);
+            throw error;
         }
     }
 }

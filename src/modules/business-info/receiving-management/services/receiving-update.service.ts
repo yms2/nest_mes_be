@@ -6,6 +6,7 @@ import { UpdateReceivingDto } from '../dto/update-receiving.dto';
 import { logService } from '../../../log/Services/log.service';
 import { Inventory } from '../../../inventory/inventory-management/entities/inventory.entity';
 import { InventoryManagementService } from '../../../inventory/inventory-management/services/inventory-management.service';
+import { InventoryLotService } from '../../../inventory/inventory-management/services/inventory-lot.service';
 import { ChangeQuantityDto } from '../../../inventory/inventory-management/dto/quantity-change.dto';
 
 @Injectable()
@@ -17,6 +18,7 @@ export class ReceivingUpdateService {
         private readonly inventoryRepository: Repository<Inventory>,
         private readonly logService: logService,
         private readonly inventoryManagementService: InventoryManagementService,
+        private readonly inventoryLotService: InventoryLotService,
     ) {}
 
     /**
@@ -39,43 +41,12 @@ export class ReceivingUpdateService {
                 processedData.receivingDate = new Date(updateReceivingDto.receivingDate);
             }
 
-            // 재고 수량 변경 처리 (수정 전에 실행)
+            // 수량이 변경되는 경우 재고 처리 (롤백 후 재차감)
             const oldQuantity = existingReceiving.quantity || 0;
             const newQuantity = updateReceivingDto.quantity || oldQuantity;
-            const quantityDifference = newQuantity - oldQuantity;
 
-            if (quantityDifference !== 0 && existingReceiving.productCode) {
-                try {
-                    const changeQuantityDto: ChangeQuantityDto = {
-                        inventoryCode: existingReceiving.productCode,
-                        quantityChange: quantityDifference,
-                        reason: `입고 수정 - ${existingReceiving.receivingCode} (${oldQuantity} → ${newQuantity})`
-                    };
-
-                    await this.inventoryManagementService.changeInventoryQuantity(
-                        changeQuantityDto,
-                        username
-                    );
-
-                    // 재고 변경 로그 기록
-                    await this.logService.createDetailedLog({
-                        moduleName: '재고관리',
-                        action: quantityDifference > 0 ? 'INVENTORY_INCREASE' : 'INVENTORY_DECREASE',
-                        username,
-                        targetId: existingReceiving.productCode,
-                        details: `입고 수정으로 인한 재고 ${quantityDifference > 0 ? '증가' : '감소'}: ${existingReceiving.productCode} (${existingReceiving.productName}) ${quantityDifference > 0 ? '+' : ''}${quantityDifference}`
-                    });
-
-                } catch (inventoryError) {
-                    // 재고 처리 실패 시 로그만 기록하고 수정은 계속 진행
-                    await this.logService.createDetailedLog({
-                        moduleName: '재고관리',
-                        action: 'INVENTORY_UPDATE_FAILED',
-                        username,
-                        targetId: existingReceiving.productCode,
-                        details: `입고 수정 후 재고 변경 실패: ${existingReceiving.productCode} - ${inventoryError.message}`
-                    });
-                }
+            if (newQuantity !== oldQuantity && existingReceiving.productCode) {
+                await this.handleInventoryAdjustment(existingReceiving, newQuantity, username);
             }
 
             // 업데이트 실행
@@ -119,6 +90,125 @@ export class ReceivingUpdateService {
                 throw error;
             }
             throw new BadRequestException(`입고 정보 수정 중 오류가 발생했습니다: ${error.message}`);
+        }
+    }
+
+    /**
+     * 입고 수량 변경 시 재고 조정 (롤백 후 재차감)
+     */
+    private async handleInventoryAdjustment(
+        existingReceiving: Receiving, 
+        newQuantity: number, 
+        username: string
+    ): Promise<void> {
+        try {
+            const oldQuantity = existingReceiving.quantity || 0;
+            const quantityDifference = newQuantity - oldQuantity;
+
+            if (quantityDifference === 0) {
+                return;
+            }
+
+            // 1. 기존 입고로 인한 재고 증가 롤백
+            await this.rollbackInventory(existingReceiving, username);
+
+            // 2. 새로운 수량으로 재고 증가
+            const newReceiving = { ...existingReceiving, quantity: newQuantity };
+            await this.increaseInventory(newReceiving, username);
+
+            await this.logService.createDetailedLog({
+                moduleName: '재고관리',
+                action: 'INVENTORY_ADJUSTMENT',
+                username,
+                targetId: existingReceiving.productCode,
+                targetName: existingReceiving.productName,
+                details: `입고 수량 변경으로 인한 재고 조정: ${oldQuantity} → ${newQuantity} (차이: ${quantityDifference > 0 ? '+' : ''}${quantityDifference}) (입고코드: ${existingReceiving.receivingCode})`
+            });
+        } catch (error) {
+            await this.logService.createDetailedLog({
+                moduleName: '재고관리',
+                action: 'INVENTORY_ADJUSTMENT_FAIL',
+                username,
+                targetId: existingReceiving.productCode,
+                targetName: existingReceiving.productName,
+                details: `입고 수량 변경 재고 조정 실패: ${error.message} (입고코드: ${existingReceiving.receivingCode})`
+            });
+            throw new BadRequestException(`재고 조정 중 오류가 발생했습니다: ${error.message}`);
+        }
+    }
+
+    /**
+     * 입고로 인한 재고 증가 롤백
+     */
+    private async rollbackInventory(receiving: Receiving, username: string): Promise<void> {
+        try {
+            const rollbackDto: ChangeQuantityDto = {
+                inventoryCode: receiving.productCode,
+                quantityChange: -receiving.quantity,
+                reason: `입고 수정 - 기존 증가 롤백 (입고코드: ${receiving.receivingCode})`
+            };
+            await this.inventoryManagementService.changeInventoryQuantity(rollbackDto, username);
+
+            // LOT 재고도 롤백
+            if (receiving.lotCode) {
+                await this.inventoryLotService.decreaseLotInventory(
+                    receiving.productCode,
+                    receiving.lotCode,
+                    receiving.quantity,
+                    username
+                );
+            }
+        } catch (error) {
+            console.error('재고 롤백 실패:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * 입고로 인한 재고 증가
+     */
+    private async increaseInventory(receiving: Receiving, username: string): Promise<void> {
+        try {
+            const changeQuantityDto: ChangeQuantityDto = {
+                inventoryCode: receiving.productCode,
+                quantityChange: receiving.quantity,
+                reason: `입고 - 입고코드: ${receiving.receivingCode}`
+            };
+            await this.inventoryManagementService.changeInventoryQuantity(changeQuantityDto, username);
+
+            // LOT 재고도 증가
+            if (receiving.lotCode) {
+                await this.inventoryLotService.createOrUpdateLotInventory(
+                    receiving.productCode,
+                    receiving.lotCode,
+                    receiving.quantity,
+                    receiving.productName,
+                    receiving.unit,
+                    receiving.warehouseName,
+                    'RECEIVING',
+                    username
+                );
+            }
+
+            await this.logService.createDetailedLog({
+                moduleName: '재고관리',
+                action: 'INVENTORY_INCREASE',
+                username,
+                targetId: receiving.productCode,
+                targetName: receiving.productName,
+                details: `입고로 인한 재고 증가: ${receiving.quantity}개 (입고코드: ${receiving.receivingCode})`
+            });
+        } catch (error) {
+            await this.logService.createDetailedLog({
+                moduleName: '재고관리',
+                action: 'INVENTORY_INCREASE_FAIL',
+                username,
+                targetId: receiving.productCode,
+                targetName: receiving.productName,
+                details: `입고 재고 증가 실패: ${error.message} (입고코드: ${receiving.receivingCode})`
+            });
+            console.error('재고 증가 실패:', error);
+            throw error;
         }
     }
 }
