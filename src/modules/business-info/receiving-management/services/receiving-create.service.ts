@@ -4,13 +4,21 @@ import { Repository } from 'typeorm';
 import { Receiving } from '../entities/receiving.entity';
 import { CreateReceivingDto } from '../dto/create-receiving.dto';
 import { logService } from '../../../log/Services/log.service';
+import { Inventory } from '../../../inventory/inventory-management/entities/inventory.entity';
+import { InventoryManagementService } from '../../../inventory/inventory-management/services/inventory-management.service';
+import { InventoryLotService } from '../../../inventory/inventory-management/services/inventory-lot.service';
+import { ChangeQuantityDto } from '../../../inventory/inventory-management/dto/quantity-change.dto';
 
 @Injectable()
 export class ReceivingCreateService {
     constructor(
         @InjectRepository(Receiving)
         private readonly receivingRepository: Repository<Receiving>,
+        @InjectRepository(Inventory)
+        private readonly inventoryRepository: Repository<Inventory>,
         private readonly logService: logService,
+        private readonly inventoryManagementService: InventoryManagementService,
+        private readonly inventoryLotService: InventoryLotService,
     ) {}
 
     /**
@@ -58,6 +66,56 @@ export class ReceivingCreateService {
 
             // 저장
             const savedReceiving = await this.receivingRepository.save(receiving);
+
+            // 재고 수량 증가 처리
+            if (savedReceiving.productCode && savedReceiving.quantity > 0) {
+                try {
+                    // 1. 일반 재고 수량 증가
+                    const changeQuantityDto: ChangeQuantityDto = {
+                        inventoryCode: savedReceiving.productCode,
+                        quantityChange: savedReceiving.quantity,
+                        reason: `입고 처리 - ${savedReceiving.receivingCode}`
+                    };
+
+                    await this.inventoryManagementService.changeInventoryQuantity(
+                        changeQuantityDto,
+                        username
+                    );
+
+                    // 2. LOT별 재고 처리
+                    if (savedReceiving.lotCode) {
+                        await this.inventoryLotService.createOrUpdateLotInventory(
+                            savedReceiving.productCode,
+                            savedReceiving.lotCode,
+                            savedReceiving.quantity,
+                            savedReceiving.productName,
+                            savedReceiving.unit || 'EA',
+                            savedReceiving.warehouseName || '기본창고',
+                            savedReceiving.receivingCode,
+                            username
+                        );
+                    }
+
+                    // 재고 증가 로그 기록
+                    await this.logService.createDetailedLog({
+                        moduleName: '재고관리',
+                        action: 'INVENTORY_INCREASE',
+                        username,
+                        targetId: savedReceiving.productCode,
+                        details: `입고로 인한 재고 증가: ${savedReceiving.productCode} (${savedReceiving.productName}) +${savedReceiving.quantity}${savedReceiving.lotCode ? ` [LOT: ${savedReceiving.lotCode}]` : ''}`
+                    });
+
+                } catch (inventoryError) {
+                    // 재고 처리 실패 시 로그만 기록하고 입고는 성공으로 처리
+                    await this.logService.createDetailedLog({
+                        moduleName: '재고관리',
+                        action: 'INVENTORY_INCREASE_FAILED',
+                        username,
+                        targetId: savedReceiving.productCode,
+                        details: `입고 후 재고 증가 실패: ${savedReceiving.productCode} - ${inventoryError.message}`
+                    });
+                }
+            }
 
             // 로그 기록
             await this.logService.createDetailedLog({
