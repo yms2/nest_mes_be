@@ -27,7 +27,7 @@ export class DeliveryReadController {
     })
     @ApiQuery({ name: 'page', required: false, description: '페이지 번호', example: 1 })
     @ApiQuery({ name: 'limit', required: false, description: '페이지당 항목 수', example: 10 })
-    @ApiQuery({ name: 'search', required: false, description: '전체 검색어 (납품코드, 거래처, 품목, 프로젝트)', example: 'DEL' })
+    @ApiQuery({ name: 'search', required: false, description: '전체 검색어 (납품코드, 거래처, 품목, 프로젝트, 수주유형)', example: 'DEL' })
     @ApiQuery({ name: 'customerName', required: false, description: '거래처명', example: '삼성전자' })
     @ApiQuery({ name: 'productName', required: false, description: '품목명', example: '스마트폰' })
     @ApiQuery({ name: 'projectName', required: false, description: '프로젝트명', example: '갤럭시 프로젝트' })

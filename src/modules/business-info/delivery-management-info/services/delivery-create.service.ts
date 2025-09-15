@@ -4,6 +4,9 @@ import { Delivery } from '../entities/delivery.entity';
 import { Shipping } from '../../shipping-info/entities/shipping.entity';
 import { Repository } from 'typeorm';
 import { logService } from 'src/modules/log/Services/log.service';
+import { InventoryManagementService } from '../../../inventory/inventory-management/services/inventory-management.service';
+import { InventoryLotService } from '../../../inventory/inventory-management/services/inventory-lot.service';
+import { ChangeQuantityDto } from '../../../inventory/inventory-management/dto/quantity-change.dto';
 
 @Injectable()
 export class DeliveryCreateService {
@@ -13,6 +16,8 @@ export class DeliveryCreateService {
         @InjectRepository(Shipping)
         private readonly shippingRepository: Repository<Shipping>,
         private readonly logService: logService,
+        private readonly inventoryManagementService: InventoryManagementService,
+        private readonly inventoryLotService: InventoryLotService,
     ) {}
 
     /**
@@ -46,6 +51,9 @@ export class DeliveryCreateService {
             
             // 납품 데이터 저장
             const savedDelivery = await this.deliveryRepository.save(deliveryData);
+            
+            // 재고 차감 처리
+            await this.decreaseInventory(savedDelivery, username);
             
             // 로그 기록
             await this.logService.createDetailedLog({
@@ -115,6 +123,9 @@ export class DeliveryCreateService {
             
             // 납품 데이터 저장
             const savedDelivery = await this.deliveryRepository.save(deliveryData);
+            
+            // 재고 차감 처리
+            await this.decreaseInventory(savedDelivery, username);
             
             // 로그 기록
             await this.logService.createDetailedLog({
@@ -201,6 +212,7 @@ export class DeliveryCreateService {
             productName: shippingData.productName || '',
             projectCode: shippingData.projectCode || '',
             projectName: shippingData.projectName || '',
+            orderType: shippingData.orderManagement?.orderType || '',
             deliveryQuantity,
             deliveryStatus: deliveryStatus || '납품완료',
             remark: remark || '',
@@ -299,5 +311,62 @@ export class DeliveryCreateService {
         }
         const parsed = parseInt(value.toString(), 10);
         return isNaN(parsed) ? defaultValue : parsed;
+    }
+
+    /**
+     * 납품 시 재고 차감 처리
+     */
+    private async decreaseInventory(delivery: Delivery, username: string): Promise<void> {
+        try {
+            // 전체 재고 차감
+            const changeQuantityDto: ChangeQuantityDto = {
+                inventoryCode: delivery.productCode, // 재고 코드는 품목 코드와 동일
+                quantityChange: -delivery.deliveryQuantity, // 음수로 차감
+                reason: `납품 - 납품코드: ${delivery.deliveryCode}`
+            };
+
+            await this.inventoryManagementService.changeInventoryQuantity(changeQuantityDto, username);
+
+            // LOT 재고 차감 (LOT 코드가 있는 경우)
+            if (delivery.shippingCode) {
+                // 출하에서 LOT 코드 조회
+                const shipping = await this.shippingRepository.findOne({
+                    where: { shippingCode: delivery.shippingCode }
+                });
+
+                if (shipping && (shipping as any).lotCode) {
+                    await this.inventoryLotService.decreaseLotInventory(
+                        delivery.productCode,
+                        (shipping as any).lotCode,
+                        delivery.deliveryQuantity,
+                        username
+                    );
+                }
+            }
+
+            // 재고 차감 로그
+            await this.logService.createDetailedLog({
+                moduleName: '재고관리',
+                action: 'INVENTORY_DECREASE',
+                username,
+                targetId: delivery.productCode,
+                targetName: delivery.productName,
+                details: `납품으로 인한 재고 차감: ${delivery.deliveryQuantity}개 (납품코드: ${delivery.deliveryCode})`
+            });
+
+        } catch (error) {
+            // 재고 차감 실패 로그
+            await this.logService.createDetailedLog({
+                moduleName: '재고관리',
+                action: 'INVENTORY_DECREASE_FAIL',
+                username,
+                targetId: delivery.productCode,
+                targetName: delivery.productName,
+                details: `납품 재고 차감 실패: ${error.message} (납품코드: ${delivery.deliveryCode})`
+            });
+
+            // 재고 차감 실패해도 납품은 성공으로 처리 (비즈니스 로직에 따라 결정)
+            console.error('재고 차감 실패:', error);
+        }
     }
 }

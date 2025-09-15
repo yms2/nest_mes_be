@@ -41,6 +41,10 @@ export class Delivery extends BaseEntity {
     @Column({ name: 'project_name', type: 'varchar', length: 20 })
     projectName: string;
 
+    @ApiProperty({ example: '신규/AS', description: '수주 유형' })
+    @Column({ name: 'order_type', type: 'varchar', length: 20, nullable: true })
+    orderType: string;
+
     @ApiProperty({ example: '100', description: '납품 수량' })
     @Column({ name: 'delivery_quantity', type: 'int' })
     deliveryQuantity: number;

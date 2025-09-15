@@ -66,6 +66,15 @@ export class UpdateDeliveryDto {
     projectName?: string;
 
     @ApiProperty({
+        example: '신규/AS',
+        description: '수주 유형',
+        required: false,
+    })
+    @IsOptional()
+    @IsString({ message: '수주 유형은 문자열이어야 합니다.' })
+    orderType?: string;
+
+    @ApiProperty({
         example: 50,
         description: '납품 수량',
         required: false,
