@@ -24,15 +24,22 @@ src/modules/production/plan/
 │   ├── bom-explosion.service.ts           # BOM 전개 서비스
 │   ├── production-plan-create.service.ts  # 수주 기반 생산 계획 생성
 │   ├── production-plan-read.service.ts    # 생산 계획 조회
+│   ├── production-plan-download.service.ts # 생산 계획 엑셀 다운로드
+│   ├── production-upload.service.ts       # 생산 계획 엑셀 업로드
+│   ├── production-plan-template.service.ts # 생산 계획 템플릿 생성
 │   └── direct-production-plan-create.service.ts  # 직접 생산 계획 생성
 ├── controllers/
 │   ├── production-plan.controller.ts      # 수주 기반 생산 계획 API
+│   ├── production-plan-excel.controller.ts # 생산 계획 엑셀 다운로드 API
+│   ├── production-template.controller.ts  # 생산 계획 템플릿 API
 │   ├── bom-explosion.controller.ts        # BOM 전개 API
 │   └── direct-production-plan.controller.ts  # 직접 생산 계획 API
 ├── dto/
 │   ├── create-production-plan.dto.ts      # 수주 기반 생성 DTO
 │   ├── create-direct-production-plan.dto.ts  # 직접 생성 DTO
 │   └── query-production-plan.dto.ts       # 조회 DTO
+├── utils/
+│   └── production-plan-code-generator.util.ts # 생산 계획 코드 생성 유틸
 └── production-plan.module.ts              # 모듈 설정
 ```
 
@@ -43,15 +50,10 @@ src/modules/production/plan/
 #### BOM 전개
 - `GET /bom-explosion/order/:orderCode` - 수주 기반 BOM 전개
 - `GET /bom-explosion/product/:productCode?quantity=100` - 품목 기반 BOM 전개
-- `GET /bom-explosion/selectable/:orderCode` - 선택 가능한 품목 목록
-- `GET /bom-explosion/analysis/:orderCode` - BOM 분석 결과
 
 #### 생산 계획 관리
 - `POST /production-plan` - 수주 기반 생산 계획 생성
 - `GET /production-plan` - 생산 계획 목록 조회
-- `GET /production-plan/dashboard` - 대시보드 데이터
-- `GET /production-plan/order/:orderCode` - 수주별 생산 계획
-- `GET /production-plan/:id` - 생산 계획 상세 조회
 - `PUT /production-plan/:id` - 생산 계획 수정
 - `DELETE /production-plan/:id` - 생산 계획 삭제
 
@@ -60,10 +62,15 @@ src/modules/production/plan/
 #### 직접 생산 계획 관리
 - `POST /direct-production-plan` - 직접 생산 계획 생성
 - `GET /direct-production-plan` - 직접 생산 계획 목록 조회
-- `GET /direct-production-plan/product/:productCode` - 품목별 직접 생산 계획
-- `GET /direct-production-plan/:id` - 직접 생산 계획 상세 조회
-- `PUT /direct-production-plan/:id` - 직접 생산 계획 수정
-- `DELETE /direct-production-plan/:id` - 직접 생산 계획 삭제
+
+### 엑셀 관리
+
+#### 생산 계획 엑셀 다운로드
+- `GET /production-plan/download-excel` - 생산 계획 엑셀 다운로드
+  - 쿼리 파라미터: `keyword`, `page`, `limit`, `productionPlanDate`, `orderType`, `projectName`, `productName`, `employeeName`
+
+#### 생산 계획 템플릿
+- `GET /production-plan-template` - 생산 계획 엑셀 템플릿 다운로드
 
 ## 💡 사용 시나리오
 
@@ -128,6 +135,12 @@ POST /direct-production-plan
 - **선택적 생산**: 프론트엔드에서 원하는 품목만 선택
 - **예상 재고 계산**: `현재 재고 + 생산 수량`
 
+### 엑셀 관리
+- **엑셀 다운로드**: 검색 조건에 맞는 생산 계획을 엑셀로 다운로드
+- **엑셀 업로드**: 엑셀 파일을 통한 대량 생산 계획 등록
+- **템플릿 제공**: 업로드용 엑셀 템플릿 다운로드
+- **데이터 검증**: 업로드 시 필수 필드 및 비즈니스 로직 검증
+
 ### 데이터 검증
 - **품목 존재 확인**: 등록된 품목만 생산 계획 생성 가능
 - **수량 검증**: 1개 이상의 수량만 허용
@@ -158,6 +171,7 @@ POST /direct-production-plan
   expectedCompletionDate: Date;        // 예상 완료일
   employeeCode: string;                // 담당자 코드
   employeeName: string;                // 담당자 이름
+  shortageQuantity: number;            // 부족 수량
   remark: string;                      // 비고
 }
 ```
@@ -184,6 +198,33 @@ POST /direct-production-plan
 3. **날짜 검증**: 예상 시작일은 완료일보다 이전이어야 합니다.
 4. **권한 관리**: 생산 계획 생성/수정/삭제는 적절한 권한이 필요합니다.
 5. **데이터 무결성**: 삭제된 품목의 생산 계획은 별도 처리가 필요합니다.
+
+## 📋 엑셀 업로드 양식
+
+### 필수 컬럼 (순서대로)
+1. **생산계획일** - 생산 계획 일자 (필수)
+2. **신규,A/S 구분** - 주문 유형
+3. **프로젝트명** - 프로젝트 이름
+4. **거래처명** - 고객 이름 (필수)
+5. **품목명** - 품목 이름 (필수)
+6. **품목구분** - 품목 유형
+7. **규격** - 품목 규격
+8. **재고수량** - 현재 재고
+9. **수량** - 생산 계획 수량 (필수)
+10. **생산계획수량** - 생산 계획 수량 (중복)
+11. **예상 재고수량** - 예상 재고
+12. **부족수량** - 부족 수량
+13. **예상 시작일** - 예상 시작일
+14. **예상 완료일** - 예상 완료일
+15. **담당자** - 담당자 이름
+16. **비고** - 비고
+
+### 업로드 시 자동 처리
+- **생산계획코드**: 자동 생성 (`PP + YYMMDD + 001`)
+- **프로젝트코드**: 자동 생성 (`PROJ + 001`)
+- **고객코드**: 거래처명으로 자동 조회
+- **품목코드**: 품목명으로 자동 조회
+- **담당자코드**: 자동 생성
 
 ## 🔄 향후 개선 계획
 

@@ -186,6 +186,11 @@ export class ProductionPlanCreateService {
       throw new Error(`생산 계획을 찾을 수 없습니다: ${id}`);
     }
 
+    await this.productionPlanRepository.update(id, {
+      updatedBy: username,
+      updatedAt: new Date(),
+    });
+
     await this.productionPlanRepository.remove(productionPlan);
   }
 }
