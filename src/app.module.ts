@@ -16,6 +16,7 @@ import { EquipmentModule } from './modules/equipment/equipment.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { APMModule } from './common/apm/apm.module';
 import { APMMiddleware } from './common/apm/middleware/apm.middleware';
+import { ProductionModule } from './modules/production/production.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { APMMiddleware } from './common/apm/middleware/apm.middleware';
     EquipmentModule,
     InventoryModule,
     APMModule,
+    ProductionModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',

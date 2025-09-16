@@ -151,7 +151,9 @@ export class ProductFileService {
 
     // 응답 헤더 설정
     res.setHeader('Content-Type', file.mimeType);
-    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(file.originalFilename)}"`);
+    // 한글 파일명을 위한 RFC 5987 인코딩 적용
+    const encodedFilename = encodeURIComponent(file.originalFilename);
+    res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodedFilename}`);
 
     // 파일 스트림을 응답으로 파이프
     fileStream.pipe(res);

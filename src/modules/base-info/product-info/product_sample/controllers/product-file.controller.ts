@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
+import * as multer from 'multer';
 import { ApiTags, ApiOperation, ApiConsumes, ApiBody, ApiParam } from '@nestjs/swagger';
 import { Auth } from '../../../../../common/decorators/auth.decorator';
 import { ProductFileService } from '../services/product-file.service';
@@ -41,7 +42,22 @@ export class ProductFileController {
       required: ['file', 'productId'],
     },
   })
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('file', {
+    storage: multer.memoryStorage(),
+    fileFilter: (req, file, cb) => {
+      // 한글 파일명을 제대로 처리하기 위한 설정
+      if (file.originalname) {
+        // 파일명을 UTF-8로 디코딩하여 한글이 깨지지 않도록 처리
+        try {
+          file.originalname = Buffer.from(file.originalname, 'latin1').toString('utf8');
+        } catch (error) {
+          // 디코딩 실패 시 원본 파일명 사용
+          console.warn('파일명 디코딩 실패:', error);
+        }
+      }
+      cb(null, true);
+    },
+  }))
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
     @Body() body: any,
