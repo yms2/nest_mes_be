@@ -15,11 +15,11 @@ import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/
 import { Request } from 'express';
 import { ProductionPlanCreateService } from '../services/production-plan-create.service';
 import { ProductionPlanReadService } from '../services/production-plan-read.service';
-import { BomExplosionService } from '../services/bom-explosion.service';
 import { CreateProductionPlanDto, UpdateProductionPlanDto } from '../dto/create-production-plan.dto';
 import { QueryProductionPlanDto } from '../dto/query-production-plan.dto';
 import { ApiResponseBuilder } from '@/common/interfaces/api-response.interface';
 import { DevAuth } from '@/common/decorators/dev-auth.decorator';
+import { logService } from '@/modules/log/Services/log.service';
 
 @ApiTags('생산 계획')
 @Controller('production-plan')
@@ -28,7 +28,7 @@ export class ProductionPlanController {
   constructor(
     private readonly productionPlanCreateService: ProductionPlanCreateService,
     private readonly productionPlanReadService: ProductionPlanReadService,
-    private readonly bomExplosionService: BomExplosionService,
+    private readonly logService: logService,
   ) {}
 
   @Post()
@@ -54,11 +54,31 @@ export class ProductionPlanController {
         req.user.username,
       );
 
+      // 로그 기록
+      await this.logService.createDetailedLog({
+        moduleName: '생산계획',
+        action: 'CREATE_SUCCESS',
+        username: req.user.username,
+        targetId: dto.orderCode,
+        targetName: `수주 ${dto.orderCode} 기반 생산계획`,
+        details: `${productionPlans.length}개의 생산 계획이 성공적으로 생성되었습니다.`,
+      });
+
       return ApiResponseBuilder.success(
         productionPlans,
         `${productionPlans.length}개의 생산 계획이 성공적으로 생성되었습니다.`,
       );
     } catch (error) {
+      // 로그 기록
+      await this.logService.createDetailedLog({
+        moduleName: '생산계획',
+        action: 'CREATE_FAIL',
+        username: req.user.username,
+        targetId: dto.orderCode || '',
+        targetName: '생산계획 생성',
+        details: `생산계획 생성 실패: ${error.message}`,
+      }).catch(() => {});
+
       return ApiResponseBuilder.error(error.message);
     }
   }
@@ -69,12 +89,32 @@ export class ProductionPlanController {
     description: '조건에 따라 생산 계획 목록을 조회합니다.',
   })
   @ApiResponse({ status: 200, description: '생산 계획 목록을 성공적으로 조회했습니다.' })
-  async getProductionPlans(@Query(ValidationPipe) query: QueryProductionPlanDto) {
+  async getProductionPlans(@Query(ValidationPipe) query: QueryProductionPlanDto, @Req() req: Request & { user: { username: string } }) {
     try {
-      const result = await this.productionPlanReadService.getProductionPlans(query);
+      const result = await this.productionPlanReadService.getAllProductionPlan(query.page || 1, query.limit || 20, query);
+
+      // 로그 기록
+      await this.logService.createDetailedLog({
+        moduleName: '생산계획',
+        action: 'READ_SUCCESS',
+        username: req.user.username,
+        targetId: '',
+        targetName: '생산계획 목록 조회',
+        details: `총 ${result.total}개의 생산계획을 조회했습니다.`,
+      });
 
       return ApiResponseBuilder.success(result, '생산 계획 목록을 성공적으로 조회했습니다.');
     } catch (error) {
+      // 로그 기록
+      await this.logService.createDetailedLog({
+        moduleName: '생산계획',
+        action: 'READ_FAIL',
+        username: req.user.username,
+        targetId: '',
+        targetName: '생산계획 목록 조회',
+        details: `생산계획 조회 실패: ${error.message}`,
+      }).catch(() => {});
+
       return ApiResponseBuilder.error(error.message);
     }
   }
@@ -104,8 +144,28 @@ export class ProductionPlanController {
         req.user.username,
       );
 
+      // 로그 기록
+      await this.logService.createDetailedLog({
+        moduleName: '생산계획',
+        action: 'UPDATE_SUCCESS',
+        username: req.user.username,
+        targetId: id.toString(),
+        targetName: `생산계획 ID: ${id}`,
+        details: '생산계획이 성공적으로 수정되었습니다.',
+      });
+
       return ApiResponseBuilder.success(productionPlan, '생산 계획이 성공적으로 수정되었습니다.');
     } catch (error) {
+      // 로그 기록
+      await this.logService.createDetailedLog({
+        moduleName: '생산계획',
+        action: 'UPDATE_FAIL',
+        username: req.user.username,
+        targetId: id.toString(),
+        targetName: `생산계획 ID: ${id}`,
+        details: `생산계획 수정 실패: ${error.message}`,
+      }).catch(() => {});
+
       return ApiResponseBuilder.error(error.message);
     }
   }
@@ -124,8 +184,29 @@ export class ProductionPlanController {
   ) {
     try {
       await this.productionPlanCreateService.deleteProductionPlan(id, req.user.username);
+
+      // 로그 기록
+      await this.logService.createDetailedLog({
+        moduleName: '생산계획',
+        action: 'DELETE_SUCCESS',
+        username: req.user.username,
+        targetId: id.toString(),
+        targetName: `생산계획 ID: ${id}`,
+        details: '생산계획이 성공적으로 삭제되었습니다.',
+      });
+
       return ApiResponseBuilder.success(null, '생산 계획이 성공적으로 삭제되었습니다.');
     } catch (error) {
+      // 로그 기록
+      await this.logService.createDetailedLog({
+        moduleName: '생산계획',
+        action: 'DELETE_FAIL',
+        username: req.user.username,
+        targetId: id.toString(),
+        targetName: `생산계획 ID: ${id}`,
+        details: `생산계획 삭제 실패: ${error.message}`,
+      }).catch(() => {});
+
       return ApiResponseBuilder.error(error.message);
     }
   }

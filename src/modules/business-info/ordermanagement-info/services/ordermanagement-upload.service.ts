@@ -29,20 +29,11 @@ export class OrderManagementUploadService {
         const headers = headerRow.values as any[];
         
         
-        // 예상되는 헤더들
-        const expectedHeaders = [
-            '수주일', '거래처명', '프로젝트명', '프로젝트버전', '품목명', '수주구분', 
-            '수량', '단가', '공급가액', '부가세', '합계', 
-            '납품예정일', '참조견적', '비고'
-        ];
-        
         // 첫 번째 셀이 비어있으면 헤더가 없다고 판단
         if (!headers || headers.length <= 1 || !headers[1]) {
             throw new BadRequestException('엑셀 파일에 헤더 행이 없습니다. 첫 번째 행에 컬럼명이 있어야 합니다.');
         }
-        
-        // 헤더가 예상과 다르면 경고만 출력 (엄격하지 않게)
-        const actualHeaders = headers.slice(1).map(h => String(h).trim());
+
     }
 
     async uploadOrderManagement(file: Express.Multer.File, username: string) {
@@ -50,7 +41,7 @@ export class OrderManagementUploadService {
 
             // 엑셀 파일 읽기
             const workbook = new ExcelJS.Workbook();
-            await workbook.xlsx.load(file.buffer);
+            await workbook.xlsx.load(file.buffer as any);
 
             // 시트 찾기 (여러 시트명 시도)
             let worksheet = workbook.getWorksheet('수주관리양식');
@@ -91,7 +82,7 @@ export class OrderManagementUploadService {
                     continue;
                 }
                 try {
-                    const orderData = this.parseRowData(row, i);
+                    const orderData = this.parseRowData(row);
 
                     // 수주코드 자동 생성
                     orderData.orderCode = await this.generateOrderCode();
@@ -226,7 +217,7 @@ export class OrderManagementUploadService {
     }
 
 
-    private parseRowData(row: ExcelJS.Row, rowIndex: number): any {
+    private parseRowData(row: ExcelJS.Row): any {
         const values = row.values as any[];
         
         // 엑셀 컬럼 순서에 맞게 데이터 추출 (수주관리 양식)

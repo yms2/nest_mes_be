@@ -20,25 +20,23 @@ export class ProductionPlanReadService {
   constructor(
     @InjectRepository(ProductionPlan)
     private readonly productionPlanRepository: Repository<ProductionPlan>,
-    @InjectRepository(ProductInfo)
-    private readonly productInfoRepository: Repository<ProductInfo>,
-    @InjectRepository(Inventory)
-    private readonly inventoryRepository: Repository<Inventory>,
   ) {}
 
   /**
    * 생산 계획 목록을 조회합니다.
    */
-  async getProductionPlans(query: QueryProductionPlanDto): Promise<{
+  async getAllProductionPlan(
+    page: number = 1,
+    limit: number = 20,
+    query?: QueryProductionPlanDto,
+  ): Promise<{
     data: any[];
     total: number;
     page: number;
     limit: number;
   }> {
-    const queryBuilder = this.createQueryBuilder(query);
+    const queryBuilder = this.createQueryBuilder(query || {});
 
-    const page = query.page || 1;
-    const limit = query.limit || 20;
     const offset = (page - 1) * limit;
 
     const result = await queryBuilder
