@@ -4,6 +4,7 @@ import { ApiTags, ApiOperation, ApiConsumes, ApiBody, ApiResponse } from '@nestj
 import { Response } from 'express';
 import { WarehouseUploadService } from '../services/warehouse-upload.service';
 import { DevAuth } from '@/common/decorators/dev-auth.decorator';
+import * as multer from 'multer';
 
 @DevAuth()
 @ApiTags('창고관리 엑셀')
@@ -14,7 +15,20 @@ export class WarehouseUploadController {
     ) {}
 
     @Post('excel/upload-excel')
-    @UseInterceptors(FileInterceptor('file'))
+    @UseInterceptors(FileInterceptor('file', {
+        storage: multer.memoryStorage(),
+        fileFilter: (req, file, cb) => {
+            // 한글 파일명을 제대로 처리하기 위한 설정
+            if (file.originalname) {
+                try {
+                    file.originalname = Buffer.from(file.originalname, 'latin1').toString('utf8');
+                } catch (error) {
+                    console.warn('파일명 디코딩 실패:', error);
+                }
+            }
+            cb(null, true);
+        },
+    }))
     @ApiOperation({ 
         summary: '창고관리 엑셀 업로드',
         description: '엑셀 파일을 업로드하여 창고 데이터를 일괄 등록합니다.'

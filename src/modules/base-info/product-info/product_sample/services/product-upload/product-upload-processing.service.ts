@@ -4,6 +4,9 @@ import { Repository } from 'typeorm';
 import { ProductInfo } from '../../entities/product-info.entity';
 import { ProductExcelRow } from './product-upload-validation.service';
 import { ProductInfoCreateService } from '../product-info-create.service';
+import * as fs from 'fs';
+import * as path from 'path';
+import { createCanvas } from 'canvas';
 
 @Injectable()
 export class ProductUploadProcessingService {
@@ -186,8 +189,27 @@ export class ProductUploadProcessingService {
     // 품목코드 생성
     const productCode = await this.generateProductCode();
     
+    // 바코드 번호 생성
+    const [lastProduct] = await this.productInfoRepository.find({
+      order: { barcodeNumber: 'DESC' },
+      take: 1,
+    });
+    
+    const barcodeNumber = await this.generateBarcodeNumber(lastProduct?.barcodeNumber);
+    
+    // 바코드 이미지 생성
+    let barcodeImagePath = '';
+    try {
+      barcodeImagePath = await this.generateBarcodeImage(barcodeNumber);
+    } catch (error) {
+      // 바코드 이미지 생성 실패해도 품목은 생성
+      barcodeImagePath = '';
+    }
+    
     const product = this.productInfoRepository.create({
       productCode,
+      barcodeNumber,
+      barcodeImagePath,
       productName: String(row['품목명'] ?? '').trim(),
       productType: String(row['품목구분'] ?? '').trim(),
       productCategory: String(row['분류'] ?? '').trim(),
@@ -256,5 +278,81 @@ export class ProductUploadProcessingService {
     existingProduct.updatedBy = updatedBy;
 
     return await this.productInfoRepository.save(existingProduct);
+  }
+
+  // 바코드 번호 생성
+  private async generateBarcodeNumber(lastBarcodeNumber?: string): Promise<string> {
+    let nextNumber = 1;
+    
+    if (lastBarcodeNumber) {
+      // 숫자 부분만 추출
+      const numberPart = lastBarcodeNumber.replace(/\D/g, '');
+      const parsedNumber = parseInt(numberPart, 10);
+      
+      // 유효한 숫자인지 확인
+      if (!isNaN(parsedNumber) && parsedNumber > 0) {
+        nextNumber = parsedNumber + 1;
+      }
+    }
+
+    // 13자리 바코드 형식으로 생성 (EAN-13 형식)
+    return nextNumber.toString().padStart(13, '0');
+  }
+
+  // 바코드 이미지 생성
+  private async generateBarcodeImage(barcodeNumber: string): Promise<string> {
+    try {
+      // Canvas 생성
+      const canvas = createCanvas(300, 150);
+      const ctx = canvas.getContext('2d');
+      
+      // 배경색 설정
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, 300, 150);
+      
+      // 바코드 바 생성 (간단한 시각적 표현)
+      ctx.fillStyle = 'black';
+      const barWidth = 2;
+      const barHeight = 100;
+      const startX = 50;
+      const startY = 25;
+      
+      // 바코드 숫자를 바 형태로 표현
+      for (let i = 0; i < barcodeNumber.length; i++) {
+        const digit = parseInt(barcodeNumber[i]);
+        const barCount = digit + 1; // 0-9를 1-10으로 변환
+        
+        for (let j = 0; j < barCount; j++) {
+          const x = startX + (i * 20) + (j * barWidth);
+          if (x < 250) { // 캔버스 범위 내에서만 그리기
+            ctx.fillRect(x, startY, barWidth, barHeight);
+          }
+        }
+      }
+      
+      // 바코드 번호 텍스트 추가
+      ctx.fillStyle = 'black';
+      ctx.font = '16px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(barcodeNumber, 150, 140);
+      
+      // 이미지 파일로 저장
+      const uploadsDir = path.join(process.cwd(), 'uploads', 'barcodes');
+      if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true });
+      }
+
+      const fileName = `barcode_${barcodeNumber}_${Date.now()}.png`;
+      const filePath = path.join(uploadsDir, fileName);
+      
+      // Canvas를 PNG 파일로 저장
+      const buffer = canvas.toBuffer('image/png');
+      fs.writeFileSync(filePath, buffer);
+
+      return `uploads/barcodes/${fileName}`;
+    } catch (error) {
+      console.error('바코드 이미지 생성 실패:', error);
+      return '';
+    }
   }
 }

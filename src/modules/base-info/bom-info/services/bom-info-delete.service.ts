@@ -71,17 +71,6 @@ export class BomInfoDeleteService {
         `하위 BOM이 존재하여 삭제할 수 없습니다: ${bom.childProductCode}`,
       );
     }
-
-    // 상위 BOM이 있는지 확인 (현재 BOM의 상위품목이 다른 BOM의 하위품목인 경우)
-    const hasParentBoms = await this.bomRepository.findOne({
-      where: { childProductCode: bom.parentProductCode },
-    });
-
-    if (hasParentBoms) {
-      throw new BadRequestException(
-        `상위 BOM이 존재하여 삭제할 수 없습니다: ${bom.parentProductCode}`,
-      );
-    }
   }
 
   /**

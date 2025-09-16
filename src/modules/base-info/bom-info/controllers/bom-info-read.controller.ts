@@ -12,7 +12,7 @@ export class BomInfoController {
   @DevBomInfoAuth.read()
   @ApiOperation({
     summary: 'BOM 트리 조회',
-    description: '지정한 품목 코드에 대한 BOM 트리 구조를 재귀적으로 조회합니다.',
+    description: '지정한 품목 코드에 대한 BOM 트리 구조를 재귀적으로 조회합니다. 데이터가 없으면 빈 트리를 반환합니다.',
   })
   async getBomTree(@Param('productCode') productCode: string) {
     return this.bomService.getBomTree(productCode);

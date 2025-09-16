@@ -13,13 +13,19 @@ async function bootstrap() {
 
   let app: NestExpressApplication;
 
+  // 환경별 로그 설정 (라우트 매핑 로그 제외)
+  const isDevelopment = nodeEnv === 'development';
+  const loggerConfig: ('log' | 'error' | 'warn' | 'debug' | 'verbose' | 'fatal')[] = isDevelopment 
+    ? ['error', 'warn'] 
+    : ['error', 'warn'];
+
   if (useHttps && nodeEnv === 'production') {
     app = await NestFactory.create<NestExpressApplication>(AppModule, {
-      logger: ['log', 'error', 'warn', 'debug'],
+      logger: loggerConfig,
     });
   } else {
     app = await NestFactory.create<NestExpressApplication>(AppModule, {
-      logger: ['log', 'error', 'warn', 'debug'],
+      logger: loggerConfig,
     });
   }
 

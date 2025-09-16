@@ -3,6 +3,7 @@ import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ShippingUploadService } from '../services/shipping-upload.service';
 import { DevAuth } from '@/common/decorators/dev-auth.decorator';
+import * as multer from 'multer';
 
 @DevAuth()
 @ApiTags('출하관리 엑셀')
@@ -13,7 +14,20 @@ export class ShippingUploadController {
     ) {}
 
     @Post('upload-excel')
-    @UseInterceptors(FileInterceptor('file'))
+    @UseInterceptors(FileInterceptor('file', {
+        storage: multer.memoryStorage(),
+        fileFilter: (req, file, cb) => {
+            // 한글 파일명을 제대로 처리하기 위한 설정
+            if (file.originalname) {
+                try {
+                    file.originalname = Buffer.from(file.originalname, 'latin1').toString('utf8');
+                } catch (error) {
+                    console.warn('파일명 디코딩 실패:', error);
+                }
+            }
+            cb(null, true);
+        },
+    }))
     @ApiOperation({ summary: '출하관리 엑셀 업로드' })
     @ApiConsumes('multipart/form-data')
     @ApiBody({

@@ -23,6 +23,19 @@ export class BomInfoService {
       productMap.set(product.productCode, product);
     });
 
+    // 루트 제품이 존재하지 않는 경우 빈 트리 반환
+    const rootProduct = productMap.get(rootProductCode);
+    if (!rootProduct) {
+      return {
+        id: null,
+        productCode: rootProductCode,
+        productName: null,
+        level: 0,
+        children: [],
+        message: '해당 제품을 찾을 수 없습니다.'
+      };
+    }
+
     // 재귀적으로 트리 구성 (순환 참조 방지)
     const buildTree = (parentCode: string, visited: Set<string>): any[] => {
       if (visited.has(parentCode)) {
@@ -49,14 +62,15 @@ export class BomInfoService {
         });
     };
 
-    const rootProduct = productMap.get(rootProductCode);
+    const children = buildTree(rootProductCode, new Set());
 
     return {
-      id: rootProduct?.id,
+      id: rootProduct.id,
       productCode: rootProductCode,
-      productName: rootProduct?.productName || null,
+      productName: rootProduct.productName,
       level: 0, // 루트 제품은 레벨 0
-      children: buildTree(rootProductCode, new Set()),
+      children: children,
+      message: children.length === 0 ? 'BOM 데이터가 없습니다.' : null
     };
   }
 }
