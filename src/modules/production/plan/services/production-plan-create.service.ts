@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { ProductionPlan } from '../entities/production-plan.entity';
 import { BomExplosionService, BomExplosionResult } from './bom-explosion.service';
 import { OrderManagement } from '@/modules/business-info/ordermanagement-info/entities/ordermanagement.entity';
+import { ProductInfo } from '@/modules/base-info/product-info/product_sample/entities/product-info.entity';
 import { ProductionPlanCodeGenerator } from '../utils/production-plan-code-generator.util';
 
 export interface ProductionPlanCreateDto {
@@ -37,6 +38,8 @@ export class ProductionPlanCreateService {
     private readonly productionPlanRepository: Repository<ProductionPlan>,
     @InjectRepository(OrderManagement)
     private readonly orderRepository: Repository<OrderManagement>,
+    @InjectRepository(ProductInfo)
+    private readonly productRepository: Repository<ProductInfo>,
     private readonly bomExplosionService: BomExplosionService,
   ) {}
 
@@ -63,7 +66,7 @@ export class ProductionPlanCreateService {
     const bomResult = await this.bomExplosionService.explodeBomByOrderCode(dto.orderCode);
 
     // 생산 계획 아이템 생성
-    const productionPlanItems = this.createProductionPlanItems(bomResult, dto);
+    const productionPlanItems = await this.createProductionPlanItems(bomResult, dto);
 
     // 생산 계획 생성
     const productionPlans: ProductionPlan[] = [];
@@ -105,14 +108,35 @@ export class ProductionPlanCreateService {
   /**
    * BOM 전개 결과를 기반으로 생산 계획 아이템들을 생성합니다.
    */
-  private createProductionPlanItems(
+  private async createProductionPlanItems(
     bomResult: BomExplosionResult,
     dto: ProductionPlanCreateDto,
-  ): ProductionPlanItem[] {
+  ): Promise<ProductionPlanItem[]> {
     const items: ProductionPlanItem[] = [];
     const flattenedItems = this.bomExplosionService.flattenBomItems(bomResult.bomItems);
 
-    for (const item of flattenedItems) {
+    // 최상위 품목의 상세 정보 조회
+    const rootProduct = await this.productRepository.findOne({
+      where: { productCode: bomResult.rootProduct.productCode },
+    });
+
+    // 최상위 품목도 포함하여 모든 품목을 처리
+    const allItems = [
+      {
+        productCode: bomResult.rootProduct.productCode,
+        productName: bomResult.rootProduct.productName,
+        productType: rootProduct?.productType || '',
+        productSize: rootProduct?.productSize1 || '',
+        requiredQuantity: bomResult.rootProduct.orderQuantity,
+        stockQuantity: parseInt(rootProduct?.safeInventory || '0') || 0,
+        shortageQuantity: Math.max(0, bomResult.rootProduct.orderQuantity - (parseInt(rootProduct?.safeInventory || '0') || 0)),
+        level: 0,
+        parentProductCode: null,
+      },
+      ...flattenedItems,
+    ];
+
+    for (const item of allItems) {
       // 선택된 품목 코드에 포함되어 있는지 확인
       const isSelected = dto.selectedProductCodes.includes(item.productCode);
       
@@ -127,7 +151,7 @@ export class ProductionPlanCreateService {
           shortageQuantity: item.shortageQuantity,
           productionQuantity: item.requiredQuantity, // 선택된 품목은 필요 수량만큼 생산
           level: item.level,
-          parentProductCode: item.parentProductCode,
+          parentProductCode: item.parentProductCode || undefined,
         });
       }
     }
