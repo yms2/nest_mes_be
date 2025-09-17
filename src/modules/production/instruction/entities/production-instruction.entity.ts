@@ -35,5 +35,13 @@ export class ProductionInstruction extends BaseEntity {
     @ApiProperty({ example: '비고', description: '비고' })
     @Column({ name: 'remark', type: 'varchar', length: 20, comment: '비고' })
     remark: string;
+
+    @ApiProperty({ example: 90, description: '실제 생산수량' })
+    @Column({ name: 'actual_production_quantity', type: 'int', default: 0, comment: '실제 생산수량' })
+    actualProductionQuantity: number;
+
+    @ApiProperty({ example: 10, description: '총 불량수량' })
+    @Column({ name: 'total_defect_quantity', type: 'int', default: 0, comment: '총 불량수량' })
+    totalDefectQuantity: number;
     
 }
