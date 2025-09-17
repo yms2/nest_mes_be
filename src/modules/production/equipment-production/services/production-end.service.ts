@@ -258,14 +258,12 @@ export class ProductionEndService {
      * @param quantity 생산 수량
      */
     private async checkAndUpdateBomInventory(productCode: string, quantity: number): Promise<void> {
-        console.log(`[BOM재고확인] 제품: ${productCode}, 생산수량: ${quantity}개`);
         
         // BOM 정보 조회 (자재 정보)
         const bomItems = await this.bomInfoRepository.find({
             where: { parentProductCode: productCode }
         });
 
-        console.log(`[BOM재고확인] BOM 항목 수: ${bomItems.length}개`);
 
         // 1단계: 재고 부족 확인
         const insufficientItems: string[] = [];
@@ -296,7 +294,6 @@ export class ProductionEndService {
         }
 
         // 2단계: 재고 차감 실행
-        console.log(`[BOM차감] 모든 재고 충분, 차감 시작`);
         
         for (const bomItem of bomItems) {
             const inventory = await this.inventoryRepository.findOne({
@@ -307,8 +304,7 @@ export class ProductionEndService {
                 const currentStock = inventory.inventoryQuantity;
                 const requiredQuantity = bomItem.quantity * quantity;
                 const newStock = currentStock - requiredQuantity;
-                
-                console.log(`[BOM차감] 자재: ${bomItem.childProductCode}, 현재재고: ${currentStock}, 필요수량: ${requiredQuantity}, 차감후재고: ${newStock}`);
+              
                 
                 await this.inventoryRepository.update(
                     { inventoryCode: bomItem.childProductCode },
