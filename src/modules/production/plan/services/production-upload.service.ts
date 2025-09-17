@@ -6,6 +6,7 @@ import { logService } from '@/modules/log/Services/log.service';
 import { ProductInfo } from '@/modules/base-info/product-info/product_sample/entities/product-info.entity';
 import { CustomerInfo } from '@/modules/base-info/customer-info/entities/customer-info.entity';
 import * as ExcelJS from 'exceljs';
+import { ProductionPlanCodeGenerator } from '../utils/production-plan-code-generator.util';
 
 
 @Injectable()
@@ -173,11 +174,8 @@ export class ProductionUploadService {
     }
 
     private async generateProductionPlanCode(): Promise<string> {
-        const today = new Date();
-        const dateStr = today.getFullYear().toString() + 
-                       (today.getMonth() + 1).toString().padStart(2, '0') + 
-                       today.getDate().toString().padStart(2, '0');
-        return `PP${dateStr}`;
+        return await ProductionPlanCodeGenerator.generateProductionPlanCode(this.productionRepository);
+
     }
     
     private parseRowData(row: ExcelJS.Row, rowIndex: number): any {
