@@ -38,6 +38,8 @@ export class ProductionInstructionService {
       throw new NotFoundException(`생산 계획을 찾을 수 없습니다: ${dto.productionPlanCode}`);
     }
 
+    // 생산 지시 수량 검증 제거 - 사용자가 자유롭게 설정 가능
+
     // 생산 지시 코드 생성
     const productionInstructionCode = await this.generateProductionInstructionCode();
 

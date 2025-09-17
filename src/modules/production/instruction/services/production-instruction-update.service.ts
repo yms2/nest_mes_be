@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ProductionInstruction } from '../entities/production-instruction.entity';
+import { ProductionPlan } from '@/modules/production/plan/entities/production-plan.entity';
 import { UpdateProductionInstructionDto } from '../dto/update-production-instruction.dto';
 
 @Injectable()
@@ -9,6 +10,8 @@ export class ProductionInstructionUpdateService {
   constructor(
     @InjectRepository(ProductionInstruction)
     private readonly productionInstructionRepository: Repository<ProductionInstruction>,
+    @InjectRepository(ProductionPlan)
+    private readonly productionPlanRepository: Repository<ProductionPlan>,
   ) {}
 
   /**
@@ -29,6 +32,8 @@ export class ProductionInstructionUpdateService {
     if (!existingInstruction) {
       throw new NotFoundException(`ID ${id}에 해당하는 생산 지시를 찾을 수 없습니다.`);
     }
+
+    // 생산 지시 수량 검증 제거 - 사용자가 자유롭게 설정 가능
 
     // 수정할 필드만 업데이트
     const updateData: Partial<ProductionInstruction> = {};
