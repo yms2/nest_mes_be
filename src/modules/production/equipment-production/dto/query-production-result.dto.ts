@@ -58,6 +58,14 @@ export class QueryProductionResultDto {
   productName?: string;
 
   @ApiProperty({ 
+    description: '제품 구분',
+    required: false 
+  })
+  @IsString()
+  @IsOptional()
+  productType?: string;
+
+  @ApiProperty({ 
     description: '생산 상태',
     required: false 
   })

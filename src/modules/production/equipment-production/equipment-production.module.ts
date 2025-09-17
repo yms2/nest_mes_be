@@ -10,9 +10,11 @@ import { Inventory } from '@/modules/inventory/inventory-management/entities/inv
 import { ProductionStartService } from './services/production-start.service';
 import { ProductionEndService } from './services/production-end.service';
 import { ProductionResultReadService } from './services/production-result-read.service';
+import { ProductionResultDownloadService } from './services/production-result-download.service';
 import { ProductionStartController } from './controllers/production-start.controller';
 import { ProductionEndController } from './controllers/production-end.controller';
 import { ProductionResultReadController } from './controllers/production-result-read.controller';
+import { ProductionResultDownloadController } from './controllers/production-result-download.controller';
 import { CommonModule } from '@/common/common.module';
 
 @Module({
@@ -32,16 +34,19 @@ import { CommonModule } from '@/common/common.module';
     ProductionStartController,
     ProductionEndController,
     ProductionResultReadController,
+    ProductionResultDownloadController,
   ],
   providers: [
     ProductionStartService,
     ProductionEndService,
     ProductionResultReadService,
+    ProductionResultDownloadService,
   ],
   exports: [
     ProductionStartService,
     ProductionEndService,
     ProductionResultReadService,
+    ProductionResultDownloadService,
   ],
 })
 export class EquipmentProductionModule {}
