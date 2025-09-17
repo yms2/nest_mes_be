@@ -76,15 +76,17 @@ export class ProductionEndService {
             // 이미 계산된 actualProductionQuantity 사용
             await this.moveToNextProcess(production, nextProcess, actualProductionQuantity, dto.employeeCode, dto.employeeName, username);
         } else {
-            // 모든 공정이 완료된 경우 최종 완료 처리 및 재료 차감, 완제품 재고 증가
+            // 모든 공정이 완료된 경우 최종 완료 처리
             console.log(`[최종완료] 제품: ${production.productCode}, 생산수량: ${actualProductionQuantity}개`);
             
             production.productionStatus = '최종완료';
             await this.productionRepository.save(production);
             
-            // BOM 차감 및 완제품 재고 증가
-            await this.updateBomInventory(production.productCode, actualProductionQuantity);
-            await this.increaseProductInventory(production.productCode, actualProductionQuantity);
+            // BOM 재료 재고 확인 및 차감 (생산 완료 시 즉시 처리)
+            await this.checkAndUpdateBomInventory(production.productCode, actualProductionQuantity);
+            
+            // 완제품 재고는 품질검사 완료 후 별도로 처리
+            console.log(`[완제품재고] 품질검사 완료 후 재고 처리 필요: 제품=${production.productCode}, 수량=${actualProductionQuantity}개`);
         }
 
         return updatedProduction;
@@ -251,22 +253,52 @@ export class ProductionEndService {
     }
 
     /**
-     * BOM 재고를 차감합니다.
+     * BOM 재료 재고를 확인하고 차감합니다.
      * @param productCode 제품 코드
      * @param quantity 생산 수량
      */
-    private async updateBomInventory(productCode: string, quantity: number): Promise<void> {
-        console.log(`[BOM차감] 제품: ${productCode}, 생산수량: ${quantity}개`);
+    private async checkAndUpdateBomInventory(productCode: string, quantity: number): Promise<void> {
+        console.log(`[BOM재고확인] 제품: ${productCode}, 생산수량: ${quantity}개`);
         
         // BOM 정보 조회 (자재 정보)
         const bomItems = await this.bomInfoRepository.find({
             where: { parentProductCode: productCode }
         });
 
-        console.log(`[BOM차감] BOM 항목 수: ${bomItems.length}개`);
+        console.log(`[BOM재고확인] BOM 항목 수: ${bomItems.length}개`);
 
+        // 1단계: 재고 부족 확인
+        const insufficientItems: string[] = [];
+        
         for (const bomItem of bomItems) {
-            // 자재 재고 차감 (inventory 테이블에서)
+            const inventory = await this.inventoryRepository.findOne({
+                where: { inventoryCode: bomItem.childProductCode }
+            });
+
+            if (!inventory) {
+                insufficientItems.push(`${bomItem.childProductCode} (재고 정보 없음)`);
+                continue;
+            }
+
+            const currentStock = inventory.inventoryQuantity;
+            const requiredQuantity = bomItem.quantity * quantity;
+            
+            if (currentStock < requiredQuantity) {
+                insufficientItems.push(`${bomItem.childProductCode} (현재: ${currentStock}, 필요: ${requiredQuantity})`);
+            }
+        }
+
+        // 재고 부족 시 예외 발생
+        if (insufficientItems.length > 0) {
+            const errorMessage = `재고 부족으로 생산 완료할 수 없습니다:\n${insufficientItems.join('\n')}`;
+            console.error(`[BOM재고부족] ${errorMessage}`);
+            throw new NotFoundException(errorMessage);
+        }
+
+        // 2단계: 재고 차감 실행
+        console.log(`[BOM차감] 모든 재고 충분, 차감 시작`);
+        
+        for (const bomItem of bomItems) {
             const inventory = await this.inventoryRepository.findOne({
                 where: { inventoryCode: bomItem.childProductCode }
             });
@@ -274,7 +306,7 @@ export class ProductionEndService {
             if (inventory) {
                 const currentStock = inventory.inventoryQuantity;
                 const requiredQuantity = bomItem.quantity * quantity;
-                const newStock = Math.max(0, currentStock - requiredQuantity);
+                const newStock = currentStock - requiredQuantity;
                 
                 console.log(`[BOM차감] 자재: ${bomItem.childProductCode}, 현재재고: ${currentStock}, 필요수량: ${requiredQuantity}, 차감후재고: ${newStock}`);
                 
@@ -282,36 +314,8 @@ export class ProductionEndService {
                     { inventoryCode: bomItem.childProductCode },
                     { inventoryQuantity: newStock }
                 );
-            } else {
-                console.warn(`[BOM차감] 자재를 찾을 수 없습니다: ${bomItem.childProductCode}`);
             }
         }
     }
 
-    /**
-     * 완제품 재고를 증가시킵니다.
-     * @param productCode 제품 코드
-     * @param quantity 생산 수량
-     */
-    private async increaseProductInventory(productCode: string, quantity: number): Promise<void> {
-        console.log(`[완제품재고증가] 제품: ${productCode}, 증가수량: ${quantity}개`);
-        
-        const inventory = await this.inventoryRepository.findOne({
-            where: { inventoryCode: productCode }
-        });
-
-        if (inventory) {
-            const currentStock = inventory.inventoryQuantity;
-            const newStock = currentStock + quantity;
-            
-            console.log(`[완제품재고증가] 현재재고: ${currentStock}, 증가후재고: ${newStock}`);
-            
-            await this.inventoryRepository.update(
-                { inventoryCode: productCode },
-                { inventoryQuantity: newStock }
-            );
-        } else {
-            console.warn(`[완제품재고증가] 제품을 찾을 수 없습니다: ${productCode}`);
-        }
-    }
 }
