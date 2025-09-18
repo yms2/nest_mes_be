@@ -70,5 +70,33 @@ export class InventoryLogsController {
     return this.inventoryAdjustmentLogService.getLogsByDateRange(start, end, limit);
   }
 
+  @Get('inbound-outbound')
+  @ApiOperation({ 
+    summary: '재고 입출고 내역 조회',
+    description: '재고의 입고 및 출고 내역을 조회합니다. 품목명으로 검색 가능합니다.'
+  })
+  @ApiQuery({ name: 'inventoryName', description: '품목명 (부분 검색 가능)', required: false, })
+  @ApiQuery({ name: 'transactionType', description: '거래 유형 (INBOUND: 입고, OUTBOUND: 출고/생산)', required: false, })
+
+  @ApiQuery({ name: 'page', description: '페이지 번호', required: false, example: 1 })
+  @ApiQuery({ name: 'limit', description: '페이지당 항목 수', required: false, example: 20 })
+  @ApiResponse({ 
+    status: 200, 
+    description: '재고 입출고 내역을 반환합니다.',
+  })
+  async getInboundOutboundLogs(
+    @Query('inventoryName') inventoryName?: string,
+    @Query('transactionType') transactionType?: 'INBOUND'  | 'OUTBOUND',
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+  ) {
+    return this.inventoryAdjustmentLogService.getInboundOutboundLogs({
+      inventoryName,
+      transactionType,
+      page: page || 1,
+      limit: limit || 20
+    });
+  }
+
 
 }

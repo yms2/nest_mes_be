@@ -27,6 +27,7 @@ export class ProductionStartController {
   })
   @ApiResponse({ status: 201, description: '생산이 성공적으로 시작되었습니다.' })
   @ApiResponse({ status: 404, description: '생산 지시 또는 BOM 공정을 찾을 수 없습니다.' })
+  @ApiResponse({ status: 400, description: '재고 부족으로 생산을 시작할 수 없습니다.' })
   async startProduction(
     @Body(ValidationPipe) dto: StartProductionDto,
   ) {

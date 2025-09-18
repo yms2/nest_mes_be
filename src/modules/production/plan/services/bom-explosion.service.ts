@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { BomInfo } from '@/modules/base-info/bom-info/entities/bom-info.entity';
 import { ProductInfo } from '@/modules/base-info/product-info/product_sample/entities/product-info.entity';
 import { OrderManagement } from '@/modules/business-info/ordermanagement-info/entities/ordermanagement.entity';
+import { Inventory } from '@/modules/inventory/inventory-management/entities/inventory.entity';
 
 export interface BomItem {
   productCode: string;
@@ -42,6 +43,8 @@ export class BomExplosionService {
     private readonly productRepository: Repository<ProductInfo>,
     @InjectRepository(OrderManagement)
     private readonly orderRepository: Repository<OrderManagement>,
+    @InjectRepository(Inventory)
+    private readonly inventoryRepository: Repository<Inventory>,
   ) {}
 
   /**
@@ -70,14 +73,21 @@ export class BomExplosionService {
    * @returns BOM 전개 결과
    */
   async explodeBom(productCode: string, quantity: number): Promise<BomExplosionResult> {
-    // 모든 BOM과 제품 정보 조회
+    // 모든 BOM과 제품 정보, 재고 정보 조회
     const allBoms = await this.bomRepository.find();
     const allProducts = await this.productRepository.find();
+    const allInventories = await this.inventoryRepository.find();
 
     // 제품 정보를 Map으로 구성
     const productMap = new Map<string, ProductInfo>();
     allProducts.forEach(product => {
       productMap.set(product.productCode, product);
+    });
+
+    // 재고 정보를 Map으로 구성
+    const inventoryMap = new Map<string, Inventory>();
+    allInventories.forEach(inventory => {
+      inventoryMap.set(inventory.inventoryCode, inventory);
     });
 
     // 루트 제품 정보
@@ -87,7 +97,7 @@ export class BomExplosionService {
     }
 
     // BOM 전개 실행
-    const bomItems = await this.buildBomTree(productCode, quantity, allBoms, productMap, new Set());
+    const bomItems = await this.buildBomTree(productCode, quantity, allBoms, productMap, inventoryMap, new Set());
 
     // 부족한 아이템들과 충분한 아이템들 필터링
     const shortageItems = this.findShortageItems(bomItems);
@@ -116,6 +126,7 @@ export class BomExplosionService {
     quantity: number,
     allBoms: BomInfo[],
     productMap: Map<string, ProductInfo>,
+    inventoryMap: Map<string, Inventory>,
     visited: Set<string>,
   ): Promise<BomItem[]> {
     if (visited.has(productCode)) {
@@ -132,7 +143,8 @@ export class BomExplosionService {
       if (!product) continue;
 
       const requiredQuantity = bom.quantity * quantity;
-      const stockQuantity = parseInt(product.safeInventory) || 0;
+      const inventory = inventoryMap.get(bom.childProductCode);
+      const stockQuantity = inventory?.inventoryQuantity || 0;
       const shortageQuantity = Math.max(0, requiredQuantity - stockQuantity);
 
       const bomItem: BomItem = {
@@ -152,6 +164,7 @@ export class BomExplosionService {
           requiredQuantity,
           allBoms,
           productMap,
+          inventoryMap,
           new Set(visited),
         ),
       };

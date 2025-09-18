@@ -16,6 +16,7 @@ import { ProductionEndController } from './controllers/production-end.controller
 import { ProductionResultReadController } from './controllers/production-result-read.controller';
 import { ProductionResultDownloadController } from './controllers/production-result-download.controller';
 import { CommonModule } from '@/common/common.module';
+import { InventoryLogsModule } from '@/modules/inventory/inventory-logs/inventory-logs.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { CommonModule } from '@/common/common.module';
       Inventory,
     ]),
     CommonModule,
+    InventoryLogsModule,
   ],
   controllers: [
     ProductionStartController,

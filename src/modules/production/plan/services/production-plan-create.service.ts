@@ -5,6 +5,7 @@ import { ProductionPlan } from '../entities/production-plan.entity';
 import { BomExplosionService, BomExplosionResult } from './bom-explosion.service';
 import { OrderManagement } from '@/modules/business-info/ordermanagement-info/entities/ordermanagement.entity';
 import { ProductInfo } from '@/modules/base-info/product-info/product_sample/entities/product-info.entity';
+import { Inventory } from '@/modules/inventory/inventory-management/entities/inventory.entity';
 import { ProductionPlanCodeGenerator } from '../utils/production-plan-code-generator.util';
 
 export interface ProductionPlanCreateDto {
@@ -40,6 +41,8 @@ export class ProductionPlanCreateService {
     private readonly orderRepository: Repository<OrderManagement>,
     @InjectRepository(ProductInfo)
     private readonly productRepository: Repository<ProductInfo>,
+    @InjectRepository(Inventory)
+    private readonly inventoryRepository: Repository<Inventory>,
     private readonly bomExplosionService: BomExplosionService,
   ) {}
 
@@ -70,11 +73,13 @@ export class ProductionPlanCreateService {
 
     // 생산 계획 생성
     const productionPlans: ProductionPlan[] = [];
+    let sequenceNumber = 1; // 같은 수주 내에서 순차적으로 증가
 
     for (const item of productionPlanItems) {
       const productionPlan = this.productionPlanRepository.create({
         productionPlanCode: await ProductionPlanCodeGenerator.generateProductionPlanCode(
           this.productionPlanRepository,
+          sequenceNumber,
         ),
         productionPlanDate: dto.productionPlanDate,
         orderType: order.orderType,
@@ -99,6 +104,7 @@ export class ProductionPlanCreateService {
       });
 
       productionPlans.push(productionPlan);
+      sequenceNumber++; // 다음 생산 계획을 위해 순번 증가
     }
 
     // 데이터베이스에 저장
@@ -120,6 +126,13 @@ export class ProductionPlanCreateService {
       where: { productCode: bomResult.rootProduct.productCode },
     });
 
+    // 최상위 품목의 실제 재고 조회
+    const rootInventory = await this.inventoryRepository.findOne({
+      where: { inventoryCode: bomResult.rootProduct.productCode },
+    });
+
+    const rootStockQuantity = rootInventory?.inventoryQuantity || 0;
+
     // 최상위 품목도 포함하여 모든 품목을 처리
     const allItems = [
       {
@@ -128,8 +141,8 @@ export class ProductionPlanCreateService {
         productType: rootProduct?.productType || '',
         productSize: rootProduct?.productSize1 || '',
         requiredQuantity: bomResult.rootProduct.orderQuantity,
-        stockQuantity: parseInt(rootProduct?.safeInventory || '0') || 0,
-        shortageQuantity: Math.max(0, bomResult.rootProduct.orderQuantity - (parseInt(rootProduct?.safeInventory || '0') || 0)),
+        stockQuantity: rootStockQuantity,
+        shortageQuantity: Math.max(0, bomResult.rootProduct.orderQuantity - rootStockQuantity),
         level: 0,
         parentProductCode: null,
       },

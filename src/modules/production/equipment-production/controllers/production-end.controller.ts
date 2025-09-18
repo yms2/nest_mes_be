@@ -25,6 +25,7 @@ export class ProductionEndController {
   })
   @ApiResponse({ status: 200, description: '생산이 성공적으로 종료되었습니다.' })
   @ApiResponse({ status: 404, description: '생산을 찾을 수 없습니다.' })
+  @ApiResponse({ status: 400, description: '재고 부족으로 생산을 완료할 수 없습니다.' })
   async endProduction(
     @Body(ValidationPipe) dto: EndProductionDto,
   ) {
