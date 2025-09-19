@@ -12,17 +12,17 @@ export class UpdateOrderManagementDto {
     @IsString()
     customerName?: string;
 
-    @ApiProperty({ example: 'PRJ001', description: '프로젝트 코드', required: false })
+    @ApiProperty({ example: 'PRJ001', description: '프로젝트 코드', required: true })
     @IsOptional()
     @IsString()
     projectCode?: string;
 
-    @ApiProperty({ example: '프로젝트 이름', description: '프로젝트 이름', required: false })
+    @ApiProperty({ example: '프로젝트 이름', description: '프로젝트 이름', required: true })
     @IsOptional()
     @IsString()
     projectName?: string;
 
-    @ApiProperty({ example: 'v1.0', description: '프로젝트 버전', required: false })
+    @ApiProperty({ example: 'v1.0', description: '프로젝트 버전', required: true })
     @IsOptional()
     @IsString()
     projectVersion?: string;
@@ -72,22 +72,22 @@ export class UpdateOrderManagementDto {
     @Min(0)
     total?: number;
 
-    @ApiProperty({ example: '2025-01-01', description: '수주 일자', required: false })
+    @ApiProperty({ example: '2025-01-01', description: '수주 일자', required: true })
     @IsOptional()
     @IsDateString()
     orderDate?: string;
 
-    @ApiProperty({ example: '2025-01-15', description: '납기예정일', required: false })
+    @ApiProperty({ example: '2025-01-15', description: '납기예정일', required: true })
     @IsOptional()
     @IsDateString()
     deliveryDate?: string;
 
-    @ApiProperty({ example: 'EST001', description: '견적코드', required: false })
+    @ApiProperty({ example: 'EST001', description: '견적코드', required: true })
     @IsOptional()
     @IsString()
     estimateCode?: string;
 
-    @ApiProperty({ example: '긴급 주문', description: '비고', required: false })
+    @ApiProperty({ example: '긴급 주문', description: '비고', required: true })
     @IsOptional()
     @IsString()
     remark?: string;
