@@ -28,6 +28,10 @@ export class OrderManagement extends BaseEntity {
     @Column({ name : 'project_name', type: 'varchar', length: 20 })
     projectName: string;
 
+    @ApiProperty({ example: 'v1.0', description: '프로젝트 버전' })
+    @Column({ name : 'project_version', type: 'varchar', length: 20, nullable: true })
+    projectVersion: string;
+
     @ApiProperty({ example: 'PRD001', description: '품목 코드' })
     @Column({ name : 'product_code', type: 'varchar', length: 20 })
     productCode: string;
@@ -65,11 +69,19 @@ export class OrderManagement extends BaseEntity {
     deliveryDate: Date;
 
     @ApiProperty({ example: 'EST001', description: '견적코드' })
-    @Column({ name : 'estimate_code', type: 'varchar', length: 20 })
+    @Column({ name : 'estimate_code', type: 'varchar', length: 20, nullable: true })
     estimateCode: string;
 
+    @ApiProperty({ example: '견적내용', description: '견적내용' })
+    @Column({ name : 'estimate_content', type: 'varchar', length: 20, nullable: true })
+    estimateContent: string;
+
     @ApiProperty({ example: '100', description: '비고' })
-    @Column({ name : 'remark', type: 'varchar', length: 20 })
+    @Column({ name : 'remark', type: 'varchar', length: 20, nullable: true })
     remark: string;
+
+    @ApiProperty({ example: '승인', description: '승인 정보' })
+    @Column({ name : 'approval_info', type: 'varchar', length: 20, default: '대기' })
+    approvalInfo: string;
     
 }

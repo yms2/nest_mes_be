@@ -1,0 +1,1 @@
+export * from './receiving-management-read.controller';

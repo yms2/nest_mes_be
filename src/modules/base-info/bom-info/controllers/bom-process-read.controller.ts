@@ -13,8 +13,7 @@ export class BomProcessReadController {
   @Auth()
   @ApiOperation({ summary: '제품 코드로 BOM 공정 조회', description: '특정 제품 코드의 BOM 공정을 조회합니다.' })
   @ApiParam({ name: 'productCode', description: '제품 코드', type: String })
-  @ApiResponse({ status: 200, description: '조회 성공', type: [BomProcess] })
-  @ApiResponse({ status: 404, description: 'BOM 공정을 찾을 수 없음' })
+  @ApiResponse({ status: 200, description: '조회 성공 (데이터가 없으면 빈 배열 반환)', type: [BomProcess] })
   async getBomProcessesByProductCode(@Param('productCode') productCode: string): Promise<BomProcess[]> {
     return await this.bomProcessReadService.getBomProcessesByProductCode(productCode);
   }

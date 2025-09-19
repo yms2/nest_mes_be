@@ -23,10 +23,7 @@ export class BomProcessReadService {
       },
     });
 
-    if (bomProcesses.length === 0) {
-      throw new NotFoundException(`제품 코드 ${productCode}의 BOM 공정을 찾을 수 없습니다.`);
-    }
-
+    // 데이터가 없어도 404 오류를 발생시키지 않고 빈 배열 반환
     return bomProcesses;
   }
 

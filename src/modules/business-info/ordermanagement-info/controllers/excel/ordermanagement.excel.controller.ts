@@ -16,7 +16,6 @@ import { OrderManagementUploadService } from "../../services/ordermanagement-upl
 export class OrderManagementExcelController {
     constructor(
         private readonly orderManagementReadService: OrderManagementReadService,
-        private readonly orderManagementTemplateService: OrderManagementTemplateService,
         private readonly orderManagementDownloadService: OrderManagementDownloadService,
         private readonly orderManagementUploadService: OrderManagementUploadService,
     ) {}

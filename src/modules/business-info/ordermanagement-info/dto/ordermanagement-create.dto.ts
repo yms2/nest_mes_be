@@ -28,6 +28,11 @@ export class CreateOrderManagementDto {
     @IsString()
     projectName: string;
 
+    @ApiProperty({ example: 'v1.0', description: '프로젝트 버전' })
+    @IsOptional()
+    @IsString()
+    projectVersion?: string;
+
     @ApiProperty({ example: 'PRD001', description: '품목 코드' })
     @IsNotEmpty()
     @IsString()
@@ -77,6 +82,11 @@ export class CreateOrderManagementDto {
     @IsOptional()
     @IsString()
     estimateCode?: string;
+
+    @ApiProperty({ example: '견적내용', description: '견적내용' })
+    @IsOptional()
+    @IsString()
+    estimateContent?: string;
 
     @ApiProperty({ example: '비고사항', description: '비고' })
     @IsOptional()

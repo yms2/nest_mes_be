@@ -156,11 +156,11 @@ export class EstimateManagementCreateController {
   })
   @ApiResponse({ 
     status: 400, 
-    description: '잘못된 요청',
+    description: '잘못된 요청 - 필수 필드 누락',
     schema: {
       example: {
         success: false,
-        message: '세부품목 필수 필드가 누락되었습니다.',
+        message: '다음 필수 필드가 누락되었습니다: 거래처코드, 거래처명, 프로젝트명, 품목코드, 품목명, 견적상태, 견적금액',
         data: null,
         timestamp: '2025-08-25T01:52:59.940Z'
       }
