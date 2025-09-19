@@ -69,15 +69,15 @@ export class OrderManagement extends BaseEntity {
     deliveryDate: Date;
 
     @ApiProperty({ example: 'EST001', description: '견적코드' })
-    @Column({ name : 'estimate_code', type: 'varchar', length: 20 })
+    @Column({ name : 'estimate_code', type: 'varchar', length: 20, nullable: true })
     estimateCode: string;
 
     @ApiProperty({ example: '견적내용', description: '견적내용' })
-    @Column({ name : 'estimate_content', type: 'varchar', length: 20 })
+    @Column({ name : 'estimate_content', type: 'varchar', length: 20, nullable: true })
     estimateContent: string;
 
     @ApiProperty({ example: '100', description: '비고' })
-    @Column({ name : 'remark', type: 'varchar', length: 20 })
+    @Column({ name : 'remark', type: 'varchar', length: 20, nullable: true })
     remark: string;
 
     @ApiProperty({ example: '승인', description: '승인 정보' })

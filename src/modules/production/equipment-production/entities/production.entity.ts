@@ -1,5 +1,6 @@
 import { BaseEntity } from "@/common/entities/base.entity";
-import { Entity, Column } from "typeorm";
+import { Entity, Column, OneToMany } from "typeorm";
+import { QualityInspection } from "@/modules/quality/inspection/entities/quality-inspection.entity";
 import { ApiProperty } from "@nestjs/swagger";
 
 @Entity()
@@ -75,5 +76,9 @@ export class Production extends BaseEntity {
     @ApiProperty({ example: '비고', description: '비고' })
     @Column({ name: 'remark', type: 'varchar', length: 100, comment: '비고' ,nullable: true})
     remark: string;
+
+    // 품질검사 관계
+    @OneToMany(() => QualityInspection, inspection => inspection.production)
+    qualityInspections: QualityInspection[];
 
 }
