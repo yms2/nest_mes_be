@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { OrderInfo } from '../../order-info/entities/order-info.entity';
+import { Receiving } from '../entities/receiving.entity';
 import { logService } from 'src/modules/log/Services/log.service';
 
 @Injectable()
@@ -9,6 +10,8 @@ export class ReceivingManagementReadService {
     constructor(
         @InjectRepository(OrderInfo)
         private readonly orderInfoRepository: Repository<OrderInfo>,
+        @InjectRepository(Receiving)
+        private readonly receivingRepository: Repository<Receiving>,
         private readonly logService: logService,
     ) {}
 
@@ -37,8 +40,8 @@ export class ReceivingManagementReadService {
                 endDate
             } = searchParams;
 
-            // QueryBuilder로 승인된 발주품목 조회 (OrderInfo 엔티티 사용)
-            const queryBuilder = this.orderInfoRepository
+            // 1단계: 모든 승인된 발주품목 조회
+            const baseQuery = this.orderInfoRepository
                 .createQueryBuilder('oi')
                 .leftJoin('product_info', 'pi', 'oi.parentProductCode = pi.product_code')
                 .select([
@@ -60,43 +63,72 @@ export class ReceivingManagementReadService {
                     'oi.remark as remark',
                     'oi.approvalInfo as approvalInfo'
                 ])
-                .where('oi.approvalInfo = :status', { status: '승인' })
-                .orderBy('oi.orderDate', 'DESC');
+                .where('oi.approvalInfo = :status', { status: '승인' });
 
             // 검색 조건 추가
             if (search) {
-                queryBuilder.andWhere(
+                baseQuery.andWhere(
                     '(oi.orderCode LIKE :search OR oi.customerName LIKE :search OR oi.productName LIKE :search)',
                     { search: `%${search}%` }
                 );
             }
 
             if (productCode) {
-                queryBuilder.andWhere('oi.productCode = :productCode', { productCode });
+                baseQuery.andWhere('oi.productCode = :productCode', { productCode });
             }
 
             if (customerCode) {
-                queryBuilder.andWhere('oi.customerCode = :customerCode', { customerCode });
+                baseQuery.andWhere('oi.customerCode = :customerCode', { customerCode });
             }
 
             if (startDate) {
-                queryBuilder.andWhere('oi.orderDate >= :startDate', { startDate });
+                baseQuery.andWhere('oi.orderDate >= :startDate', { startDate });
             }
 
             if (endDate) {
-                queryBuilder.andWhere('oi.orderDate <= :endDate', { endDate });
+                baseQuery.andWhere('oi.orderDate <= :endDate', { endDate });
             }
 
-            // 전체 개수 조회
-            const total = await queryBuilder.getCount();
+            // 2단계: 모든 발주품목 조회
+            const allOrderItems = await baseQuery.getRawMany();
 
-            // 페이지네이션
+            // 3단계: 각 발주품목별 입고 수량 조회
+            const orderItemsWithReceivedQuantity = await Promise.all(
+                allOrderItems.map(async (item) => {
+                    const receivedQuantity = await this.receivingRepository
+                        .createQueryBuilder('r')
+                        .select('COALESCE(SUM(r.quantity), 0)', 'totalReceived')
+                        .where('r.orderCode = :orderCode', { orderCode: item.orderCode })
+                        .andWhere('r.productCode = :productCode', { productCode: item.productCode })
+                        .getRawOne();
+
+                    const totalReceived = parseInt(receivedQuantity?.totalReceived || '0');
+                    const orderQuantity = parseInt(item.quantity || '0');
+                    const remainingQuantity = orderQuantity - totalReceived;
+
+                    return {
+                        ...item,
+                        receivedQuantity: totalReceived,
+                        remainingQuantity: remainingQuantity,
+                        quantity: orderQuantity
+                    };
+                })
+            );
+
+            // 4단계: 미입고 수량이 있는 항목만 필터링
+            const filteredItems = orderItemsWithReceivedQuantity.filter(
+                item => item.remainingQuantity > 0
+            );
+
+            // 5단계: 정렬
+            filteredItems.sort((a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime());
+
+            // 6단계: 페이지네이션
+            const total = filteredItems.length;
             const offset = (page - 1) * limit;
-            queryBuilder.skip(offset).take(limit);
+            const results = filteredItems.slice(offset, offset + limit);
 
-            const results = await queryBuilder.getRawMany();
-
-            // 결과 데이터 변환
+            // 결과 데이터 변환 (이미 계산된 값들을 사용)
             const data = results.map((row: any) => ({
                 parentProductCode: row.parentProductCode || '',
                 parentProductName: row.parentProductName || '',
@@ -110,8 +142,9 @@ export class ReceivingManagementReadService {
                 deliveryDate: row.deliveryDate,
                 productCode: row.productCode,
                 productName: row.productName,
-
-                quantity: parseInt(row.quantity) || 0,
+                quantity: row.quantity, // 발주 수량
+                receivedQuantity: row.receivedQuantity, // 입고 수량
+                remainingQuantity: row.remainingQuantity, // 미입고 수량
                 unitPrice: parseFloat(row.unitPrice) || 0,
                 totalAmount: parseInt(row.totalAmount) || 0,
                 remark: row.remark || '',

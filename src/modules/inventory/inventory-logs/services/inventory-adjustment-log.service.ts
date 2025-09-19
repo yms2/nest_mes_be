@@ -194,4 +194,127 @@ export class InventoryAdjustmentLogService {
       averageQuantityChange: Math.round(averageQuantityChange * 100) / 100,
     };
   }
+
+  /**
+   * 재고 입출고 내역 조회
+   * @param filters 필터 조건
+   * @returns 입출고 내역 목록
+   */
+  async getInboundOutboundLogs(filters: {
+    inventoryCode?: string;
+    inventoryName?: string;
+    transactionType?: 'INBOUND' | 'OUTBOUND';
+    startDate?: Date;
+    endDate?: Date;
+    page: number;
+    limit: number;
+  }) {
+    const queryBuilder = this.inventoryAdjustmentLogRepository
+      .createQueryBuilder('log')
+      .orderBy('log.createdAt', 'DESC');
+
+    // 재고 코드 필터
+    if (filters.inventoryCode) {
+      queryBuilder.andWhere('log.inventoryCode = :inventoryCode', { 
+        inventoryCode: filters.inventoryCode 
+      });
+    }
+
+    // 품목명 필터 (부분 검색)
+    if (filters.inventoryName) {
+      queryBuilder.andWhere('log.inventoryName LIKE :inventoryName', { 
+        inventoryName: `%${filters.inventoryName}%` 
+      });
+    }
+
+    // 거래 유형 필터 (입고/출고)
+    if (filters.transactionType) {
+      if (filters.transactionType === 'INBOUND') {
+        queryBuilder.andWhere('log.quantityChange > 0');
+      } else if (filters.transactionType === 'OUTBOUND') {
+        queryBuilder.andWhere('log.quantityChange < 0');
+      }
+    }
+
+    // 날짜 범위 필터
+    if (filters.startDate && filters.endDate) {
+      queryBuilder.andWhere('log.createdAt BETWEEN :startDate AND :endDate', {
+        startDate: filters.startDate,
+        endDate: filters.endDate
+      });
+    } else if (filters.startDate) {
+      queryBuilder.andWhere('log.createdAt >= :startDate', {
+        startDate: filters.startDate
+      });
+    } else if (filters.endDate) {
+      queryBuilder.andWhere('log.createdAt <= :endDate', {
+        endDate: filters.endDate
+      });
+    }
+
+    // 성공한 로그만 조회
+    queryBuilder.andWhere('log.logStatus = :status', { status: 'SUCCESS' });
+
+    // 총 개수 조회
+    const total = await queryBuilder.getCount();
+
+    // 페이지네이션 적용
+    const offset = (filters.page - 1) * filters.limit;
+    const logs = await queryBuilder
+      .skip(offset)
+      .take(filters.limit)
+      .getMany();
+
+    // 입출고 내역 데이터 변환
+    const inboundOutboundLogs = logs.map(log => {
+      const isInbound = log.quantityChange > 0;
+      return {
+        id: log.id,
+        inventoryCode: log.inventoryCode,
+        inventoryName: log.inventoryName,
+        transactionType: isInbound ? 'INBOUND' : 'OUTBOUND',
+        transactionTypeName: isInbound ? '입고' : '생산',
+        quantity: Math.abs(log.quantityChange),
+        beforeQuantity: log.beforeQuantity,
+        afterQuantity: log.afterQuantity,
+        reason: log.adjustmentReason,
+        createdBy: log.createdBy,
+        createdAt: log.createdAt,
+        updatedAt: log.updatedAt,
+        // 추가 정보
+        adjustmentType: log.adjustmentType,
+        logStatus: log.logStatus
+      };
+    });
+
+    // 통계 정보 계산
+    const inboundCount = inboundOutboundLogs.filter(log => log.transactionType === 'INBOUND').length;
+    const outboundCount = inboundOutboundLogs.filter(log => log.transactionType === 'OUTBOUND').length;
+    const totalInboundQuantity = inboundOutboundLogs
+      .filter(log => log.transactionType === 'INBOUND')
+      .reduce((sum, log) => sum + log.quantity, 0);
+    const totalOutboundQuantity = inboundOutboundLogs
+      .filter(log => log.transactionType === 'OUTBOUND')
+      .reduce((sum, log) => sum + log.quantity, 0);
+
+    return {
+      success: true,
+      data: inboundOutboundLogs,
+      pagination: {
+        total,
+        page: filters.page,
+        limit: filters.limit,
+        totalPages: Math.ceil(total / filters.limit)
+      },
+      statistics: {
+        inboundCount,
+        outboundCount,
+        totalInboundQuantity,
+        totalOutboundQuantity,
+        netQuantity: totalInboundQuantity - totalOutboundQuantity,
+        inboundLabel: '입고',
+        outboundLabel: '생산'
+      }
+    };
+  }
 }

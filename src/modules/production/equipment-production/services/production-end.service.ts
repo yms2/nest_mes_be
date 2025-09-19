@@ -8,6 +8,7 @@ import { BomInfo } from '@/modules/base-info/bom-info/entities/bom-info.entity';
 import { Inventory } from '@/modules/inventory/inventory-management/entities/inventory.entity';
 import { ProductionInstruction } from '@/modules/production/instruction/entities/production-instruction.entity';
 import { EndProductionDto, DefectReasonDto } from '../dto/end-production.dto';
+import { InventoryAdjustmentLogService } from '@/modules/inventory/inventory-logs/services/inventory-adjustment-log.service';
 
 
 @Injectable()
@@ -25,6 +26,7 @@ export class ProductionEndService {
         private readonly inventoryRepository: Repository<Inventory>,
         @InjectRepository(ProductionInstruction)
         private readonly productionInstructionRepository: Repository<ProductionInstruction>,
+        private readonly inventoryAdjustmentLogService: InventoryAdjustmentLogService,
     ) {}
 
 
@@ -258,14 +260,12 @@ export class ProductionEndService {
      * @param quantity 생산 수량
      */
     private async checkAndUpdateBomInventory(productCode: string, quantity: number): Promise<void> {
-        console.log(`[BOM재고확인] 제품: ${productCode}, 생산수량: ${quantity}개`);
         
         // BOM 정보 조회 (자재 정보)
         const bomItems = await this.bomInfoRepository.find({
             where: { parentProductCode: productCode }
         });
 
-        console.log(`[BOM재고확인] BOM 항목 수: ${bomItems.length}개`);
 
         // 1단계: 재고 부족 확인
         const insufficientItems: string[] = [];
@@ -288,15 +288,15 @@ export class ProductionEndService {
             }
         }
 
-        // 재고 부족 시 예외 발생
+        // 재고 부족 시 생산 종료 불가
         if (insufficientItems.length > 0) {
-            const errorMessage = `재고 부족으로 생산 완료할 수 없습니다:\n${insufficientItems.join('\n')}`;
-            console.error(`[BOM재고부족] ${errorMessage}`);
+            const errorMessage = `재고 부족으로 생산을 완료할 수 없습니다:\n${insufficientItems.join('\n')}\n\n재고를 보충한 후 다시 시도해주세요.`;
+            console.error(`[생산종료실패] 재고부족 - 제품: ${productCode}, 생산수량: ${quantity}개`);
+            console.error(`[부족재고목록] ${insufficientItems.join(', ')}`);
             throw new NotFoundException(errorMessage);
         }
 
-        // 2단계: 재고 차감 실행
-        console.log(`[BOM차감] 모든 재고 충분, 차감 시작`);
+        // 2단계: 재고 차감 실행 및 로그 기록
         
         for (const bomItem of bomItems) {
             const inventory = await this.inventoryRepository.findOne({
@@ -307,13 +307,32 @@ export class ProductionEndService {
                 const currentStock = inventory.inventoryQuantity;
                 const requiredQuantity = bomItem.quantity * quantity;
                 const newStock = currentStock - requiredQuantity;
-                
-                console.log(`[BOM차감] 자재: ${bomItem.childProductCode}, 현재재고: ${currentStock}, 필요수량: ${requiredQuantity}, 차감후재고: ${newStock}`);
-                
+              
+                // 재고 업데이트
                 await this.inventoryRepository.update(
                     { inventoryCode: bomItem.childProductCode },
-                    { inventoryQuantity: newStock }
+                    { 
+                        inventoryQuantity: newStock,
+                        updatedBy: 'system',
+                        updatedAt: new Date()
+                    }
                 );
+
+                // 재고 조정 로그 기록
+                try {
+                    await this.inventoryAdjustmentLogService.logAdjustment(
+                        bomItem.childProductCode,
+                        inventory.inventoryName,
+                        'CHANGE',
+                        currentStock,
+                        newStock,
+                        -requiredQuantity, // 음수로 출고 표시
+                        `생산 완료 - 제품: ${productCode}, 생산수량: ${quantity}개, BOM 수량: ${bomItem.quantity}개`,
+                        'system'
+                    );
+                } catch (logError) {
+                    console.error(`[재고로그기록실패] ${bomItem.childProductCode}: ${logError.message}`);
+                }
             }
         }
     }

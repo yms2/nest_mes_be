@@ -5,6 +5,8 @@ import { Production } from '../entities/production.entity';
 import { ProductionInstruction } from '@/modules/production/instruction/entities/production-instruction.entity';
 import { ProductionPlan } from '@/modules/production/plan/entities/production-plan.entity';
 import { BomProcess } from '@/modules/base-info/bom-info/entities/bom-process.entity';
+import { BomInfo } from '@/modules/base-info/bom-info/entities/bom-info.entity';
+import { Inventory } from '@/modules/inventory/inventory-management/entities/inventory.entity';
 import { StartProductionDto } from '../dto/start-production.dto';
 
 @Injectable()
@@ -18,6 +20,10 @@ export class ProductionStartService {
     private readonly productionPlanRepository: Repository<ProductionPlan>,
     @InjectRepository(BomProcess)
     private readonly bomProcessRepository: Repository<BomProcess>,
+    @InjectRepository(BomInfo)
+    private readonly bomInfoRepository: Repository<BomInfo>,
+    @InjectRepository(Inventory)
+    private readonly inventoryRepository: Repository<Inventory>,
   ) {}
 
   /**
@@ -51,13 +57,16 @@ export class ProductionStartService {
       throw new NotFoundException(`생산 계획을 찾을 수 없습니다: ${productionInstruction.productionPlanCode}`);
     }
 
-    // 4. BOM 공정 조회 (제품 코드 기준으로 순서대로)
+    // 4. BOM 재료 재고 확인
+    await this.checkBomInventory(productionPlan.productCode, productionInstruction.productionInstructionQuantity);
+
+    // 5. BOM 공정 조회 (제품 코드 기준으로 순서대로)
     let bomProcesses = await this.bomProcessRepository.find({
       where: { productCode: productionPlan.productCode },
       order: { processOrder: 'ASC' },
     });
 
-    // 4. 생산 불량 코드 생성
+    // 6. 생산 불량 코드 생성
     const productionDefectCode = await this.generateProductionDefectCode();
 
     // BOM 공정이 없으면 기본 공정 생성
@@ -76,7 +85,7 @@ export class ProductionStartService {
       bomProcesses = [defaultProcess];
     }
 
-    // 5. 생산 등록 (첫 번째 공정으로 시작)
+    // 7. 생산 등록 (첫 번째 공정으로 시작)
     const production = this.productionRepository.create({
       productionCode,
       productionInstructionCode: dto.productionInstructionCode,
@@ -160,5 +169,46 @@ export class ProductionStartService {
     });
     const sequence = (count + 1).toString().padStart(3, '0');
     return `BD${today}${sequence}`;
+  }
+
+  /**
+   * BOM 재료 재고를 확인합니다.
+   * @param productCode 제품 코드
+   * @param quantity 생산 수량
+   */
+  private async checkBomInventory(productCode: string, quantity: number): Promise<void> {
+    // BOM 정보 조회 (자재 정보)
+    const bomItems = await this.bomInfoRepository.find({
+      where: { parentProductCode: productCode }
+    });
+
+    // 재고 부족 확인
+    const insufficientItems: string[] = [];
+    
+    for (const bomItem of bomItems) {
+      const inventory = await this.inventoryRepository.findOne({
+        where: { inventoryCode: bomItem.childProductCode }
+      });
+
+      if (!inventory) {
+        insufficientItems.push(`${bomItem.childProductCode} (재고 정보 없음)`);
+        continue;
+      }
+
+      const currentStock = inventory.inventoryQuantity;
+      const requiredQuantity = bomItem.quantity * quantity;
+      
+      if (currentStock < requiredQuantity) {
+        insufficientItems.push(`${bomItem.childProductCode} (현재: ${currentStock}, 필요: ${requiredQuantity})`);
+      }
+    }
+
+    // 재고 부족 시 생산 시작 불가
+    if (insufficientItems.length > 0) {
+      const errorMessage = `재고 부족으로 생산을 시작할 수 없습니다:\n${insufficientItems.join('\n')}\n\n재고를 보충한 후 다시 시도해주세요.`;
+      console.error(`[생산시작실패] 재고부족 - 제품: ${productCode}, 생산수량: ${quantity}개`);
+      console.error(`[부족재고목록] ${insufficientItems.join(', ')}`);
+      throw new NotFoundException(errorMessage);
+    }
   }
 }

@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { OrderMain } from '../entities/order-main.entity';
 import { OrderInfo } from '../entities/order-info.entity';
+import { OrderManagement } from '../../ordermanagement-info/entities/ordermanagement.entity';
 import { CreateOrderMainDto } from '../dto/create-order-main.dto';
 import { UpdateOrderMainDto } from '../dto/update-order-main.dto';
 import { logService } from '../../../log/Services/log.service';
@@ -14,6 +15,8 @@ export class OrderMainService {
         private readonly orderMainRepository: Repository<OrderMain>,
         @InjectRepository(OrderInfo)
         private readonly orderInfoRepository: Repository<OrderInfo>,
+        @InjectRepository(OrderManagement)
+        private readonly orderManagementRepository: Repository<OrderManagement>,
         private readonly logService: logService,
     ) {}
 
@@ -104,6 +107,15 @@ export class OrderMainService {
                         .orderBy('orderInfo.createdAt', 'DESC')
                         .getMany();
 
+                    // 해당 수주 코드와 정확히 일치하는 수주관리 정보 조회
+                    const orderManagement = await this.orderManagementRepository
+                        .createQueryBuilder('orderManagement')
+                        .where('orderManagement.orderCode = :orderCode', { 
+                            orderCode: orderMain.orderCode 
+                        })
+                        .orderBy('orderManagement.createdAt', 'DESC')
+                        .getMany();
+
                     // 발주 디테일 요약 정보 계산
                     const summary = {
                         totalItems: orderDetails.length,
@@ -117,6 +129,7 @@ export class OrderMainService {
                     return {
                         ...orderMain,
                         orderDetails,
+                        orderManagement,
                         summary
                     };
                 })
@@ -233,7 +246,14 @@ export class OrderMainService {
                 .take(limit)
                 .getManyAndCount();
 
-            // 4. 발주 디테일 정보 요약 계산
+            // 4. 해당 수주 코드와 정확히 일치하는 수주관리 정보 조회
+            const orderManagement = await this.orderManagementRepository
+                .createQueryBuilder('orderManagement')
+                .where('orderManagement.orderCode = :orderCode', { orderCode })
+                .orderBy('orderManagement.createdAt', 'DESC')
+                .getMany();
+
+            // 5. 발주 디테일 정보 요약 계산
             const summary = {
                 totalItems: total,
                 totalQuantity: orderDetails.reduce((sum, item) => sum + (item.orderQuantity || 0), 0),
@@ -257,6 +277,7 @@ export class OrderMainService {
                 data: {
                     orderMain,
                     orderDetails,
+                    orderManagement,
                     summary,
                     pagination: {
                         total,

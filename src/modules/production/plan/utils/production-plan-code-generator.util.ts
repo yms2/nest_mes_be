@@ -11,10 +11,12 @@ export class ProductionPlanCodeGenerator {
    * 예시: PP250115001, PP250115002, ...
    * 
    * @param productionPlanRepository 생산 계획 레포지토리
+   * @param sequenceNumber 시퀀스 번호 (선택사항, 같은 수주 내에서 순차적으로 증가)
    * @returns 생성된 생산 계획 코드
    */
   static async generateProductionPlanCode(
     productionPlanRepository: Repository<ProductionPlan>,
+    sequenceNumber?: number,
   ): Promise<string> {
     const today = new Date();
     const year = today.getFullYear().toString().slice(-2);
@@ -22,6 +24,11 @@ export class ProductionPlanCodeGenerator {
     const day = today.getDate().toString().padStart(2, '0');
 
     const prefix = `PP${year}${month}${day}`;
+
+    // 시퀀스 번호가 제공된 경우 해당 번호 사용
+    if (sequenceNumber !== undefined) {
+      return `${prefix}${sequenceNumber.toString().padStart(3, '0')}`;
+    }
 
     // 같은 날짜의 마지막 생산 계획 코드 조회
     const lastPlan = await productionPlanRepository
