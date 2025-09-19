@@ -32,4 +32,27 @@ export class OrderCreateController {
     async createOrderInfo(@Body() createOrderInfoDto: CreateOrderInfoDto) {
         return await this.orderCreateService.createOrderInfo(createOrderInfoDto);
     }
+
+    @Post('single-order')
+    @HttpCode(HttpStatus.CREATED)
+    @ApiOperation({ 
+        summary: '단일 발주 등록',
+        description: '단일 발주 정보를 등록합니다. customer_code와 customer_name을 포함합니다.'
+    })
+    @ApiBody({ type: CreateOrderInfoDto })
+    @ApiResponse({ 
+        status: 201, 
+        description: '단일 발주 등록 성공',
+        schema: {
+            type: 'object',
+            properties: {
+                success: { type: 'boolean', example: true },
+                message: { type: 'string', example: '단일 발주가 성공적으로 등록되었습니다.' },
+                orderInfo: { type: 'object', description: '등록된 단일 발주 정보' }
+            }
+        }
+    })
+    async createSingleOrderInfo(@Body() createOrderInfoDto: CreateOrderInfoDto) {
+        return await this.orderCreateService.createSingleOrderInfo(createOrderInfoDto);
+    }
 }

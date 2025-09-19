@@ -17,7 +17,7 @@ export class OrderCreateService {
     /**
      * 발주 정보를 등록합니다.
      */
-    async createOrderInfo(createOrderInfoDto: CreateOrderInfoDto) {
+    async createOrderInfo(createOrderInfoDto: CreateOrderInfoDto, username: string = 'system') {
         try {
 
             // 발주 정보 생성
@@ -25,8 +25,8 @@ export class OrderCreateService {
                 ...createOrderInfoDto,
                 orderDate: this.convertToDate(createOrderInfoDto.orderDate),
                 deliveryDate: this.convertToDate(createOrderInfoDto.deliveryDate),
-                createdBy: 'system',
-                updatedBy: 'system'
+                createdBy: username,
+                updatedBy: username
             } as Partial<OrderInfo>);
 
             // 발주 정보 저장
@@ -37,7 +37,7 @@ export class OrderCreateService {
             await this.logService.createDetailedLog({
                 moduleName: '발주관리 등록',
                 action: 'CREATE_SUCCESS',
-                username: 'system',
+                username: username,
                 targetId: savedOrderInfo.id.toString(),
                 targetName: savedOrderInfo.orderName,
                 details: `발주 등록 완료: ${savedOrderInfo.orderCode}`,
@@ -55,7 +55,7 @@ export class OrderCreateService {
             await this.logService.createDetailedLog({
                 moduleName: '발주관리 등록',
                 action: 'CREATE_FAILED',
-                username: 'system',
+                username: username,
                 targetId: '발주 등록',
                 targetName: createOrderInfoDto.orderName,
                 details: `발주 등록 실패: ${error.message}`,
@@ -192,6 +192,56 @@ export class OrderCreateService {
         }
 
         return null;
+    }
+
+    /**
+     * 단일 발주 정보를 등록합니다.
+     */
+    async createSingleOrderInfo(createOrderInfoDto: CreateOrderInfoDto, username: string = 'system') {
+        try {
+            
+            // 발주 정보 생성
+            const orderInfo = this.orderInfoRepository.create({
+                ...createOrderInfoDto,
+                orderDate: this.convertToDate(createOrderInfoDto.orderDate),
+                deliveryDate: this.convertToDate(createOrderInfoDto.deliveryDate),
+                createdBy: username,
+                updatedBy: username
+            } as Partial<OrderInfo>);
+
+            // 발주 정보 저장
+            const savedOrderInfo = await this.orderInfoRepository.save(orderInfo);
+
+            // 로그 기록
+            await this.logService.createDetailedLog({
+                moduleName: '발주관리 등록',
+                action: 'CREATE_SUCCESS',
+                username: username,
+                targetId: savedOrderInfo.id.toString(),
+                targetName: savedOrderInfo.orderName,
+                details: `단일 발주 등록 완료: ${savedOrderInfo.orderCode}`,
+            });
+
+            return {
+                success: true,
+                message: '단일 발주가 성공적으로 등록되었습니다.',
+                orderInfo: savedOrderInfo
+            };
+
+        } catch (error) {
+            
+            // 로그 기록
+            await this.logService.createDetailedLog({
+                moduleName: '발주관리 등록',
+                action: 'CREATE_FAILED',
+                username: username,
+                targetId: '단일 발주 등록',
+                targetName: createOrderInfoDto.orderName,
+                details: `단일 발주 등록 실패: ${error.message}`,
+            });
+
+            throw error;
+        }
     }
 
 }
