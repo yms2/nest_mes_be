@@ -4,7 +4,6 @@ import { Repository } from 'typeorm';
 import { ProductionDefectQuantity } from '../entities/productionDefect.entity';
 import { Production } from '../entities/production.entity';
 import { ProductionPlan } from '@/modules/production/plan/entities/production-plan.entity';
-import { ProductionInstruction } from '@/modules/production/instruction/entities/production-instruction.entity';
 import { logService } from '@/modules/log/Services/log.service';
 
 @Injectable()
@@ -16,8 +15,6 @@ export class ProductionDefectReadService {
         private readonly productionRepository: Repository<Production>,
         @InjectRepository(ProductionPlan)
         private readonly productionPlanRepository: Repository<ProductionPlan>,
-        @InjectRepository(ProductionInstruction)
-        private readonly productionInstructionRepository: Repository<ProductionInstruction>,
         private readonly logService: logService,
     ) {}
 
@@ -58,41 +55,21 @@ export class ProductionDefectReadService {
                         where: { productionDefectCode: defect.productionDefectCode }
                     });
 
-                    let relatedInfo: any = null;
-                    if (production) {
-                        // 생산 지시 코드로 생산 계획 정보 조회
-                        const productionPlan = await this.productionPlanRepository.findOne({
-                            where: { productionPlanCode: production.productionInstructionCode }
-                        });
-
-                        relatedInfo = {
-                            product: {
-                                productCode: production.productCode,
-                                productName: production.productName,
-                                productType: production.productType,
-                                productSize: production.productSize
-                            },
-                            customer: productionPlan ? {
-                                customerCode: productionPlan.customerCode,
-                                customerName: productionPlan.customerName
-                            } : null,
-                            project: productionPlan ? {
-                                projectCode: productionPlan.projectCode,
-                                projectName: productionPlan.projectName
-                            } : null,
-                            production: {
-                                productionCode: production.productionCode,
-                                productionStatus: production.productionStatus,
-                                productionInstructionQuantity: production.productionInstructionQuantity,
-                                productionCompletionQuantity: production.productionCompletionQuantity
-                            }
-                        };
-                    }
-
-                    return {
+                    // 관련 정보를 평면화하여 직접 추가
+                    const flatData = {
                         ...defect,
-                        relatedInfo
+                        // 품목 정보
+                        productCode: production?.productCode || null,
+                        productName: production?.productName || null,
+                        productType: production?.productType || null,
+                        // 생산 정보
+                        productionCode: production?.productionCode || null,
+                        productionStatus: production?.productionStatus || null,
+                        productionInstructionQuantity: production?.productionInstructionQuantity || null,
+                        productionCompletionQuantity: production?.productionCompletionQuantity || null,
                     };
+
+                    return flatData;
                 })
             );
 
