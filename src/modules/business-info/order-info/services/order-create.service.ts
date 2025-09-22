@@ -86,9 +86,13 @@ export class OrderCreateService {
             // 새로운 발주 아이템들 저장
             const savedItems: any[] = [];
             for (const item of purchaseOrderItems) {
+                // 기본 수주 코드 추출 (예: ORD20250919005_PRD007_005 -> ORD20250919005)
+                const baseOrderCode = item.orderCode.split('_')[0];
+                
                 // 날짜 형식 변환
                 const processedItem = {
                     ...item,
+                    orderManagementCode: baseOrderCode, // 수주 코드 추가
                     orderDate: this.convertToDate(item.orderDate),
                     deliveryDate: this.convertToDate(item.deliveryDate),
                     createdBy: username,

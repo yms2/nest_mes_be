@@ -13,6 +13,10 @@ export class OrderInfo extends BaseEntity {
     @Column({ name: 'customer_name', type: 'varchar', length: 50 ,comment: '거래처 명' ,nullable: true })
     customerName: string;
 
+    @ApiProperty({ example: 'ORD001', description: '수주 코드' })
+    @Column({ name: 'order_management_code', type: 'varchar', length: 50 ,comment: '수주 코드' ,nullable: true })
+    orderManagementCode: string;
+
     @ApiProperty({ example: 'ORD001', description: '발주 코드' })
     @Column({ name: 'order_code', type: 'varchar', length: 50 ,comment: '발주 코드' ,nullable: true })
     orderCode: string;
