@@ -136,4 +136,55 @@ export class OrderInfoController {
     async savePurchaseOrderItems(@Body() body: { purchaseOrderItems: any[] }) {
         return await this.orderCreateService.savePurchaseOrderItems(body.purchaseOrderItems);
     }
+
+    @Post('create-individual-order')
+    @ApiOperation({ 
+        summary: '개별 발주 생성',
+        description: '개별 발주 정보를 직접 입력하여 발주를 생성합니다.'
+    })
+    @ApiBody({
+        description: '개별 발주 정보',
+        schema: {
+            type: 'object',
+            properties: {
+                customerCode: { type: 'string', description: '거래처 코드', example: 'CUST001' },
+                customerName: { type: 'string', description: '거래처명', example: '삼성전자' },
+                orderCode: { type: 'string', description: '수주 코드 (자동생성 가능)', example: 'ORD20250101001' },
+                projectCode: { type: 'string', description: '프로젝트 코드', example: 'PROJ001' },
+                projectName: { type: 'string', description: '프로젝트명', example: '스마트폰 개발' },
+                projectVersion: { type: 'string', description: '프로젝트 버전', example: 'v1.0' },
+                orderName: { type: 'string', description: '발주명', example: '갤럭시 S25 부품 발주' },
+                orderDate: { type: 'string', description: '발주일', example: '2025-01-15' },
+                productCode: { type: 'string', description: '품목 코드', example: 'PROD001' },
+                productName: { type: 'string', description: '품목명', example: '디스플레이 모듈' },
+                usePlanQuantity: { type: 'number', description: '사용계획량', example: 100 },
+                orderQuantity: { type: 'number', description: '발주수량', example: 100 },
+                unitPrice: { type: 'number', description: '단가', example: 50000 },
+                supplyPrice: { type: 'number', description: '공급가액', example: 5000000 },
+                vat: { type: 'number', description: '부가세', example: 500000 },
+                total: { type: 'number', description: '합계', example: 5500000 },
+                discountAmount: { type: 'number', description: '할인금액', example: 0 },
+                totalAmount: { type: 'number', description: '총액', example: 5500000 },
+                deliveryDate: { type: 'string', description: '입고예정일', example: '2025-01-20' },
+                approvalInfo: { type: 'string', description: '승인정보', example: '대기' },
+                remark: { type: 'string', description: '비고', example: '긴급 발주' }
+            },
+            required: ['customerCode', 'customerName', 'projectCode', 'projectName', 'orderName', 'orderDate', 'productCode', 'productName', 'orderQuantity', 'unitPrice', 'supplyPrice', 'vat', 'total', 'deliveryDate']
+        }
+    })
+    @ApiResponse({ 
+        status: 201, 
+        description: '개별 발주 생성 성공',
+        schema: {
+            type: 'object',
+            properties: {
+                success: { type: 'boolean', description: '생성 성공 여부' },
+                message: { type: 'string', description: '결과 메시지' },
+                orderInfo: { type: 'object', description: '생성된 발주 정보' }
+            }
+        }
+    })
+    async createIndividualOrder(@Body() orderData: any) {
+        return await this.orderCreateService.createIndividualOrder(orderData);
+    }
 }
