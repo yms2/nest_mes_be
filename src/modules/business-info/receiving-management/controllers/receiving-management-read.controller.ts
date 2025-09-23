@@ -35,4 +35,31 @@ export class ReceivingManagementReadController {
         };
     }
 
+    /**
+     * 입고내역 목록 조회
+     */
+    @Get('receiving-history')
+    @ApiOperation({
+        summary: '입고내역 목록 조회',
+        description: '등록된 입고내역들의 목록을 조회합니다.'
+    })
+    @ApiQuery({ name: 'page', required: false, description: '페이지 번호 (기본값: 1)' })
+    @ApiQuery({ name: 'limit', required: false, description: '페이지당 항목 수 (기본값: 10)' })
+    @ApiQuery({ name: 'search', required: false, description: '통합 검색어 (거래처명, 품목명)' })
+    @ApiQuery({ name: 'customerName', required: false, description: '거래처명' })
+    @ApiQuery({ name: 'productName', required: false, description: '품목명' })
+    @ApiQuery({ name: 'projectName', required: false, description: '프로젝트명' })
+    @ApiQuery({ name: 'lotCode', required: false, description: 'LOT 코드' })
+    @ApiQuery({ name: 'warehouseName', required: false, description: '창고명' })
+    @ApiQuery({ name: 'approvalStatus', required: false, description: '승인 상태 (대기, 승인, 거부)' })
+    async getReceivingHistory(@Query() searchParams: any) {
+        const result = await this.receivingManagementReadService.getReceivingHistory(searchParams);
+        
+        return {
+            success: true,
+            message: '입고내역 목록을 성공적으로 조회했습니다.',
+            data: result,
+            timestamp: new Date().toISOString()
+        };
+    }
 }

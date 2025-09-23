@@ -173,4 +173,161 @@ export class ReceivingManagementReadService {
             throw error;
         }
     }
+
+    /**
+     * 입고내역 조회
+     * @param searchParams 검색 조건
+     * @returns 입고내역 목록
+     */
+    async getReceivingHistory(searchParams: {
+        page?: number;
+        limit?: number;
+        search?: string;
+        customerName?: string;
+        productName?: string;
+        projectName?: string;
+        lotCode?: string;
+        warehouseName?: string;
+        approvalStatus?: string;
+    } = {}) {
+        try {
+            const {
+                page = 1,
+                limit = 10,
+                search,
+                customerName,
+                productName,
+                projectName,
+                lotCode,
+                warehouseName,
+                approvalStatus
+            } = searchParams;
+
+            // 기본 쿼리 생성
+            const query = this.receivingRepository
+                .createQueryBuilder('r')
+                .select([
+                    'r.id as id',
+                    'r.receivingCode as receivingCode',
+                    'r.receivingDate as receivingDate',
+                    'r.orderCode as orderCode',
+                    'r.productCode as productCode',
+                    'r.customerCode as customerCode',
+                    'r.customerName as customerName',
+                    'r.productName as productName',
+                    'r.unit as unit',
+                    'r.projectCode as projectCode',
+                    'r.projectName as projectName',
+                    'r.quantity as quantity',
+                    'r.unreceivedQuantity as unreceivedQuantity',
+                    'r.lotCode as lotCode',
+                    'r.warehouseCode as warehouseCode',
+                    'r.warehouseName as warehouseName',
+                    'r.unitPrice as unitPrice',
+                    'r.supplyPrice as supplyPrice',
+                    'r.vat as vat',
+                    'r.total as total',
+                    'r.remark as remark',
+                    'r.approvalStatus as approvalStatus',
+                    'r.createdAt as createdAt',
+                    'r.updatedAt as updatedAt'
+                ])
+                .orderBy('r.receivingDate', 'DESC')
+                .addOrderBy('r.createdAt', 'DESC');
+
+            // 통합 검색 (거래처명, 품목명)
+            if (search) {
+                query.andWhere(
+                    '(r.customerName LIKE :search OR r.productName LIKE :search)',
+                    { search: `%${search}%` }
+                );
+            }
+
+            // 컬럼별 검색 조건
+
+            if (customerName) {
+                query.andWhere('r.customerName LIKE :customerName', { customerName: `%${customerName}%` });
+            }
+
+            if (productName) {
+                query.andWhere('r.productName LIKE :productName', { productName: `%${productName}%` });
+            }
+
+
+            if (projectName) {
+                query.andWhere('r.projectName LIKE :projectName', { projectName: `%${projectName}%` });
+            }
+
+            if (lotCode) {
+                query.andWhere('r.lotCode LIKE :lotCode', { lotCode: `%${lotCode}%` });
+            }
+
+            if (warehouseName) {
+                query.andWhere('r.warehouseName LIKE :warehouseName', { warehouseName: `%${warehouseName}%` });
+            }
+
+            if (approvalStatus) {
+                query.andWhere('r.approvalStatus = :approvalStatus', { approvalStatus });
+            }
+
+            // 전체 개수 조회
+            const total = await query.getCount();
+
+            // 페이지네이션 적용
+            const offset = (page - 1) * limit;
+            const results = await query
+                .offset(offset)
+                .limit(limit)
+                .getRawMany();
+
+            // 결과 데이터 변환
+            const data = results.map((row: any) => ({
+                id: row.id,
+                receivingCode: row.receivingCode,
+                receivingDate: row.receivingDate,
+                orderCode: row.orderCode,
+                productCode: row.productCode,
+                customerCode: row.customerCode,
+                customerName: row.customerName,
+                productName: row.productName,
+                unit: row.unit,
+                projectCode: row.projectCode,
+                projectName: row.projectName,
+                quantity: parseInt(row.quantity) || 0,
+                unreceivedQuantity: parseInt(row.unreceivedQuantity) || 0,
+                lotCode: row.lotCode,
+                warehouseCode: row.warehouseCode,
+                warehouseName: row.warehouseName,
+                unitPrice: parseInt(row.unitPrice) || 0,
+                supplyPrice: parseInt(row.supplyPrice) || 0,
+                vat: parseInt(row.vat) || 0,
+                total: parseInt(row.total) || 0,
+                remark: row.remark || '',
+                approvalStatus: row.approvalStatus,
+                createdAt: row.createdAt,
+                updatedAt: row.updatedAt
+            }));
+
+            const totalPages = Math.ceil(total / limit);
+
+            return {
+                data,
+                total,
+                page,
+                limit,
+                totalPages
+            };
+
+        } catch (error) {
+            await this.logService.createDetailedLog({
+                moduleName: '입고관리 입고내역 조회',
+                action: 'READ_FAILED',
+                username: 'system',
+                targetId: 'receiving-history',
+                targetName: '입고내역',
+                details: `입고내역 조회 실패: ${error.message}`,
+            });
+            throw error;
+        }
+    }
 }
