@@ -71,11 +71,7 @@ export class OrderInfoController {
 
     @Post('save-purchase-order')
     @ApiOperation({ 
-<<<<<<< HEAD
-        summary: '발주 아이템 저장',
-=======
         summary: '생성된 발주 아이템을 데이터베이스에 저장합니다.(원하는 BOM의 품목만 저장시킵니다.)',
->>>>>>> 9e66e6afe7e3c0a0016fc36fdd22c9d24b00ec04
         description: '생성된 발주 아이템을 데이터베이스에 저장합니다.'
     })
     @ApiBody({
