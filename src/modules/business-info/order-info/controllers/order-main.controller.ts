@@ -30,9 +30,6 @@ export class OrderMainController {
     async createIndividualOrder(@Body() createOrderMainDto: CreateOrderMainDto) {
         return await this.orderMainService.createIndividualOrder(createOrderMainDto);
     }
-
-
-    
     @Get()
     @ApiOperation({ summary: '수주 메인 정보 목록 조회 (디테일 포함)', description: '모든 수주 메인 정보와 관련된 발주 디테일 정보를 함께 조회합니다.' })
     @ApiQuery({ name: 'page', required: false, type: Number, description: '페이지 번호 (기본값: 1)' })
