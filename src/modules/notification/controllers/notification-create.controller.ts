@@ -31,22 +31,22 @@ export class NotificationCreateController {
         return await this.notificationCreateService.createNotification(notificationData);
     }
 
-    @Post('order-notification')
-    @HttpCode(HttpStatus.CREATED)
-    @ApiOperation({ 
-        summary: '발주 알림 생성',
-        description: '발주 등록 시 알림을 생성합니다.'
-    })
-    @ApiResponse({ 
-        status: 201, 
-        description: '발주 알림 생성 성공'
-    })
-    async createOrderNotification(@Body() orderInfo: {
-        orderCode: string;
-        orderName: string;
-        customerName?: string;
-        createdBy: string;
-    }) {
-        return await this.notificationCreateService.createOrderNotification(orderInfo);
-    }
+    // @Post('order-notification')
+    // @HttpCode(HttpStatus.CREATED)
+    // @ApiOperation({ 
+    //     summary: '발주 알림 생성',
+    //     description: '발주 등록 시 알림을 생성합니다.'
+    // })
+    // @ApiResponse({ 
+    //     status: 201, 
+    //     description: '발주 알림 생성 성공'
+    // })
+    // async createOrderNotification(@Body() orderInfo: {
+    //     orderCode: string;
+    //     orderName: string;
+    //     customerName?: string;
+    //     createdBy: string;
+    // }) {
+    //     return await this.notificationCreateService.createOrderNotification(orderInfo);
+    // }
 }

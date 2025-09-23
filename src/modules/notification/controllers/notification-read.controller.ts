@@ -1,5 +1,5 @@
-import { Controller, Get, Param, Patch, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import { Controller, Get, Param, Patch, Query, Body } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBody } from '@nestjs/swagger';
 import { NotificationReadService } from '../services/notification-read.service';
 import { DevAuth } from '@/common/decorators/dev-auth.decorator';
 
@@ -34,20 +34,6 @@ export class NotificationReadController {
     async getUnreadNotifications() {
         return await this.notificationReadService.getUnreadNotifications();
     }
-
-    @Get('type/:type')
-    @ApiOperation({ 
-        summary: '타입별 알림 조회',
-        description: '특정 타입의 알림을 조회합니다.'
-    })
-    @ApiResponse({ 
-        status: 200, 
-        description: '타입별 알림 조회 성공'
-    })
-    async getNotificationsByType(@Param('type') type: string) {
-        return await this.notificationReadService.getNotificationsByType(type);
-    }
-
     @Patch('read/:id')
     @ApiOperation({ 
         summary: '알림 읽음 처리',
@@ -72,5 +58,70 @@ export class NotificationReadController {
     })
     async markAllAsRead() {
         return await this.notificationReadService.markAllAsRead();
+    }
+
+    @Get('pending')
+    @ApiOperation({ 
+        summary: '승인 대기 알림 조회',
+        description: '승인 대기 중인 알림을 조회합니다.'
+    })
+    @ApiResponse({ 
+        status: 200, 
+        description: '승인 대기 알림 조회 성공'
+    })
+    async getPendingNotifications() {
+        return await this.notificationReadService.getPendingNotifications();
+    }
+
+    @Patch('approve/:id')
+    @ApiOperation({ 
+        summary: '알림 승인',
+        description: '특정 알림을 승인 처리합니다.'
+    })
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                approver: { type: 'string', description: '승인자' }
+            },
+            required: ['approver']
+        }
+    })
+    @ApiResponse({ 
+        status: 200, 
+        description: '알림 승인 성공'
+    })
+    async approveNotification(
+        @Param('id') id: string,
+        @Body('approver') approver: string
+    ) {
+        return await this.notificationReadService.approveNotification(parseInt(id), approver);
+    }
+
+    @Patch('reject/:id')
+    @ApiOperation({ 
+        summary: '알림 거부',
+        description: '특정 알림을 거부 처리합니다.'
+    })
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                rejector: { type: 'string', description: '거부자' },
+                reason: { type: 'string', description: '거부 사유 (선택사항)' }
+            },
+            required: ['rejector']
+        }
+    })
+    @ApiResponse({ 
+        status: 200, 
+        description: '알림 거부 성공'
+    })
+    async rejectNotification(
+        @Param('id') id: string,
+        @Body('rejector') rejector: string,
+        @Body('reason') reason?: string
+    ) {
+        return await this.notificationReadService.rejectNotification(parseInt(id), rejector, reason);
     }
 }

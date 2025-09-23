@@ -58,11 +58,31 @@ export class NotificationCreateService {
         orderName: string;
         customerName?: string;
         createdBy: string;
+        productCode?: string;
+        productName?: string;
+        orderQuantity?: number;
+        unitPrice?: number;
+        total?: number;
     }) {
+        // 품목 상세 정보 생성
+        let productDetails = '';
+        if (orderInfo.productCode && orderInfo.productName) {
+            productDetails = ` | 품목: ${orderInfo.productCode}(${orderInfo.productName})`;
+            if (orderInfo.orderQuantity) {
+                productDetails += ` - 수량: ${orderInfo.orderQuantity}`;
+            }
+            if (orderInfo.unitPrice) {
+                productDetails += `, 단가: ${orderInfo.unitPrice.toLocaleString()}원`;
+            }
+            if (orderInfo.total) {
+                productDetails += `, 총액: ${orderInfo.total.toLocaleString()}원`;
+            }
+        }
+
         return await this.createNotification({
             notificationType: 'ORDER_CREATE',
             notificationTitle: '새로운 발주가 등록되었습니다',
-            notificationContent: `발주코드: ${orderInfo.orderCode}, 발주명: ${orderInfo.orderName}${orderInfo.customerName ? `, 고객: ${orderInfo.customerName}` : ''}`,
+            notificationContent: `발주코드: ${orderInfo.orderCode}, 발주명: ${orderInfo.orderName}${orderInfo.customerName ? `, 고객: ${orderInfo.customerName}` : ''}${productDetails}`,
             sender: orderInfo.createdBy,
             receiver: '관리자',
             status: 'UNREAD'

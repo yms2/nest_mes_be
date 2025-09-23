@@ -51,7 +51,12 @@ export class OrderCreateService {
                     orderCode: savedOrderInfo.orderCode,
                     orderName: savedOrderInfo.orderName,
                     customerName: savedOrderInfo.customerName,
-                    createdBy: username
+                    createdBy: username,
+                    productCode: savedOrderInfo.productCode,
+                    productName: savedOrderInfo.productName,
+                    orderQuantity: savedOrderInfo.orderQuantity,
+                    unitPrice: savedOrderInfo.unitPrice,
+                    total: savedOrderInfo.total
                 });
             } catch (notificationError) {
                 // 알림 생성 실패는 로그만 남기고 발주 등록은 성공으로 처리
@@ -132,10 +137,15 @@ export class OrderCreateService {
 
             // 수주기반 발주등록 알림 생성
             try {
+                // 품목별 상세 정보 생성
+                const productDetails = savedItems.map(item => 
+                    `${item.productCode}(${item.productName}) - 수량:${item.orderQuantity}, 단가:${item.unitPrice?.toLocaleString()}원`
+                ).join(', ');
+                
                 await this.notificationCreateService.createNotification({
                     notificationType: 'ORDER_CREATE_FROM_ORDER',
                     notificationTitle: '수주기반 발주가 등록되었습니다',
-                    notificationContent: `수주코드: ${baseOrderCode}, 프로젝트: ${purchaseOrderItems[0].projectName}, 발주 아이템: ${savedItems.length}개`,
+                    notificationContent: `수주코드: ${baseOrderCode}, 프로젝트: ${purchaseOrderItems[0].projectName}, 발주 아이템: ${savedItems.length}개 | 품목: ${productDetails}`,
                     sender: username,
                     receiver: '관리자',
                     status: 'UNREAD'
@@ -261,7 +271,12 @@ export class OrderCreateService {
                     orderCode: savedOrderInfo.orderCode,
                     orderName: savedOrderInfo.orderName,
                     customerName: savedOrderInfo.customerName,
-                    createdBy: username
+                    createdBy: username,
+                    productCode: savedOrderInfo.productCode,
+                    productName: savedOrderInfo.productName,
+                    orderQuantity: savedOrderInfo.orderQuantity,
+                    unitPrice: savedOrderInfo.unitPrice,
+                    total: savedOrderInfo.total
                 });
             } catch (notificationError) {
                 console.error('알림 생성 실패:', notificationError);
@@ -362,7 +377,12 @@ export class OrderCreateService {
                     orderCode: savedOrderInfo.orderCode,
                     orderName: savedOrderInfo.orderName,
                     customerName: savedOrderInfo.customerName,
-                    createdBy: username
+                    createdBy: username,
+                    productCode: savedOrderInfo.productCode,
+                    productName: savedOrderInfo.productName,
+                    orderQuantity: savedOrderInfo.orderQuantity,
+                    unitPrice: savedOrderInfo.unitPrice,
+                    total: savedOrderInfo.total
                 });
             } catch (notificationError) {
                 console.error('알림 생성 실패:', notificationError);
