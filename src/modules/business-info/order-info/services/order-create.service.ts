@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { OrderInfo } from '../entities/order-info.entity';
 import { logService } from 'src/modules/log/Services/log.service';
 import { CreateOrderInfoDto } from '../dto/create-order-info.dto';
+import { NotificationCreateService } from '../../../notification/services/notification-create.service';
 
 @Injectable()
 export class OrderCreateService {
@@ -12,6 +13,7 @@ export class OrderCreateService {
         @InjectRepository(OrderInfo)
         private readonly orderInfoRepository: Repository<OrderInfo>,
         private readonly logService: logService,
+        private readonly notificationCreateService: NotificationCreateService,
     ) {}
 
     /**
@@ -42,6 +44,19 @@ export class OrderCreateService {
                 targetName: savedOrderInfo.orderName,
                 details: `발주 등록 완료: ${savedOrderInfo.orderCode}`,
             });
+
+            // 알림 생성
+            try {
+                await this.notificationCreateService.createOrderNotification({
+                    orderCode: savedOrderInfo.orderCode,
+                    orderName: savedOrderInfo.orderName,
+                    customerName: savedOrderInfo.customerName,
+                    createdBy: username
+                });
+            } catch (notificationError) {
+                // 알림 생성 실패는 로그만 남기고 발주 등록은 성공으로 처리
+                console.error('알림 생성 실패:', notificationError);
+            }
 
             return {
                 success: true,
@@ -226,6 +241,18 @@ export class OrderCreateService {
                 details: `단일 발주 등록 완료: ${savedOrderInfo.orderCode}`,
             });
 
+            // 알림 생성
+            try {
+                await this.notificationCreateService.createOrderNotification({
+                    orderCode: savedOrderInfo.orderCode,
+                    orderName: savedOrderInfo.orderName,
+                    customerName: savedOrderInfo.customerName,
+                    createdBy: username
+                });
+            } catch (notificationError) {
+                console.error('알림 생성 실패:', notificationError);
+            }
+
             return {
                 success: true,
                 message: '단일 발주가 성공적으로 등록되었습니다.',
@@ -314,6 +341,18 @@ export class OrderCreateService {
                 targetName: savedOrderInfo.orderName,
                 details: `개별 발주 생성 완료: ${savedOrderInfo.orderCode} (프로젝트: ${savedOrderInfo.projectName}, 품목: ${savedOrderInfo.productName})`,
             });
+
+            // 알림 생성
+            try {
+                await this.notificationCreateService.createOrderNotification({
+                    orderCode: savedOrderInfo.orderCode,
+                    orderName: savedOrderInfo.orderName,
+                    customerName: savedOrderInfo.customerName,
+                    createdBy: username
+                });
+            } catch (notificationError) {
+                console.error('알림 생성 실패:', notificationError);
+            }
 
             return {
                 success: true,

@@ -29,6 +29,7 @@
     "@nestjs/swagger": "^11.2.0",
     "@nestjs/typeorm": "^11.0.0",
     "@types/jsbarcode": "^3.11.4",
+    "axios": "^1.12.2",
     "bcrypt": "^6.0.0",
     "canvas": "^3.2.0",
     "class-transformer": "^0.5.1",
