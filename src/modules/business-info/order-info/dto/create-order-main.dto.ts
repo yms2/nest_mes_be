@@ -1,14 +1,4 @@
 import { ApiProperty } from "@nestjs/swagger";
-<<<<<<< HEAD
-import { IsNotEmpty, IsString, IsOptional, MaxLength } from "class-validator";
-
-export class CreateOrderMainDto {
-    @ApiProperty({ example: 'ORD001', description: '수주 코드 (자동 생성)' })
-    @IsNotEmpty({ message: '수주 코드는 필수입니다.' })
-    @IsString({ message: '수주 코드는 문자열이어야 합니다.' })
-    @MaxLength(20, { message: '수주 코드는 20자를 초과할 수 없습니다.' })
-    orderCode: string;
-=======
 import { IsNotEmpty, IsString, IsOptional, MaxLength, IsNumber, IsDateString } from "class-validator";
 
 export class CreateOrderMainDto {
