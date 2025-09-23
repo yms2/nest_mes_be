@@ -141,9 +141,6 @@ export class OrderInfoController {
     async savePurchaseOrderItems(@Body() body: { purchaseOrderItems: any[] }) {
         return await this.orderCreateService.savePurchaseOrderItems(body.purchaseOrderItems);
     }
-<<<<<<< HEAD
-=======
-
 
     @Get('by-management-code/:orderManagementCode')
     @ApiOperation({ 
@@ -239,5 +236,4 @@ export class OrderInfoController {
             };
         }
     }
->>>>>>> 9e66e6afe7e3c0a0016fc36fdd22c9d24b00ec04
 }
