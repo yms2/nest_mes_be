@@ -356,5 +356,4 @@ export class OrderCreateService {
         
         return `IND${dateStr}${sequence}`;
     }
-
 }

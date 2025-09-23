@@ -41,6 +41,14 @@ export class OrderMain extends BaseEntity {
     @Column({ name: 'product_code', type: 'varchar', length: 20, nullable: true })
     productCode?: string;
 
+    @ApiProperty({ example: '발주비고', description: '발주비고' })
+    @Column({ name: 'remark', type: 'varchar', length: 20, nullable: true })
+    remark?: string;
+
+    @ApiProperty({ example: '승인정보', description: '승인정보' })
+    @Column({ name: 'approval_info', type: 'varchar', length: 20, nullable: true })
+    approvalInfo?: string;
+
     @ApiProperty({ example: '디스플레이 모듈', description: '품목명' })
     @Column({ name: 'product_name', type: 'varchar', length: 100, nullable: true })
     productName?: string;
@@ -68,12 +76,4 @@ export class OrderMain extends BaseEntity {
     @ApiProperty({ example: '2025-01-20', description: '입고예정일' })
     @Column({ name: 'delivery_date', type: 'date', nullable: true })
     deliveryDate?: Date;
-
-    @ApiProperty({ example: '발주비고', description: '발주비고' })
-    @Column({ name: 'remark', type: 'varchar', length: 200, nullable: true })
-    remark?: string;
-
-    @ApiProperty({ example: '승인정보', description: '승인정보' })
-    @Column({ name: 'approval_info', type: 'varchar', length: 20, default: '대기' })
-    approvalInfo: string;
 }
