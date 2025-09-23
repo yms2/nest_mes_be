@@ -89,5 +89,4 @@ export class EquipmentHistoryDownloadController {
 
     res.send(buffer);
   }
-
 }
