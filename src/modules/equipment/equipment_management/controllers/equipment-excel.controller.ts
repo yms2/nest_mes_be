@@ -5,8 +5,9 @@ import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { EquipmentTemplateService } from '../services/equipment-template.service';
 import { EquipmentReadService } from '../services/equipment-read.service';
 import { EquipmentDownloadService } from '../services/equipment-download.service';
+import { DevAuth } from '@/common/decorators/dev-auth.decorator';
 
-@Auth()
+@DevAuth()
 @ApiTags('설비 관리')
 @Controller('equipment')
 
