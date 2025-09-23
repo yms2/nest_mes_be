@@ -5,7 +5,6 @@ import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { EquipmentTemplateService } from '../services/equipment-template.service';
 import { EquipmentReadService } from '../services/equipment-read.service';
 import { EquipmentDownloadService } from '../services/equipment-download.service';
-import { Auth } from '@/common/decorators/auth.decorator';
 import { DevAuth } from '@/common/decorators/dev-auth.decorator';
 
 @DevAuth()
