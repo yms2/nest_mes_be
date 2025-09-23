@@ -9,7 +9,7 @@ export class Notification extends BaseEntity {
     notificationCode: string;
 
     @ApiProperty({ example: '알람 종류' })
-    @Column({ name: 'notification_type', type: 'varchar', length: 20 ,comment: '알림 종류',nullable: true})
+    @Column({ name: 'notification_type', type: 'varchar', length: 50 ,comment: '알림 종류',nullable: true})
     notificationType: string;
 
     @ApiProperty({ example: '알람 일자' })

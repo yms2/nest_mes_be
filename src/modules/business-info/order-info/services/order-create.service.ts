@@ -130,6 +130,20 @@ export class OrderCreateService {
                 details: `발주 아이템 ${savedItems.length}개 저장 완료`,
             });
 
+            // 수주기반 발주등록 알림 생성
+            try {
+                await this.notificationCreateService.createNotification({
+                    notificationType: 'ORDER_CREATE_FROM_ORDER',
+                    notificationTitle: '수주기반 발주가 등록되었습니다',
+                    notificationContent: `수주코드: ${baseOrderCode}, 프로젝트: ${purchaseOrderItems[0].projectName}, 발주 아이템: ${savedItems.length}개`,
+                    sender: username,
+                    receiver: '관리자',
+                    status: 'UNREAD'
+                });
+            } catch (notificationError) {
+                console.error('수주기반 발주등록 알림 생성 실패:', notificationError);
+            }
+
             return {
                 success: true,
                 message: `발주 아이템 ${savedItems.length}개가 성공적으로 저장되었습니다.`,
