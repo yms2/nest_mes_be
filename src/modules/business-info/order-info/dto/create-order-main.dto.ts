@@ -90,16 +90,11 @@ export class CreateOrderMainDto {
     @IsOptional()
     @IsDateString({}, { message: '입고예정일은 올바른 날짜 형식이어야 합니다.' })
     deliveryDate?: string;
->>>>>>> 9e66e6afe7e3c0a0016fc36fdd22c9d24b00ec04
 
     @ApiProperty({ example: '발주비고', description: '발주비고' })
     @IsOptional()
     @IsString({ message: '발주비고는 문자열이어야 합니다.' })
-<<<<<<< HEAD
-    @MaxLength(20, { message: '발주비고는 20자를 초과할 수 없습니다.' })
-=======
     @MaxLength(200, { message: '발주비고는 200자를 초과할 수 없습니다.' })
->>>>>>> 9e66e6afe7e3c0a0016fc36fdd22c9d24b00ec04
     remark?: string;
 
     @ApiProperty({ example: '승인정보', description: '승인정보' })

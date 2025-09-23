@@ -1,17 +1,11 @@
 import { Controller, Get, Post, Query, Body, Param } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery, ApiParam, ApiResponse, ApiBody } from '@nestjs/swagger';
-<<<<<<< HEAD
-import { OrderInfoService } from '../services/order-info.service';
-import { DevAuth } from '@/common/decorators/dev-auth.decorator';
-import { OrderCreateService } from '../services/order-create.service';
-=======
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { OrderInfoService } from '../services/order-info.service';
 import { DevAuth } from '@/common/decorators/dev-auth.decorator';
 import { OrderCreateService } from '../services/order-create.service';
 import { OrderInfo } from '../entities/order-info.entity';
->>>>>>> 9e66e6afe7e3c0a0016fc36fdd22c9d24b00ec04
     
 @DevAuth()
 @ApiTags('발주관리')
@@ -20,20 +14,13 @@ export class OrderInfoController {
     constructor(
         private readonly orderInfoService: OrderInfoService,
         private readonly orderCreateService: OrderCreateService,
-<<<<<<< HEAD
-=======
         @InjectRepository(OrderInfo)
         private readonly orderInfoRepository: Repository<OrderInfo>,
->>>>>>> 9e66e6afe7e3c0a0016fc36fdd22c9d24b00ec04
     ) {}
 
     @Get('bom-by-order/:orderCode')
     @ApiOperation({ 
-<<<<<<< HEAD
-        summary: '수주 코드로 BOM 조회',
-=======
         summary: '수주기반으로 팝업을 열 때 사용하는 API',
->>>>>>> 9e66e6afe7e3c0a0016fc36fdd22c9d24b00ec04
         description: '수주 코드를 기반으로 BOM을 전개하고 발주 정보를 생성합니다.'
     })
     @ApiParam({ name: 'orderCode', description: '수주 코드', example: 'ORD20250101001' })
