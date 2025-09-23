@@ -8,6 +8,7 @@ import { ProductInfo } from '../../base-info/product-info/product_sample/entitie
 import { Inventory } from '../../inventory/inventory-management/entities/inventory.entity';
 import { CommonModule } from '../../../common/common.module';
 import { LogModule } from '../../log/log.module';
+import { NotificationModule } from '../../notification/notification.module';
 import { OrderInfoService } from './services/order-info.service';
 import { OrderInfoController } from './controllers/order-info.controller';
 import { OrderCreateService } from './services/order-create.service';
@@ -23,6 +24,7 @@ const controllerArray = Object.values(controllers);
         TypeOrmModule.forFeature([OrderInfo, OrderMain, OrderManagement, BomInfo, ProductInfo, Inventory]),
         CommonModule,
         LogModule,
+        NotificationModule,
     ],
     controllers: [OrderInfoController, ...controllerArray],
     providers: [OrderInfoService, OrderCreateService, ...serviceArray],
