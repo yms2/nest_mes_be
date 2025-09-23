@@ -27,7 +27,11 @@ export class EstimateManagementUploadService {
 
             // 엑셀 파일 읽기
             const workbook = new ExcelJS.Workbook();
+<<<<<<< HEAD
             await workbook.xlsx.load(file.buffer);
+=======
+            await workbook.xlsx.load(file.buffer as any);
+>>>>>>> 9e66e6afe7e3c0a0016fc36fdd22c9d24b00ec04
             
             // 시트 찾기 (여러 시트명 시도)
             let worksheet = workbook.getWorksheet('견적관리양식');

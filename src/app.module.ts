@@ -17,6 +17,10 @@ import { InventoryModule } from './modules/inventory/inventory.module';
 import { APMModule } from './common/apm/apm.module';
 import { APMMiddleware } from './common/apm/middleware/apm.middleware';
 import { ProductionModule } from './modules/production/production.module';
+<<<<<<< HEAD
+=======
+import { QualityModule } from './modules/quality/quality.module';
+>>>>>>> 9e66e6afe7e3c0a0016fc36fdd22c9d24b00ec04
 
 @Module({
   imports: [
@@ -29,6 +33,10 @@ import { ProductionModule } from './modules/production/production.module';
     InventoryModule,
     APMModule,
     ProductionModule,
+<<<<<<< HEAD
+=======
+    QualityModule,
+>>>>>>> 9e66e6afe7e3c0a0016fc36fdd22c9d24b00ec04
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
