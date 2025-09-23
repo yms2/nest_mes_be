@@ -12,29 +12,17 @@ export class UpdateOrderManagementDto {
     @IsString()
     customerName?: string;
 
-<<<<<<< HEAD
     @ApiProperty({ example: 'PRJ001', description: '프로젝트 코드', required: false })
-=======
-    @ApiProperty({ example: 'PRJ001', description: '프로젝트 코드', required: true })
->>>>>>> 9e66e6afe7e3c0a0016fc36fdd22c9d24b00ec04
     @IsOptional()
     @IsString()
     projectCode?: string;
 
-<<<<<<< HEAD
     @ApiProperty({ example: '프로젝트 이름', description: '프로젝트 이름', required: false })
-=======
-    @ApiProperty({ example: '프로젝트 이름', description: '프로젝트 이름', required: true })
->>>>>>> 9e66e6afe7e3c0a0016fc36fdd22c9d24b00ec04
     @IsOptional()
     @IsString()
     projectName?: string;
 
-<<<<<<< HEAD
     @ApiProperty({ example: 'v1.0', description: '프로젝트 버전', required: false })
-=======
-    @ApiProperty({ example: 'v1.0', description: '프로젝트 버전', required: true })
->>>>>>> 9e66e6afe7e3c0a0016fc36fdd22c9d24b00ec04
     @IsOptional()
     @IsString()
     projectVersion?: string;
@@ -93,29 +81,17 @@ export class UpdateOrderManagementDto {
     @IsDateString()
     orderDate?: string;
 
-<<<<<<< HEAD
     @ApiProperty({ example: '2025-01-15', description: '납기예정일', required: false })
-=======
-    @ApiProperty({ example: '2025-01-15', description: '납기예정일', required: true })
->>>>>>> 9e66e6afe7e3c0a0016fc36fdd22c9d24b00ec04
     @IsOptional()
     @IsDateString()
     deliveryDate?: string;
 
-<<<<<<< HEAD
     @ApiProperty({ example: 'EST001', description: '견적코드', required: false })
-=======
-    @ApiProperty({ example: 'EST001', description: '견적코드', required: true })
->>>>>>> 9e66e6afe7e3c0a0016fc36fdd22c9d24b00ec04
     @IsOptional()
     @IsString()
     estimateCode?: string;
 
-<<<<<<< HEAD
     @ApiProperty({ example: '긴급 주문', description: '비고', required: false })
-=======
-    @ApiProperty({ example: '긴급 주문', description: '비고', required: true })
->>>>>>> 9e66e6afe7e3c0a0016fc36fdd22c9d24b00ec04
     @IsOptional()
     @IsString()
     remark?: string;

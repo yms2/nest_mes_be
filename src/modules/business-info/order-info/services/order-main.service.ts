@@ -74,8 +74,6 @@ export class OrderMainService {
     }
 
     /**
-<<<<<<< HEAD
-=======
      * 개별 발주 정보를 생성합니다.
      */
     async createIndividualOrder(createOrderMainDto: CreateOrderMainDto, username: string = 'system') {
@@ -183,7 +181,6 @@ export class OrderMainService {
     }
 
     /**
->>>>>>> 9e66e6afe7e3c0a0016fc36fdd22c9d24b00ec04
      * 모든 수주 메인 정보를 조회합니다. (수주 디테일 데이터 포함)
      */
     async getAllOrderMains(page: number = 1, limit: number = 10, search?: string) {

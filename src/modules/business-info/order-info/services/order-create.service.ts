@@ -86,11 +86,6 @@ export class OrderCreateService {
             // 새로운 발주 아이템들 저장
             const savedItems: any[] = [];
             for (const item of purchaseOrderItems) {
-<<<<<<< HEAD
-                // 날짜 형식 변환
-                const processedItem = {
-                    ...item,
-=======
                 // 기본 수주 코드 추출 (예: ORD20250919005_PRD007_005 -> ORD20250919005)
                 const baseOrderCode = item.orderCode.split('_')[0];
                 
@@ -98,7 +93,6 @@ export class OrderCreateService {
                 const processedItem = {
                     ...item,
                     orderManagementCode: baseOrderCode, // 수주 코드 추가
->>>>>>> 9e66e6afe7e3c0a0016fc36fdd22c9d24b00ec04
                     orderDate: this.convertToDate(item.orderDate),
                     deliveryDate: this.convertToDate(item.deliveryDate),
                     createdBy: username,
@@ -254,8 +248,6 @@ export class OrderCreateService {
         }
     }
 
-<<<<<<< HEAD
-=======
     /**
      * 개별 발주 정보를 생성합니다.
      */
@@ -364,6 +356,4 @@ export class OrderCreateService {
         
         return `IND${dateStr}${sequence}`;
     }
-
->>>>>>> 9e66e6afe7e3c0a0016fc36fdd22c9d24b00ec04
 }

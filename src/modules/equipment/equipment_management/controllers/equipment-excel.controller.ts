@@ -5,14 +5,10 @@ import { ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { EquipmentTemplateService } from '../services/equipment-template.service';
 import { EquipmentReadService } from '../services/equipment-read.service';
 import { EquipmentDownloadService } from '../services/equipment-download.service';
-<<<<<<< HEAD
-
-@Auth()
-=======
+import { Auth } from '@/common/decorators/auth.decorator';
 import { DevAuth } from '@/common/decorators/dev-auth.decorator';
 
 @DevAuth()
->>>>>>> 9e66e6afe7e3c0a0016fc36fdd22c9d24b00ec04
 @ApiTags('설비 관리')
 @Controller('equipment')
 
