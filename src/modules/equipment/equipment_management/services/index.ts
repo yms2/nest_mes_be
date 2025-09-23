@@ -4,3 +4,4 @@ export * from './equipment-update.service';
 export * from './equipment-delete.service';
 export * from './equipment-template.service';
 export * from './equipment-download.service';
+export * from './equipment-upload.service';

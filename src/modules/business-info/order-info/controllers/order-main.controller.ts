@@ -21,6 +21,18 @@ export class OrderMainController {
         return await this.orderMainService.createOrderMain(createOrderMainDto);
     }
 
+    @Post('individual-order')
+    @ApiOperation({ summary: '개별 발주 생성', description: '개별 발주 정보를 직접 입력하여 발주를 생성합니다.' })
+    @ApiBody({ type: CreateOrderMainDto })
+    @ApiResponse({ status: 201, description: '개별 발주가 성공적으로 생성되었습니다.' })
+    @ApiResponse({ status: 400, description: '잘못된 요청 데이터입니다.' })
+    @ApiResponse({ status: 409, description: '중복된 수주 코드입니다.' })
+    async createIndividualOrder(@Body() createOrderMainDto: CreateOrderMainDto) {
+        return await this.orderMainService.createIndividualOrder(createOrderMainDto);
+    }
+
+
+    
     @Get()
     @ApiOperation({ summary: '수주 메인 정보 목록 조회 (디테일 포함)', description: '모든 수주 메인 정보와 관련된 발주 디테일 정보를 함께 조회합니다.' })
     @ApiQuery({ name: 'page', required: false, type: Number, description: '페이지 번호 (기본값: 1)' })

@@ -74,6 +74,113 @@ export class OrderMainService {
     }
 
     /**
+     * 개별 발주 정보를 생성합니다.
+     */
+    async createIndividualOrder(createOrderMainDto: CreateOrderMainDto, username: string = 'system') {
+        try {
+            // 필수 필드 검증
+            const requiredFields = ['customerCode', 'customerName', 'projectCode', 'projectName', 'orderName', 'orderDate', 'productCode', 'productName', 'orderQuantity', 'unitPrice', 'supplyPrice', 'vat', 'totalAmount', 'deliveryDate'];
+            const missingFields = requiredFields.filter(field => !createOrderMainDto[field]);
+            
+            if (missingFields.length > 0) {
+                throw new BadRequestException(`필수 필드가 누락되었습니다: ${missingFields.join(', ')}`);
+            }
+
+            // 수주 코드가 없으면 자동 생성
+            let orderCode = createOrderMainDto.orderCode;
+            if (!orderCode) {
+                orderCode = await this.generateOrderCode();
+            }
+
+            // 중복 수주 코드 확인
+            const existingOrder = await this.orderMainRepository.findOne({
+                where: { orderCode }
+            });
+
+            if (existingOrder) {
+                throw new BadRequestException(`수주 코드 '${orderCode}'는 이미 존재합니다.`);
+            }
+
+            // 개별 발주 정보 생성
+            const orderMain = new OrderMain();
+            orderMain.orderCode = orderCode;
+            orderMain.customerCode = createOrderMainDto.customerCode;
+            orderMain.customerName = createOrderMainDto.customerName;
+            orderMain.projectCode = createOrderMainDto.projectCode;
+            orderMain.projectName = createOrderMainDto.projectName;
+            orderMain.projectVersion = createOrderMainDto.projectVersion;
+            orderMain.orderName = createOrderMainDto.orderName;
+            orderMain.orderDate = createOrderMainDto.orderDate ? new Date(createOrderMainDto.orderDate) : undefined;
+            orderMain.productCode = createOrderMainDto.productCode;
+            orderMain.productName = createOrderMainDto.productName;
+            orderMain.orderQuantity = createOrderMainDto.orderQuantity;
+            orderMain.unitPrice = createOrderMainDto.unitPrice;
+            orderMain.supplyPrice = createOrderMainDto.supplyPrice;
+            orderMain.vat = createOrderMainDto.vat;
+            orderMain.totalAmount = createOrderMainDto.totalAmount;
+            orderMain.deliveryDate = createOrderMainDto.deliveryDate ? new Date(createOrderMainDto.deliveryDate) : undefined;
+            orderMain.remark = createOrderMainDto.remark;
+            orderMain.approvalInfo = createOrderMainDto.approvalInfo || '대기';
+            orderMain.createdBy = username;
+            orderMain.updatedBy = username;
+
+            // 저장
+            const savedOrderMain = await this.orderMainRepository.save(orderMain);
+
+            // 로그 기록
+            await this.logService.createDetailedLog({
+                moduleName: '개별 발주 생성',
+                action: 'CREATE_SUCCESS',
+                username,
+                targetId: savedOrderMain.orderCode,
+                details: `개별 발주 생성 완료: ${savedOrderMain.orderCode} (프로젝트: ${savedOrderMain.projectName}, 품목: ${savedOrderMain.productName})`
+            });
+
+            return {
+                success: true,
+                message: '개별 발주가 성공적으로 생성되었습니다.',
+                orderMain: savedOrderMain
+            };
+
+        } catch (error) {
+            // 로그 기록
+            await this.logService.createDetailedLog({
+                moduleName: '개별 발주 생성',
+                action: 'CREATE_FAILED',
+                username,
+                targetId: createOrderMainDto.orderCode || '알 수 없음',
+                details: error.message
+            });
+
+            if (error instanceof BadRequestException) {
+                throw error;
+            }
+            throw new BadRequestException(`개별 발주 생성 중 오류가 발생했습니다: ${error.message}`);
+        }
+    }
+
+    /**
+     * 개별 발주용 수주 코드를 자동 생성합니다.
+     */
+    private async generateOrderCode(): Promise<string> {
+        const today = new Date();
+        const dateStr = today.getFullYear().toString() + 
+                       (today.getMonth() + 1).toString().padStart(2, '0') + 
+                       today.getDate().toString().padStart(2, '0');
+        
+        // 개별 발주용 코드 패턴으로 생성된 수주 코드 개수 조회
+        const count = await this.orderMainRepository
+            .createQueryBuilder('order')
+            .where('order.orderCode LIKE :pattern', { pattern: `IND${dateStr}%` })
+            .getCount();
+        
+        // 순번 생성 (3자리, 0으로 패딩)
+        const sequence = (count + 1).toString().padStart(3, '0');
+        
+        return `IND${dateStr}${sequence}`;
+    }
+
+    /**
      * 모든 수주 메인 정보를 조회합니다. (수주 디테일 데이터 포함)
      */
     async getAllOrderMains(page: number = 1, limit: number = 10, search?: string) {

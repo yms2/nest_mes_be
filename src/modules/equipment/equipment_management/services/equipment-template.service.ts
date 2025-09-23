@@ -11,11 +11,11 @@ export class EquipmentTemplateService {
         worksheet.columns = [
             { header: '설비명', key: 'equipmentName', width: 20, style: { numFmt: '@' } },
             { header: '설비모델', key: 'equipmentModel', width: 20, style: { numFmt: '@' } },
-            { header: '설비위치', key: 'equipmentLocation', width: 20, style: { numFmt: '@' } },
-            { header: '설비담당자', key: 'equipmentWorker', width: 20, style: { numFmt: '@' } },
-            { header: '설비구매일', key: 'equipmentPurchaseDate', width: 20, style: { numFmt: '@' } },
-            { header: '설비구매가격', key: 'equipmentPurchasePrice', width: 20, style: { numFmt: '@' } },
-            { header: '설비비고', key: 'equipmentNote', width: 20, style: { numFmt: '@' } },
+            { header: '구매처', key: 'equipmentPurchasePlace', width: 20, style: { numFmt: '@' } },
+            { header: '구매일', key: 'equipmentPurchaseDate', width: 20, style: { numFmt: '@' } },
+            { header: '구매가격', key: 'equipmentPurchasePrice', width: 20, style: { numFmt: '@' } },
+            { header: '설비이력', key: 'equipmentHistory', width: 20, style: { numFmt: '@' } },
+            { header: '담당자', key: 'equipmentWorker', width: 20, style: { numFmt: '@' } },
         ];
 
         worksheet.getRow(1).eachCell((cell) => {

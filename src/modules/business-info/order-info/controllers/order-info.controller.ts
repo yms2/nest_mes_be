@@ -1,8 +1,11 @@
 import { Controller, Get, Post, Query, Body, Param } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiQuery, ApiParam, ApiResponse, ApiBody } from '@nestjs/swagger';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { OrderInfoService } from '../services/order-info.service';
 import { DevAuth } from '@/common/decorators/dev-auth.decorator';
 import { OrderCreateService } from '../services/order-create.service';
+import { OrderInfo } from '../entities/order-info.entity';
     
 @DevAuth()
 @ApiTags('발주관리')
@@ -11,11 +14,13 @@ export class OrderInfoController {
     constructor(
         private readonly orderInfoService: OrderInfoService,
         private readonly orderCreateService: OrderCreateService,
+        @InjectRepository(OrderInfo)
+        private readonly orderInfoRepository: Repository<OrderInfo>,
     ) {}
 
     @Get('bom-by-order/:orderCode')
     @ApiOperation({ 
-        summary: '수주 코드로 BOM 조회',
+        summary: '수주기반으로 팝업을 열 때 사용하는 API',
         description: '수주 코드를 기반으로 BOM을 전개하고 발주 정보를 생성합니다.'
     })
     @ApiParam({ name: 'orderCode', description: '수주 코드', example: 'ORD20250101001' })
@@ -66,7 +71,7 @@ export class OrderInfoController {
 
     @Post('save-purchase-order')
     @ApiOperation({ 
-        summary: '발주 아이템 저장',
+        summary: '생성된 발주 아이템을 데이터베이스에 저장합니다.(원하는 BOM의 품목만 저장시킵니다.)',
         description: '생성된 발주 아이템을 데이터베이스에 저장합니다.'
     })
     @ApiBody({
@@ -135,5 +140,101 @@ export class OrderInfoController {
     })
     async savePurchaseOrderItems(@Body() body: { purchaseOrderItems: any[] }) {
         return await this.orderCreateService.savePurchaseOrderItems(body.purchaseOrderItems);
+    }
+
+
+    @Get('by-management-code/:orderManagementCode')
+    @ApiOperation({ 
+        summary: '수주코드로 발주 하단 품목 조회',
+        description: '수주 관리 코드(order_management_code)를 기반으로 해당 수주의 모든 발주 정보를 조회합니다.'
+    })
+    @ApiParam({ 
+        name: 'orderManagementCode', 
+        description: '수주 관리 코드', 
+        example: 'ORD20250919005' 
+    })
+    @ApiQuery({ name: 'page', required: false, type: Number, description: '페이지 번호 (기본값: 1)' })
+    @ApiQuery({ name: 'limit', required: false, type: Number, description: '페이지당 항목 수 (기본값: 10)' })
+    @ApiResponse({ 
+        status: 200, 
+        description: '발주 정보 조회 성공',
+        schema: {
+            type: 'object',
+            properties: {
+                success: { type: 'boolean', example: true },
+                data: {
+                    type: 'object',
+                    properties: {
+                        orderInfos: {
+                            type: 'array',
+                            description: '발주 정보 목록',
+                            items: {
+                                type: 'object',
+                                properties: {
+                                    id: { type: 'number', description: '발주 정보 ID' },
+                                    customerCode: { type: 'string', description: '거래처 코드' },
+                                    customerName: { type: 'string', description: '거래처명' },
+                                    orderCode: { type: 'string', description: '발주 코드' },
+                                    orderManagementCode: { type: 'string', description: '수주 관리 코드' },
+                                    projectCode: { type: 'string', description: '프로젝트 코드' },
+                                    projectName: { type: 'string', description: '프로젝트명' },
+                                    productCode: { type: 'string', description: '품목 코드' },
+                                    productName: { type: 'string', description: '품목명' },
+                                    orderQuantity: { type: 'number', description: '발주수량' },
+                                    unitPrice: { type: 'number', description: '단가' },
+                                    totalAmount: { type: 'number', description: '총액' },
+                                    deliveryDate: { type: 'string', description: '입고예정일' },
+                                    createdAt: { type: 'string', description: '생성일시' }
+                                }
+                            }
+                        },
+                        total: { type: 'number', description: '전체 항목 수' },
+                        page: { type: 'number', description: '현재 페이지' },
+                        limit: { type: 'number', description: '페이지당 항목 수' },
+                        totalPages: { type: 'number', description: '전체 페이지 수' },
+                        orderManagementCode: { type: 'string', description: '조회한 수주 관리 코드' }
+                    }
+                }
+            }
+        }
+    })
+    async getOrderInfosByManagementCode(
+        @Param('orderManagementCode') orderManagementCode: string,
+        @Query('page') page: number = 1,
+        @Query('limit') limit: number = 10
+    ) {
+        try {
+            // 페이지네이션 설정
+            const offset = (page - 1) * limit;
+            
+            // 수주 관리 코드로 발주 정보 조회
+            const [orderInfos, total] = await this.orderInfoRepository.findAndCount({
+                where: { orderManagementCode },
+                order: { createdAt: 'DESC' },
+                skip: offset,
+                take: limit
+            });
+
+            const totalPages = Math.ceil(total / limit);
+
+            return {
+                success: true,
+                data: {
+                    orderInfos,
+                    total,
+                    page,
+                    limit,
+                    totalPages,
+                    orderManagementCode
+                }
+            };
+
+        } catch (error) {
+            return {
+                success: false,
+                message: `발주 정보 조회 중 오류가 발생했습니다: ${error.message}`,
+                data: null
+            };
+        }
     }
 }

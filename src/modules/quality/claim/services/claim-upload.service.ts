@@ -2,15 +2,18 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as ExcelJS from 'exceljs';
-import { EstimateManagement } from '../entities/estimatemanagement.entity';
+import { Claim } from '../entities/claim.entity';
+import { EstimateManagement } from '../../../business-info/estimatemanagement-info/entities/estimatemanagement.entity';
 import { CustomerInfo } from '../../../base-info/customer-info/entities/customer-info.entity';
 import { ProductInfo } from '../../../base-info/product-info/product_sample/entities/product-info.entity';
 import { Employee } from '../../../base-info/employee-info/entities/employee.entity';
 import { logService } from 'src/modules/log/Services/log.service';
 
 @Injectable()
-export class EstimateManagementUploadService {
+export class ClaimUploadService {
     constructor(
+        @InjectRepository(Claim)
+        private readonly claimRepository: Repository<Claim>,
         @InjectRepository(EstimateManagement)
         private readonly estimateRepository: Repository<EstimateManagement>,
         @InjectRepository(CustomerInfo)
@@ -22,17 +25,16 @@ export class EstimateManagementUploadService {
         private readonly logService: logService,
     ) {}
 
-    async uploadEstimateManagement(file: Express.Multer.File, username: string) {
+    async uploadClaims(file: Express.Multer.File, username: string) {
         try {
-
             // 엑셀 파일 읽기
             const workbook = new ExcelJS.Workbook();
-            await workbook.xlsx.load(file.buffer as any);
+            await workbook.xlsx.load(Buffer.from(file.buffer));
             
-            // 시트 찾기 (여러 시트명 시도)
-            let worksheet = workbook.getWorksheet('견적관리양식');
+            // 시트 찾기 (다운로드 템플릿과 동일한 시트명 우선)
+            let worksheet = workbook.getWorksheet('AS 클레임 등록 템플릿');
             if (!worksheet) {
-                worksheet = workbook.getWorksheet('견적관리');
+                worksheet = workbook.getWorksheet('AS 클레임 관리');
             }
             if (!worksheet) {
                 worksheet = workbook.getWorksheet('Sheet1');
@@ -43,10 +45,9 @@ export class EstimateManagementUploadService {
             if (!worksheet) {
                 // 사용 가능한 시트 목록 출력
                 const sheetNames = workbook.worksheets.map(ws => ws.name);
-                throw new BadRequestException(`견적관리 시트를 찾을 수 없습니다. 사용 가능한 시트: ${sheetNames.join(', ')}`);
+                throw new BadRequestException(`클레임 시트를 찾을 수 없습니다. 사용 가능한 시트: ${sheetNames.join(', ')}`);
             }
             
-
             // 헤더 검증
             this.validateHeaders(worksheet);
 
@@ -61,7 +62,6 @@ export class EstimateManagementUploadService {
             let rowIndex = 2; // 1행은 헤더, 2행부터 데이터
             const totalRows = worksheet.rowCount;
 
-
             for (let i = rowIndex; i <= totalRows; i++) {
                 const row = worksheet.getRow(i);
                 
@@ -71,41 +71,43 @@ export class EstimateManagementUploadService {
                 }
 
                 try {
-                    const estimateData = this.parseRowData(row, i);
+                    const claimData = this.parseRowData(row, i);
                     
-                    // 견적코드 자동 생성
-                    estimateData.estimateCode = await this.generateEstimateCode();
+                    // 클레임코드 자동 생성
+                    claimData.claimCode = await this.generateClaimCode();
                     
-                    // 고객명으로 고객코드 조회
-                    if (estimateData.customerName) {
-                        estimateData.customerCode = await this.getCustomerCodeByName(estimateData.customerName);
+                    // 거래처명으로 거래처코드 조회
+                    if (claimData.customerName) {
+                        claimData.customerCode = await this.getCustomerCodeByName(claimData.customerName);
                     }
                     
-                    // 프로젝트명으로 프로젝트코드 조회 또는 자동 생성
-                    if (estimateData.projectName) {
-                        estimateData.projectCode = await this.getOrGenerateProjectCode(estimateData.projectName);
+                    // 프로젝트명으로 프로젝트코드 조회 (견적 데이터에서)
+                    if (claimData.projectName) {
+                        claimData.projectCode = await this.getProjectCodeFromEstimate(claimData.projectName);
                     }
                     
-                    // 제품명으로 제품코드 조회
-                    if (estimateData.productName) {
-                        estimateData.productCode = await this.getProductCodeByName(estimateData.productName);
+                    // 품목명으로 품목코드 조회
+                    if (claimData.productName) {
+                        claimData.productCode = await this.getProductCodeByName(claimData.productName);
                     }
                     
                     // 담당자명으로 사원코드 조회
-                    if (estimateData.employeeName) {
-                        estimateData.employeeCode = await this.getEmployeeCodeByName(estimateData.employeeName);
+                    if (claimData.employeeName) {
+                        claimData.employeeCode = await this.getEmployeeCodeByName(claimData.employeeName);
                     }
                     
                     // 데이터 검증
-                    this.validateEstimateData(estimateData, i);
+                    this.validateClaimData(claimData, i);
                     
-                    // 견적 데이터 생성
-                    const estimate = this.estimateRepository.create(estimateData);
-                    const savedEstimate = await this.estimateRepository.save(estimate);
+                    // 클레임 데이터 생성 (등록자 정보 추가)
+                    const claim = this.claimRepository.create({
+                        ...claimData,
+                        createdBy: username
+                    });
+                    const savedClaim = await this.claimRepository.save(claim);
                     
                     results.success++;
-                    results.data.push(savedEstimate);
-                    
+                    results.data.push(savedClaim);
                     
                 } catch (error) {
                     results.failed++;
@@ -116,26 +118,25 @@ export class EstimateManagementUploadService {
 
             // 로그 기록
             await this.logService.createDetailedLog({
-                moduleName: '견적관리 업로드',
+                moduleName: '클레임 업로드',
                 action: 'UPLOAD_SUCCESS',
                 username,
                 targetId: '',
                 targetName: file.originalname,
-                details: `견적관리 업로드 완료: 성공 ${results.success}개, 실패 ${results.failed}개`,
+                details: `클레임 업로드 완료: 성공 ${results.success}개, 실패 ${results.failed}개`,
             });
-
 
             return results;
 
         } catch (error) {
             // 로그 기록
             await this.logService.createDetailedLog({
-                moduleName: '견적관리 업로드',
+                moduleName: '클레임 업로드',
                 action: 'UPLOAD_FAIL',
                 username,
                 targetId: '',
                 targetName: file.originalname,
-                details: `견적관리 업로드 실패: ${error.message}`,
+                details: `클레임 업로드 실패: ${error.message}`,
             }).catch(() => {});
 
             throw error;
@@ -150,23 +151,24 @@ export class EstimateManagementUploadService {
     private parseRowData(row: ExcelJS.Row, rowIndex: number): any {
         const values = row.values as any[];
         
-        // 엑셀 컬럼 순서에 맞게 데이터 추출
-        const estimateData = {
-            estimateName: this.getStringValue(values[1]), // A열: 견적명
-            estimateDate: this.getDateValue(values[2]), // B열: 견적일자
-            estimateVersion: this.getNumberValue(values[3]), // C열: 견적버전
-            customerName: this.getStringValue(values[4]), // D열: 고객명
-            projectName: this.getStringValue(values[5]), // E열: 프로젝트명
-            productName: this.getStringValue(values[6]), // F열: 제품명
-            productQuantity: this.getNumberValue(values[7]), // G열: 제품수량
-            estimateStatus: this.getStringValue(values[8]), // H열: 견적상태
-            estimatePrice: this.getNumberValue(values[9]), // I열: 견적가격
-            employeeName: this.getStringValue(values[10]), // J열: 담당자명
-            estimateRemark: this.getStringValue(values[11]), // K열: 견적비고
-            termsOfPayment: this.getStringValue(values[12]), // L열: 결제조건
+        // 템플릿과 동일한 컬럼 순서로 데이터 추출 (13개 컬럼)
+        const claimData = {
+            claimDate: this.getDateValue(values[1]), // A열: 클레임일자*
+            customerName: this.getStringValue(values[2]), // B열: 거래처명*
+            projectName: this.getStringValue(values[3]), // C열: 프로젝트명
+            productName: this.getStringValue(values[4]), // D열: 품목명*
+            claimQuantity: this.getNumberValue(values[5]), // E열: 클레임수량*
+            claimPrice: this.getNumberValue(values[6]), // F열: 클레임단가*
+            claimReason: this.getStringValue(values[7]), // G열: 클레임사유*
+            claimStatus: this.getStringValue(values[8]), // H열: 클레임상태
+            employeeName: this.getStringValue(values[9]), // I열: 담당자명*
+            expectedCompletionDate: this.getDateValue(values[10]), // J열: 예상완료일
+            completionDate: this.getDateValue(values[11]), // K열: 처리완료일
+            resolution: this.getStringValue(values[12]), // L열: 처리결과
+            remark: this.getStringValue(values[13]), // M열: 비고
         };
 
-        return estimateData;
+        return claimData;
     }
 
     private getStringValue(value: any): string {
@@ -199,23 +201,23 @@ export class EstimateManagementUploadService {
         return new Date();
     }
 
-    private async generateEstimateCode(): Promise<string> {
-        // 현재 날짜를 기반으로 견적코드 생성 (YYYYMMDD + 4자리 순번)
+    private async generateClaimCode(): Promise<string> {
+        // 현재 날짜를 기반으로 클레임코드 생성 (YYYYMMDD + 4자리 순번)
         const today = new Date();
         const dateStr = today.getFullYear().toString() + 
                        (today.getMonth() + 1).toString().padStart(2, '0') + 
                        today.getDate().toString().padStart(2, '0');
         
-        // 오늘 날짜로 생성된 견적코드 개수 조회
-        const count = await this.estimateRepository
-            .createQueryBuilder('estimate')
-            .where('estimate.estimateCode LIKE :pattern', { pattern: `EST${dateStr}%` })
+        // 오늘 날짜로 생성된 클레임코드 개수 조회
+        const count = await this.claimRepository
+            .createQueryBuilder('claim')
+            .where('claim.claimCode LIKE :pattern', { pattern: `CLM${dateStr}%` })
             .getCount();
         
         // 순번 생성 (4자리, 0으로 패딩)
         const sequence = (count + 1).toString().padStart(3, '0');
         
-        return `EST${dateStr}${sequence}`;
+        return `CLM${dateStr}${sequence}`;
     }
 
     private async getCustomerCodeByName(customerName: string): Promise<string> {
@@ -238,7 +240,7 @@ export class EstimateManagementUploadService {
         }
     }
 
-    private async getOrGenerateProjectCode(projectName: string): Promise<string> {
+    private async getProjectCodeFromEstimate(projectName: string): Promise<string> {
         try {
             // 기존 견적데이터에서 같은 프로젝트명으로 프로젝트코드 조회
             const existingEstimate = await this.estimateRepository.findOne({
@@ -249,37 +251,12 @@ export class EstimateManagementUploadService {
                 return existingEstimate.projectCode;
             }
             
-            // 기존 프로젝트가 없으면 새로운 프로젝트코드 생성
-            const newProjectCode = await this.generateProjectCode();
-            return newProjectCode;
+            // 기존 프로젝트가 없으면 빈 문자열 반환
+            return '';
             
         } catch (error) {
             throw new BadRequestException(`프로젝트 정보 처리 중 오류가 발생했습니다: ${projectName}`);
         }
-    }
-
-    private async generateProjectCode(): Promise<string> {
-        // 기존 프로젝트 코드 중 가장 큰 번호를 찾기
-        const result = await this.estimateRepository
-            .createQueryBuilder('estimate')
-            .select('estimate.projectCode')
-            .where('estimate.projectCode IS NOT NULL')
-            .andWhere('estimate.projectCode LIKE :pattern', { pattern: 'PROJ%' })
-            .orderBy('estimate.projectCode', 'DESC')
-            .limit(1)
-            .getOne();
-
-        let nextNumber = 1;
-        if (result && result.projectCode) {
-            // PROJ001에서 001 부분을 추출
-            const match = result.projectCode.match(/PROJ(\d+)/);
-            if (match) {
-                const currentNumber = parseInt(match[1], 10);
-                nextNumber = currentNumber + 1;
-            }
-        }
-
-        return `PROJ${nextNumber.toString().padStart(3, '0')}`;
     }
 
     private async getProductCodeByName(productName: string): Promise<string> {
@@ -326,12 +303,11 @@ export class EstimateManagementUploadService {
         const headerRow = worksheet.getRow(1);
         const headers = headerRow.values as any[];
         
-        
-        // 예상되는 헤더들
+        // 다운로드 템플릿과 동일한 헤더들 (* 표시 포함)
         const expectedHeaders = [
-            '견적명', '견적일자', '견적버전', '고객명', '프로젝트명', 
-            '제품명', '제품수량', '견적상태', '견적가격', '담당자명', 
-            '견적비고', '결제조건'
+            '클레임일자*', '거래처명*', '프로젝트명', '품목명*', 
+            '클레임수량*', '클레임단가*', '클레임사유*', '클레임상태', 
+            '담당자명*', '예상완료일', '처리완료일', '처리결과', '비고'
         ];
         
         // 첫 번째 셀이 비어있으면 헤더가 없다고 판단
@@ -343,50 +319,36 @@ export class EstimateManagementUploadService {
         const actualHeaders = headers.slice(1).map(h => String(h).trim());
     }
 
-    private validateEstimateData(data: any, rowIndex: number): void {
+    private validateClaimData(data: any, rowIndex: number): void {
         const errors: string[] = [];
 
-        // 필수 필드 검증 (견적코드는 자동 생성되므로 제외)
-        if (!data.estimateName || data.estimateName.trim() === '') {
-            errors.push('견적명은 필수입니다');
+        // 필수 필드 검증 (클레임코드는 자동 생성되므로 제외)
+        if (!data.claimDate || isNaN(data.claimDate.getTime())) {
+            errors.push('클레임일자는 필수입니다');
         }
 
         if (!data.customerName || data.customerName.trim() === '') {
-            errors.push('고객명은 필수입니다');
-        }
-
-        if (!data.projectName || data.projectName.trim() === '') {
-            errors.push('프로젝트명은 필수입니다');
+            errors.push('거래처명은 필수입니다');
         }
 
         if (!data.productName || data.productName.trim() === '') {
-            errors.push('제품명은 필수입니다');
+            errors.push('품목명은 필수입니다');
         }
 
-        if (data.productQuantity <= 0) {
-            errors.push('제품수량은 0보다 커야 합니다');
+        if (data.claimQuantity <= 0) {
+            errors.push('클레임수량은 0보다 커야 합니다');
         }
 
-        if (!data.estimateStatus || data.estimateStatus.trim() === '') {
-            errors.push('견적상태는 필수입니다');
+        if (data.claimPrice <= 0) {
+            errors.push('클레임단가는 0보다 커야 합니다');
         }
 
-        if (data.estimatePrice <= 0) {
-            errors.push('견적가격은 0보다 커야 합니다');
+        if (!data.claimReason || data.claimReason.trim() === '') {
+            errors.push('클레임사유는 필수입니다');
         }
 
         if (!data.employeeName || data.employeeName.trim() === '') {
             errors.push('담당자명은 필수입니다');
-        }
-
-        // 날짜 검증
-        if (!data.estimateDate || isNaN(data.estimateDate.getTime())) {
-            errors.push('견적일자는 유효한 날짜여야 합니다');
-        }
-
-        // 버전 검증
-        if (data.estimateVersion <= 0) {
-            errors.push('견적버전은 1 이상이어야 합니다');
         }
 
         if (errors.length > 0) {

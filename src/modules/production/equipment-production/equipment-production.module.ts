@@ -11,12 +11,17 @@ import { ProductionStartService } from './services/production-start.service';
 import { ProductionEndService } from './services/production-end.service';
 import { ProductionResultReadService } from './services/production-result-read.service';
 import { ProductionResultDownloadService } from './services/production-result-download.service';
+import { ProductionDefectReadService } from './services/production-defect-read.service';
+import { ProductionDefectDownloadService } from './services/production-defect-download.service';
 import { ProductionStartController } from './controllers/production-start.controller';
 import { ProductionEndController } from './controllers/production-end.controller';
 import { ProductionResultReadController } from './controllers/production-result-read.controller';
 import { ProductionResultDownloadController } from './controllers/production-result-download.controller';
+import { ProductionDefectReadController } from './controllers/production-defect-read.controller';
+import { ProductionDefectDownloadController } from './controllers/production-defect-download.controller';
 import { CommonModule } from '@/common/common.module';
 import { InventoryLogsModule } from '@/modules/inventory/inventory-logs/inventory-logs.module';
+import { LogModule } from '@/modules/log/log.module';
 
 @Module({
   imports: [
@@ -31,24 +36,31 @@ import { InventoryLogsModule } from '@/modules/inventory/inventory-logs/inventor
     ]),
     CommonModule,
     InventoryLogsModule,
+    LogModule,
   ],
   controllers: [
     ProductionStartController,
     ProductionEndController,
     ProductionResultReadController,
     ProductionResultDownloadController,
+    ProductionDefectReadController,
+    ProductionDefectDownloadController,
   ],
   providers: [
     ProductionStartService,
     ProductionEndService,
     ProductionResultReadService,
     ProductionResultDownloadService,
+    ProductionDefectReadService,
+    ProductionDefectDownloadService,
   ],
   exports: [
     ProductionStartService,
     ProductionEndService,
     ProductionResultReadService,
     ProductionResultDownloadService,
+    ProductionDefectReadService,
+    ProductionDefectDownloadService,
   ],
 })
 export class EquipmentProductionModule {}
