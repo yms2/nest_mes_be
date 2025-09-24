@@ -8,6 +8,10 @@ export class ProductionPlan extends BaseEntity {
     @Column({ name: 'production_plan_code', type: 'varchar', length: 20, comment: '생산 계획 코드 (자동 생성)' })
     productionPlanCode: string;
 
+    @ApiProperty({ example: 'ORD001', description: '수주 코드' })
+    @Column({ name: 'order_code', type: 'varchar', length: 20, comment: '수주 코드' ,nullable: true})
+    orderCode: string;
+
     @ApiProperty({ example: '2025-01-01', description: '생산 계획 일자' })
     @Column({ name: 'production_plan_date', type: 'date', comment: '생산 계획 일자' })
     productionPlanDate: Date;

@@ -36,6 +36,14 @@ export class QueryProductionPlanDto {
   employeeName?: string;
 
   @ApiProperty({ 
+    description: '수주코드',
+    required: false 
+  })
+  @IsString()
+  @IsOptional()
+  orderCode?: string;
+
+  @ApiProperty({ 
     description: '생산 계획 일자 시작',
     required: false 
   })
