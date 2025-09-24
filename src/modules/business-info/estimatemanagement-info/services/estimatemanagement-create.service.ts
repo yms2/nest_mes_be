@@ -196,9 +196,9 @@ export class EstimateManagementCreateService {
     // }
 
     // 수량 검증
-    if (productQuantity <= 0) {
-      throw new BadRequestException('제품 수량은 0보다 커야 합니다.');
-    }
+    // if (productQuantity <= 0) {
+    //   throw new BadRequestException('제품 수량은 0보다 커야 합니다.');
+    // }
 
     // 견적 가격 검증
     if (estimatePrice < 0) {
@@ -346,11 +346,6 @@ export class EstimateManagementCreateService {
     // detailCode가 제공된 경우 유효성 검증
     if (detailCode && detailCode.trim() === '') {
       throw new BadRequestException('세부품목 코드는 빈 문자열일 수 없습니다.');
-    }
-
-    // 수량 검증
-    if (quantity <= 0) {
-      throw new BadRequestException('세부품목 수량은 0보다 커야 합니다.');
     }
 
     // 단가 검증
