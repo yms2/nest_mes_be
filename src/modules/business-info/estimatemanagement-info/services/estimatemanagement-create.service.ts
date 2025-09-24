@@ -347,12 +347,7 @@ export class EstimateManagementCreateService {
     if (detailCode && detailCode.trim() === '') {
       throw new BadRequestException('세부품목 코드는 빈 문자열일 수 없습니다.');
     }
-
-    // 수량 검증
-    if (quantity <= 0) {
-      throw new BadRequestException('세부품목 수량은 0보다 커야 합니다.');
-    }
-
+    
     // 단가 검증
     if (unitPrice < 0) {
       throw new BadRequestException('세부품목 단가는 0 이상이어야 합니다.');
