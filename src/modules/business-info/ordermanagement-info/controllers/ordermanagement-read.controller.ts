@@ -64,6 +64,87 @@ export class OrderManagementReadController {
         }
     }
 
+    @Get('active')
+    @ApiOperation({ 
+        summary: '활성 수주 목록 조회',
+        description: '출하가 되거나 생산계획이 내려진 수주를 제외한 활성 수주 목록을 조회합니다.' 
+    })
+    @ApiQuery({ name: 'page', type: Number, required: false, description: '페이지 번호', example: 1 })
+    @ApiQuery({ name: 'limit', type: Number, required: false, description: '페이지당 항목 수', example: 10 })
+    @ApiQuery({ name: 'search', type: String, required: false, description: '검색 키워드 (수주코드, 고객명, 프로젝트명, 제품명, 수주유형)' })
+    @ApiQuery({ name: 'startDate', type: String, required: false, description: '수주일 시작일 (YYYY-MM-DD)' })
+    @ApiQuery({ name: 'endDate', type: String, required: false, description: '수주일 종료일 (YYYY-MM-DD)' })
+    @ApiQuery({ name: 'customerName', type: String, required: false, description: '고객명 (포함 검색)' })
+    @ApiQuery({ name: 'projectName', type: String, required: false, description: '프로젝트명 (포함 검색)' })
+    @ApiQuery({ name: 'productName', type: String, required: false, description: '제품명 (포함 검색)' })
+    @ApiQuery({ name: 'orderType', type: String, required: false, description: '수주유형 (포함 검색)' })
+    @ApiResponse({ 
+        status: 200, 
+        description: '활성 수주 목록 조회 성공',
+        schema: {
+            example: {
+                success: true,
+                message: '활성 수주 목록을 성공적으로 조회했습니다.',
+                data: {
+                    orderManagement: [
+                        {
+                            id: 1,
+                            orderCode: 'ORD001',
+                            customerName: '삼성전자',
+                            projectName: '스마트폰 개발',
+                            productName: '갤럭시 S25',
+                            orderType: '신규',
+                            quantity: 100,
+                            orderDate: '2025-01-01',
+                            deliveryDate: '2025-01-15'
+                        }
+                    ],
+                    total: 1,
+                    page: 1,
+                    limit: 10
+                },
+                timestamp: '2025-01-15T10:30:00Z'
+            }
+        }
+    })
+    async getActiveOrderManagement(
+        @Request() req, 
+        @Query('page') page: number = 1, 
+        @Query('limit') limit: number = 10, 
+        @Query('search') search?: string, 
+        @Query('startDate') startDate?: string, 
+        @Query('endDate') endDate?: string,
+        @Query('customerName') customerName?: string,
+        @Query('projectName') projectName?: string,
+        @Query('productName') productName?: string,
+        @Query('orderType') orderType?: string
+    ): Promise<any> {
+        try {
+            const username = req.user?.username || 'unknown';
+            const result = await this.orderManagementReadService.getActiveOrderManagement(
+                page,
+                limit,
+                username,
+                search,
+                startDate,
+                endDate,
+                customerName,
+                projectName,
+                productName,
+                orderType,
+            );
+
+            return ApiResponseBuilder.success(
+                result,
+                '활성 수주 목록을 성공적으로 조회했습니다.',
+            );
+        } catch (error) {
+            return ApiResponseBuilder.error(
+                error.message || '활성 수주 목록 조회에 실패했습니다.',
+            );
+        }
+    }
+
     @Get(':id')
     @ApiOperation({ 
         summary: '수주 상세 조회',
