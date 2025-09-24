@@ -341,10 +341,7 @@ export class EstimateManagementCreateService {
       totalPrice,
     } = detailDto;
 
-    // 필수 필드 검증 (detailCode는 선택적이므로 제외)
-    if (!estimateId || !itemCode || !itemName || !unit || !quantity || !unitPrice || !totalPrice) {
-      throw new BadRequestException('세부품목 필수 필드가 누락되었습니다.');
-    }
+
 
     // detailCode가 제공된 경우 유효성 검증
     if (detailCode && detailCode.trim() === '') {
