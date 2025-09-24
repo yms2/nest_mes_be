@@ -13,7 +13,7 @@ export class BomExplosionController {
   @Get('order/:orderCode')
   @ApiOperation({
     summary: '수주 기반 BOM 전개',
-    description: '수주 코드를 기반으로 BOM을 전개하여 필요한 부품과 수량을 계산합니다.',
+    description: '수주 코드를 기반으로 BOM을 전개하여 필요한 부품과 수량을 계산합니다. 하위 구성품이 있는 품목만 조회됩니다.',
   })
   @ApiParam({ name: 'orderCode', description: '수주 코드', example: 'ORD20250101001' })
   @ApiResponse({ status: 200, description: 'BOM 전개를 성공적으로 완료했습니다.' })
@@ -21,7 +21,37 @@ export class BomExplosionController {
   async explodeBomByOrderCode(@Param('orderCode') orderCode: string) {
     try {
       const result = await this.bomExplosionService.explodeBomByOrderCode(orderCode);
-      return ApiResponseBuilder.success(result, 'BOM 전개를 성공적으로 완료했습니다.');
+      
+      // 하위 구성품이 있는 품목만 필터링하고 shortageItems를 제거하는 함수
+      const filterItemsWithChildren = (items: any[]): any[] => {
+        return items.filter(item => {
+          const hasChildren = item.children && Array.isArray(item.children) && item.children.length > 0;
+          
+          if (hasChildren) {
+            // children도 재귀적으로 필터링
+            item.children = filterItemsWithChildren(item.children);
+            
+            // shortageItems 제거
+            if (item.shortageItems) {
+              delete item.shortageItems;
+            }
+            
+            return true;
+          }
+          return false;
+        });
+      };
+
+      // BOM 아이템들을 필터링
+      const filteredBomItems = filterItemsWithChildren(result.bomItems || []);
+      
+      // 필터링된 결과로 응답 구성
+      const filteredResult = {
+        ...result,
+        bomItems: filteredBomItems
+      };
+      
+      return ApiResponseBuilder.success(filteredResult, 'BOM 전개를 성공적으로 완료했습니다.');
     } catch (error) {
       return ApiResponseBuilder.error(error.message);
     }

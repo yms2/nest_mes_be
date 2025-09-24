@@ -4,7 +4,7 @@ import { DevAuth } from '@/common/decorators/dev-auth.decorator';
 import { EquipmentHistoryUpdateService } from '../services/equipment-history-update.service';
 import { UpdateEquipmentHistoryDto } from '../dto/update-equipment-history.dto';
 import { EquipmentHistory } from '../entities/equipment-history.entity';
-
+//수정
 @DevAuth()
 @ApiTags('설비 이력 관리')
 @Controller('equipment-history')
