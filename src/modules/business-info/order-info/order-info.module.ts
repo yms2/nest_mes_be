@@ -12,6 +12,8 @@ import { NotificationModule } from '../../notification/notification.module';
 import { OrderInfoService } from './services/order-info.service';
 import { OrderInfoController } from './controllers/order-info.controller';
 import { OrderCreateService } from './services/order-create.service';
+import { OrderApprovalService } from './services/order-approval.service';
+import { OrderApprovalController } from './controllers/order-approval.controller';
 
 import * as services from './services';
 import * as controllers from './controllers';
@@ -26,8 +28,8 @@ const controllerArray = Object.values(controllers);
         LogModule,
         NotificationModule,
     ],
-    controllers: [OrderInfoController, ...controllerArray],
-    providers: [OrderInfoService, OrderCreateService, ...serviceArray],
-    exports: [OrderInfoService, OrderCreateService, ...serviceArray],
+    controllers: [OrderInfoController, OrderApprovalController, ...controllerArray],
+    providers: [OrderInfoService, OrderCreateService, OrderApprovalService, ...serviceArray],
+    exports: [OrderInfoService, OrderCreateService, OrderApprovalService, ...serviceArray],
 })
 export class OrderInfoModule {}
