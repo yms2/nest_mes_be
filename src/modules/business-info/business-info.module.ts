@@ -5,6 +5,7 @@ import { OrderInfoModule } from './order-info/order-info.module';
 import { ShippingModule } from './shipping-info/shipping.module';
 import { ReceivingManagementModule } from './receiving-management/receiving-management.module';
 import { DeliveryModule } from './delivery-management-info/delivery.module';
+import { ProjectStatusModule } from './project-status/project-status.module';
 
 @Module({
     imports: [
@@ -14,6 +15,7 @@ import { DeliveryModule } from './delivery-management-info/delivery.module';
         ShippingModule, 
         ReceivingManagementModule, 
         DeliveryModule,
+        ProjectStatusModule,
     ],
     exports: [
         EstimateManagementModule, 
@@ -22,6 +24,7 @@ import { DeliveryModule } from './delivery-management-info/delivery.module';
         ShippingModule, 
         ReceivingManagementModule, 
         DeliveryModule,
+        ProjectStatusModule,
     ],
 })
 export class BusinessInfoModule {}
