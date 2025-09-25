@@ -58,6 +58,12 @@ export class EstimateManagement extends BaseEntity{
     @Column({ name : 'terms_of_payment', type: 'varchar', length: 20, nullable: true })
     termsOfPayment?: string;
 
+    @Column({ name : 'project_start_date', type: 'date', nullable: true })
+    projectStartDate?: Date;
+
+    @Column({ name : 'project_end_date', type: 'date', nullable: true })
+    projectEndDate?: Date;
+
     // 관계 설정
     @OneToMany(() => EstimateDetail, detail => detail.estimate)
     estimateDetails: EstimateDetail[];
