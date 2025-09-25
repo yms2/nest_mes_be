@@ -57,6 +57,30 @@ export class QualityInspection extends BaseEntity {
     @Column({ name: 'remark', type: 'text', nullable: true, comment: '비고' })
     remark: string;
 
+    @ApiProperty({ example: 'admin', description: '승인자' })
+    @Column({ name: 'approved_by', type: 'varchar', length: 50, nullable: true, comment: '승인자' })
+    approvedBy: string;
+
+    @ApiProperty({ example: '2025-01-19T10:00:00Z', description: '승인일시' })
+    @Column({ name: 'approved_at', type: 'datetime', nullable: true, comment: '승인일시' })
+    approvedAt: Date;
+
+    @ApiProperty({ example: 'admin', description: '거부자' })
+    @Column({ name: 'rejected_by', type: 'varchar', length: 50, nullable: true, comment: '거부자' })
+    rejectedBy: string;
+
+    @ApiProperty({ example: '2025-01-19T10:00:00Z', description: '거부일시' })
+    @Column({ name: 'rejected_at', type: 'datetime', nullable: true, comment: '거부일시' })
+    rejectedAt: Date;
+
+    @ApiProperty({ example: '품질 기준 미달', description: '거부 사유' })
+    @Column({ name: 'rejection_reason', type: 'text', nullable: true, comment: '거부 사유' })
+    rejectionReason: string;
+
+    @ApiProperty({ example: 'PRD001', description: '제품 코드' })
+    @Column({ name: 'product_code', type: 'varchar', length: 20, nullable: true, comment: '제품 코드' })
+    productCode: string;
+
     // 관계 설정
     @ManyToOne(() => Production)
     @JoinColumn({ name: 'production_id' })
