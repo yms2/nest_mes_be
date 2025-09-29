@@ -217,7 +217,7 @@ export class OrderManagementReadController {
     })
     async getOrderManagementById(
         @Request() req,
-        @Param('id', ParseIntPipe) id: number
+        @Param('id') id: string
     ): Promise<any> {
         try {
             const username = req.user?.username || 'unknown';

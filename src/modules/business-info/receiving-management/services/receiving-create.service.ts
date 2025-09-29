@@ -8,6 +8,7 @@ import { Inventory } from '../../../inventory/inventory-management/entities/inve
 import { InventoryManagementService } from '../../../inventory/inventory-management/services/inventory-management.service';
 import { InventoryLotService } from '../../../inventory/inventory-management/services/inventory-lot.service';
 import { ChangeQuantityDto } from '../../../inventory/inventory-management/dto/quantity-change.dto';
+import { OrderInfo } from '../../order-info/entities/order-info.entity';
 
 @Injectable()
 export class ReceivingCreateService {
@@ -16,6 +17,8 @@ export class ReceivingCreateService {
         private readonly receivingRepository: Repository<Receiving>,
         @InjectRepository(Inventory)
         private readonly inventoryRepository: Repository<Inventory>,
+        @InjectRepository(OrderInfo)
+        private readonly orderInfoRepository: Repository<OrderInfo>,
         private readonly logService: logService,
         private readonly inventoryManagementService: InventoryManagementService,
         private readonly inventoryLotService: InventoryLotService,
@@ -26,6 +29,36 @@ export class ReceivingCreateService {
      */
     async createReceiving(createReceivingDto: CreateReceivingDto, username: string = 'system') {
         try {
+            // 발주 정보 조회 및 미입고 수량 계산
+            let orderInfo: OrderInfo | null = null;
+            let unreceivedQuantity = 0;
+            
+            if (createReceivingDto.orderCode) {
+                orderInfo = await this.orderInfoRepository.findOne({
+                    where: { orderCode: createReceivingDto.orderCode }
+                });
+                
+                if (orderInfo) {
+                    // 기존 입고 수량 조회
+                    const existingReceivings = await this.receivingRepository.find({
+                        where: { orderCode: createReceivingDto.orderCode }
+                    });
+                    
+                    const totalReceivedQuantity = existingReceivings.reduce((sum, r) => sum + (r.quantity || 0), 0);
+                    const remainingQuantity = Math.max(0, (orderInfo.orderQuantity || 0) - totalReceivedQuantity);
+                    
+                    // 입고 수량이 남은 수량을 초과하는지 확인
+                    if ((createReceivingDto.quantity || 0) > remainingQuantity) {
+                        throw new BadRequestException(
+                            `입고 수량(${createReceivingDto.quantity})이 남은 수량(${remainingQuantity})을 초과합니다.`
+                        );
+                    }
+                    
+                    // 미입고 수량 계산 (입고 후 남을 수량)
+                    unreceivedQuantity = Math.max(0, remainingQuantity - (createReceivingDto.quantity || 0));
+                }
+            }
+
             // 입고 코드 자동 생성
             const lastReceiving = await this.receivingRepository
                 .createQueryBuilder('receiving')
@@ -43,25 +76,25 @@ export class ReceivingCreateService {
                 receivingCode: nextCode,
                 receivingDate: createReceivingDto.receivingDate ? new Date(createReceivingDto.receivingDate) : new Date(),
                 orderCode: createReceivingDto.orderCode || '',
-                productCode: createReceivingDto.productCode || '',
-                productName: createReceivingDto.productName || '',
+                productCode: createReceivingDto.productCode || orderInfo?.productCode || '',
+                productName: createReceivingDto.productName || orderInfo?.productName || '',
                 quantity: createReceivingDto.quantity || 0,
-                customerCode: createReceivingDto.customerCode || '',
-                customerName: createReceivingDto.customerName || '',
-                unit: createReceivingDto.unit || '',
+                customerCode: createReceivingDto.customerCode || orderInfo?.customerCode || '',
+                customerName: createReceivingDto.customerName || orderInfo?.customerName || '',
+                unit: createReceivingDto.unit || 'EA',
                 warehouseCode: createReceivingDto.warehouseCode || '',
                 warehouseName: createReceivingDto.warehouseName || '',
                 lotCode: createReceivingDto.lotCode || '',
                 remark: createReceivingDto.remark || '',
                 approvalStatus: createReceivingDto.approvalStatus || '대기',
-                // 기본값 설정
-                unreceivedQuantity: 0,
-                unitPrice: 0,
-                supplyPrice: 0,
-                vat: 0,
-                total: 0,
-                projectCode: '',
-                projectName: ''
+                // 발주 기반 계산된 미입고 수량
+                unreceivedQuantity: unreceivedQuantity,
+                unitPrice: orderInfo?.unitPrice || 0,
+                supplyPrice: (orderInfo?.unitPrice || 0) * (createReceivingDto.quantity || 0),
+                vat: Math.round(((orderInfo?.unitPrice || 0) * (createReceivingDto.quantity || 0)) * 0.1),
+                total: Math.round(((orderInfo?.unitPrice || 0) * (createReceivingDto.quantity || 0)) * 1.1),
+                projectCode: orderInfo?.projectCode || '',
+                projectName: orderInfo?.projectName || ''
             });
 
             // 저장

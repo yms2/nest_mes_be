@@ -142,6 +142,19 @@ export class OrderInfoController {
         return await this.orderCreateService.savePurchaseOrderItems(body.purchaseOrderItems);
     }
 
+    @Get('by-management-code')
+    @ApiOperation({ 
+        summary: '수주코드로 발주 하단 품목 조회 (빈 값 처리)',
+        description: '수주 관리 코드가 없는 경우의 기본 응답을 제공합니다.'
+    })
+    async getOrderInfosByManagementCodeEmpty() {
+        return {
+            success: false,
+            message: '수주 관리 코드가 필요합니다.',
+            data: null
+        };
+    }
+
     @Get('by-management-code/:orderManagementCode')
     @ApiOperation({ 
         summary: '수주코드로 발주 하단 품목 조회',
@@ -203,12 +216,21 @@ export class OrderInfoController {
         @Query('limit') limit: number = 10
     ) {
         try {
+            // 빈 값이나 undefined 처리
+            if (!orderManagementCode || orderManagementCode.trim() === '') {
+                return {
+                    success: false,
+                    message: '수주 관리 코드가 필요합니다.',
+                    data: null
+                };
+            }
+
             // 페이지네이션 설정
             const offset = (page - 1) * limit;
             
             // 수주 관리 코드로 발주 정보 조회
             const [orderInfos, total] = await this.orderInfoRepository.findAndCount({
-                where: { orderManagementCode },
+                where: { orderManagementCode: orderManagementCode.trim() },
                 order: { createdAt: 'DESC' },
                 skip: offset,
                 take: limit
