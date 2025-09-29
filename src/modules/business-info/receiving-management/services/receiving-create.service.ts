@@ -73,7 +73,7 @@ export class ReceivingCreateService {
 
             // 입고 정보 생성
             const receiving = this.receivingRepository.create({
-                receivingCode: nextCode,
+                receivingCode: createReceivingDto.receivingCode || nextCode,
                 receivingDate: createReceivingDto.receivingDate ? new Date(createReceivingDto.receivingDate) : new Date(),
                 orderCode: createReceivingDto.orderCode || '',
                 productCode: createReceivingDto.productCode || orderInfo?.productCode || '',
@@ -81,20 +81,20 @@ export class ReceivingCreateService {
                 quantity: createReceivingDto.quantity || 0,
                 customerCode: createReceivingDto.customerCode || orderInfo?.customerCode || '',
                 customerName: createReceivingDto.customerName || orderInfo?.customerName || '',
-                unit: createReceivingDto.unit || 'EA',
+                unit: createReceivingDto.unit || orderInfo?.productOrderUnit || 'EA',
                 warehouseCode: createReceivingDto.warehouseCode || '',
                 warehouseName: createReceivingDto.warehouseName || '',
                 lotCode: createReceivingDto.lotCode || '',
                 remark: createReceivingDto.remark || '',
                 approvalStatus: createReceivingDto.approvalStatus || '대기',
-                // 발주 기반 계산된 미입고 수량
-                unreceivedQuantity: unreceivedQuantity,
-                unitPrice: orderInfo?.unitPrice || 0,
-                supplyPrice: (orderInfo?.unitPrice || 0) * (createReceivingDto.quantity || 0),
-                vat: Math.round(((orderInfo?.unitPrice || 0) * (createReceivingDto.quantity || 0)) * 0.1),
-                total: Math.round(((orderInfo?.unitPrice || 0) * (createReceivingDto.quantity || 0)) * 1.1),
-                projectCode: orderInfo?.projectCode || '',
-                projectName: orderInfo?.projectName || ''
+                // 클라이언트에서 보낸 값 우선 사용, 없으면 자동 계산
+                unreceivedQuantity: createReceivingDto.unreceivedQuantity !== undefined ? createReceivingDto.unreceivedQuantity : unreceivedQuantity,
+                unitPrice: createReceivingDto.unitPrice !== undefined ? createReceivingDto.unitPrice : (orderInfo?.unitPrice || 0),
+                supplyPrice: createReceivingDto.supplyPrice !== undefined ? createReceivingDto.supplyPrice : ((orderInfo?.unitPrice || 0) * (createReceivingDto.quantity || 0)),
+                vat: createReceivingDto.vat !== undefined ? createReceivingDto.vat : Math.round(((orderInfo?.unitPrice || 0) * (createReceivingDto.quantity || 0)) * 0.1),
+                total: createReceivingDto.total !== undefined ? createReceivingDto.total : Math.round(((orderInfo?.unitPrice || 0) * (createReceivingDto.quantity || 0)) * 1.1),
+                projectCode: createReceivingDto.projectCode || orderInfo?.projectCode || '',
+                projectName: createReceivingDto.projectName || orderInfo?.projectName || ''
             });
 
             // 저장
