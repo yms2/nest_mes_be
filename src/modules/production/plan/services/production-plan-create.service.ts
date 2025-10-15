@@ -81,6 +81,7 @@ export class ProductionPlanCreateService {
           this.productionPlanRepository,
           sequenceNumber,
         ),
+        orderCode: dto.orderCode, // 수주코드 추가
         productionPlanDate: dto.productionPlanDate,
         orderType: order.orderType,
         projectCode: order.projectCode,

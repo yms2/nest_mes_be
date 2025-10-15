@@ -124,4 +124,60 @@ export class NotificationReadController {
     ) {
         return await this.notificationReadService.rejectNotification(parseInt(id), rejector, reason);
     }
+
+    @Get('admin')
+    @ApiOperation({ 
+        summary: '관리자용 알림 조회',
+        description: '관리자가 볼 수 있는 알림 목록을 조회합니다. (발주 등록 알림 포함)'
+    })
+    @ApiQuery({ name: 'page', required: false, type: Number, description: '페이지 번호 (기본값: 1)' })
+    @ApiQuery({ name: 'limit', required: false, type: Number, description: '페이지당 항목 수 (기본값: 20)' })
+    @ApiResponse({ 
+        status: 200, 
+        description: '관리자용 알림 조회 성공'
+    })
+    async getAdminNotifications(
+        @Query('page') page: number = 1,
+        @Query('limit') limit: number = 20
+    ) {
+        return await this.notificationReadService.getAdminNotifications(page, limit);
+    }
+
+    @Get('user')
+    @ApiOperation({ 
+        summary: '평직원용 알림 조회',
+        description: '평직원이 볼 수 있는 알림 목록을 조회합니다.'
+    })
+    @ApiQuery({ name: 'targetUser', required: true, type: String, description: '알림 대상 사용자' })
+    @ApiQuery({ name: 'page', required: false, type: Number, description: '페이지 번호 (기본값: 1)' })
+    @ApiQuery({ name: 'limit', required: false, type: Number, description: '페이지당 항목 수 (기본값: 20)' })
+    @ApiResponse({ 
+        status: 200, 
+        description: '평직원용 알림 조회 성공'
+    })
+    async getUserNotifications(
+        @Query('targetUser') targetUser: string,
+        @Query('page') page: number = 1,
+        @Query('limit') limit: number = 20
+    ) {
+        return await this.notificationReadService.getUserNotifications(targetUser, page, limit);
+    }
+
+    @Get('unread-count')
+    @ApiOperation({ 
+        summary: '미읽은 알림 개수 조회',
+        description: '사용자 권한에 따른 미읽은 알림 개수를 조회합니다.'
+    })
+    @ApiQuery({ name: 'targetUser', required: true, type: String, description: '알림 대상 사용자' })
+    @ApiQuery({ name: 'userRole', required: true, type: String, enum: ['ADMIN', 'USER'], description: '사용자 권한' })
+    @ApiResponse({ 
+        status: 200, 
+        description: '미읽은 알림 개수 조회 성공'
+    })
+    async getUnreadCountByUser(
+        @Query('targetUser') targetUser: string,
+        @Query('userRole') userRole: 'ADMIN' | 'USER'
+    ) {
+        return await this.notificationReadService.getUnreadCountByUser(targetUser, userRole);
+    }
 }

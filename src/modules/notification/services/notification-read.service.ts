@@ -220,4 +220,114 @@ export class NotificationReadService {
             throw new Error(`승인 대기 알림 조회 실패: ${error.message}`);
         }
     }
+
+    /**
+     * 관리자용 알림을 조회합니다.
+     */
+    async getAdminNotifications(page: number = 1, limit: number = 20) {
+        try {
+            const offset = (page - 1) * limit;
+            
+            const [notifications, total] = await this.notificationRepository.findAndCount({
+                where: [
+                    { notificationType: 'ORDER_CREATE' },
+                    { notificationType: 'ORDER_CREATE_FROM_ORDER' },
+                    { notificationType: 'APPROVAL_REQUEST' },
+                    { notificationType: 'SYSTEM_NOTIFICATION' },
+                    { notificationType: 'GENERAL_NOTICE' }
+                ],
+                order: { createdAt: 'DESC' },
+                skip: offset,
+                take: limit
+            });
+
+            return {
+                success: true,
+                message: '관리자용 알림 목록을 성공적으로 조회했습니다.',
+                data: notifications,
+                total,
+                page,
+                limit
+            };
+        } catch (error) {
+            throw new Error(`관리자용 알림 조회 실패: ${error.message}`);
+        }
+    }
+
+    /**
+     * 평직원용 알림을 조회합니다.
+     */
+    async getUserNotifications(targetUser: string, page: number = 1, limit: number = 20) {
+        try {
+            const offset = (page - 1) * limit;
+            
+            const [notifications, total] = await this.notificationRepository.findAndCount({
+                where: [
+                    { 
+                        notificationType: 'APPROVAL_COMPLETE',
+                        receiver: targetUser
+                    },
+                    { 
+                        notificationType: 'PERSONAL_NOTIFICATION',
+                        receiver: targetUser
+                    },
+                    { 
+                        notificationType: 'WORK_NOTIFICATION',
+                        receiver: targetUser
+                    }
+                ],
+                order: { createdAt: 'DESC' },
+                skip: offset,
+                take: limit
+            });
+
+            return {
+                success: true,
+                message: '평직원용 알림 목록을 성공적으로 조회했습니다.',
+                data: notifications,
+                total,
+                page,
+                limit
+            };
+        } catch (error) {
+            throw new Error(`평직원용 알림 조회 실패: ${error.message}`);
+        }
+    }
+
+    /**
+     * 사용자별 미읽은 알림 개수를 조회합니다.
+     */
+    async getUnreadCountByUser(targetUser: string, userRole: 'ADMIN' | 'USER') {
+        try {
+            let whereCondition: any = { status: 'UNREAD' };
+
+            if (userRole === 'ADMIN') {
+                whereCondition = [
+                    { status: 'UNREAD', notificationType: 'ORDER_CREATE' },
+                    { status: 'UNREAD', notificationType: 'ORDER_CREATE_FROM_ORDER' },
+                    { status: 'UNREAD', notificationType: 'APPROVAL_REQUEST' },
+                    { status: 'UNREAD', notificationType: 'SYSTEM_NOTIFICATION' },
+                    { status: 'UNREAD', notificationType: 'GENERAL_NOTICE' }
+                ];
+            } else {
+                whereCondition = [
+                    { status: 'UNREAD', notificationType: 'APPROVAL_COMPLETE', receiver: targetUser },
+                    { status: 'UNREAD', notificationType: 'PERSONAL_NOTIFICATION', receiver: targetUser },
+                    { status: 'UNREAD', notificationType: 'WORK_NOTIFICATION', receiver: targetUser }
+                ];
+            }
+
+            const count = await this.notificationRepository.count({
+                where: whereCondition
+            });
+
+            return {
+                success: true,
+                message: '미읽은 알림 개수를 성공적으로 조회했습니다.',
+                unreadCount: count
+            };
+        } catch (error) {
+            throw new Error(`미읽은 알림 개수 조회 실패: ${error.message}`);
+        }
+    }
 }

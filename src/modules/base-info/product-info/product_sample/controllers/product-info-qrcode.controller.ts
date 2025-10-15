@@ -24,7 +24,7 @@ export class ProductInfoQrCodeController {
       throw new NotFoundException(`해당하는 품목이 없습니다.`);
     }
 
-    // ✅ QR 코드 생성
+    // ✅ QR 코드 생성ㅋ
     const qrCode = await this.qrService.generateQrCode(product.productCode);
 
     return {

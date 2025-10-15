@@ -88,4 +88,25 @@ export class NotificationCreateService {
             status: 'UNREAD'
         });
     }
+
+    /**
+     * 승인 완료 알림을 생성합니다. (평직원용)
+     */
+    async createApprovalCompleteNotification(
+        moduleName: string,
+        targetId: string,
+        targetName: string,
+        targetUser: string,
+        approvalType: string,
+        approverName: string
+    ) {
+        return await this.createNotification({
+            notificationType: 'APPROVAL_COMPLETE',
+            notificationTitle: `${approvalType} 승인 완료`,
+            notificationContent: `${targetName}에 대한 ${approvalType}이 ${approverName}님에 의해 승인되었습니다.`,
+            sender: approverName,
+            receiver: targetUser,
+            status: 'UNREAD'
+        });
+    }
 }

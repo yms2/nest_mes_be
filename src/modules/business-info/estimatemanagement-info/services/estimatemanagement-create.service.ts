@@ -172,33 +172,8 @@ export class EstimateManagementCreateService {
    */
   private async validateEstimateData(createEstimateDto: CreateEstimateDto): Promise<void> {
     const {
-      estimateDate,
-      estimateVersion,
-      estimateName,
-      customerCode,
-      customerName,
-      projectName,
-      productCode,
-      productName,
-      productQuantity,
-      estimateStatus,
       estimatePrice,
-      employeeCode,
-      employeeName,
     } = createEstimateDto;
-
-    // 필수 필드 검증 (projectCode는 자동 생성되므로 제외)
-    // if (!estimateDate || !estimateVersion || !estimateName || !customerCode || !customerName || 
-    //     !projectName || !productCode || !productName || 
-    //     !productQuantity || !estimateStatus || !estimatePrice || 
-    //     !employeeCode || !employeeName) {
-    //   throw new BadRequestException('필수 필드가 누락되었습니다.');
-    // }
-
-    // 수량 검증
-    if (productQuantity <= 0) {
-      throw new BadRequestException('제품 수량은 0보다 커야 합니다.');
-    }
 
     // 견적 가격 검증
     if (estimatePrice < 0) {
@@ -333,27 +308,15 @@ export class EstimateManagementCreateService {
     const {
       estimateId,
       detailCode,
-      itemCode,
-      itemName,
-      unit,
-      quantity,
       unitPrice,
       totalPrice,
     } = detailDto;
 
-    // 필수 필드 검증 (detailCode는 선택적이므로 제외)
-    if (!estimateId || !itemCode || !itemName || !unit || !quantity || !unitPrice || !totalPrice) {
-      throw new BadRequestException('세부품목 필수 필드가 누락되었습니다.');
-    }
+
 
     // detailCode가 제공된 경우 유효성 검증
     if (detailCode && detailCode.trim() === '') {
       throw new BadRequestException('세부품목 코드는 빈 문자열일 수 없습니다.');
-    }
-
-    // 수량 검증
-    if (quantity <= 0) {
-      throw new BadRequestException('세부품목 수량은 0보다 커야 합니다.');
     }
 
     // 단가 검증

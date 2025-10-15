@@ -19,6 +19,7 @@ import { APMMiddleware } from './common/apm/middleware/apm.middleware';
 import { ProductionModule } from './modules/production/production.module';
 import { QualityModule } from './modules/quality/quality.module';
 import { NotificationModule } from './modules/notification/notification.module';
+import { KpiModule } from './modules/kpi/kpi.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { NotificationModule } from './modules/notification/notification.module';
     ProductionModule,
     QualityModule,
     NotificationModule,
+    KpiModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',

@@ -8,6 +8,7 @@ import * as controllers from './controllers';
 import * as services from './services';
 import { InventoryLotService } from './services/inventory-lot.service';
 import { InventoryLotController } from './controllers/inventory-lot.controller';
+import { InventoryListController } from './controllers/inventory-list.controller';
 import { InventoryLogsModule } from '../inventory-logs/inventory-logs.module';
 import { LogModule } from 'src/modules/log/log.module';
 
@@ -20,7 +21,7 @@ const serviceArray = Object.values(services);
     InventoryLogsModule,
     LogModule,
   ],
-  controllers: [...controllerArray, InventoryLotController],
+  controllers: [...controllerArray, InventoryLotController, InventoryListController],
   providers: [...serviceArray, InventoryLotService],
   exports: [...serviceArray, InventoryLotService],
 })

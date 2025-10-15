@@ -48,6 +48,14 @@ export class Receiving extends BaseEntity {
     @Column({ name: 'quantity', type: 'int' ,comment: '입고수량' ,nullable: true})
     quantity: number;
 
+    @ApiProperty({ example: '100', description: '불량수량' })
+    @Column({ name: 'defective_quantity', type: 'int' ,comment: '불량수량' ,nullable: true})
+    defectiveQuantity: number;
+
+    @ApiProperty({ example: [{type: "파손", quantity: 2}], description: '불량 상세 정보' })
+    @Column({ name: 'defect_details', type: 'json' ,comment: '불량 상세 정보 (유형별 수량)' ,nullable: true})
+    defectDetails: Array<{type: string; quantity: number}>;
+
     @ApiProperty({ example: '100', description: '미입고수량' })
     @Column({ name: 'unreceived_quantity', type: 'int' ,comment: '미입고수량' ,nullable: true})
     unreceivedQuantity: number;

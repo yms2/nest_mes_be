@@ -116,6 +116,12 @@ export class ProductionPlanReadService {
       });
     }
 
+    if (query.orderCode) {
+      queryBuilder.andWhere('productionPlan.orderCode LIKE :orderCode', { 
+        orderCode: `%${query.orderCode}%` 
+      });
+    }
+
     if (query.productionPlanDateFrom) {
       queryBuilder.andWhere('productionPlan.productionPlanDate >= :productionPlanDateFrom', {
         productionPlanDateFrom: new Date(query.productionPlanDateFrom),
@@ -155,4 +161,7 @@ export class ProductionPlanReadService {
 
     return queryBuilder;
   }
+
+
+  
 }

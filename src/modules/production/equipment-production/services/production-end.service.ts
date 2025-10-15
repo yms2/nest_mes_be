@@ -87,8 +87,8 @@ export class ProductionEndService {
             // BOM 재료 재고 확인 및 차감 (생산 완료 시 즉시 처리)
             await this.checkAndUpdateBomInventory(production.productCode, actualProductionQuantity);
             
-            // 완제품 재고는 품질검사 완료 후 별도로 처리
-            console.log(`[완제품재고] 품질검사 완료 후 재고 처리 필요: 제품=${production.productCode}, 수량=${actualProductionQuantity}개`);
+            // 완제품 재고 증가
+            await this.updateFinishedProductInventory(production.productCode, production.productName, actualProductionQuantity);
         }
 
         return updatedProduction;
@@ -252,6 +252,91 @@ export class ProductionEndService {
         const nextSequence = (sequence + 1).toString().padStart(3, '0');
         
         return `PRO${datePart}${nextSequence}`;
+    }
+
+    /**
+     * 완제품 재고를 증가시킵니다.
+     * @param productCode 제품 코드
+     * @param productName 제품명
+     * @param quantity 생산 수량
+     */
+    private async updateFinishedProductInventory(productCode: string, productName: string, quantity: number): Promise<void> {
+        try {
+            // 완제품 재고 조회
+            let inventory = await this.inventoryRepository.findOne({
+                where: { inventoryCode: productCode }
+            });
+
+            if (inventory) {
+                // 기존 재고가 있으면 수량 증가
+                const currentStock = inventory.inventoryQuantity;
+                const newStock = currentStock + quantity;
+                
+                await this.inventoryRepository.update(
+                    { inventoryCode: productCode },
+                    { 
+                        inventoryQuantity: newStock,
+                        updatedBy: 'system',
+                        updatedAt: new Date()
+                    }
+                );
+
+                console.log(`[완제품재고증가] ${productCode}(${productName}): ${currentStock}개 → ${newStock}개 (+${quantity}개)`);
+
+                // 재고 조정 로그 기록
+                try {
+                    await this.inventoryAdjustmentLogService.logAdjustment(
+                        productCode,
+                        productName,
+                        'CHANGE',
+                        currentStock,
+                        newStock,
+                        quantity,
+                        `생산 완료 - 완제품 입고`,
+                        'system'
+                    );
+                } catch (logError) {
+                    console.error(`[재고로그기록실패] ${productCode}: ${logError.message}`);
+                }
+            } else {
+                // 재고가 없으면 새로 생성
+                const newInventory = this.inventoryRepository.create({
+                    inventoryCode: productCode,
+                    inventoryName: productName,
+                    inventoryType: '완제품',
+                    inventoryQuantity: quantity,
+                    inventoryUnit: 'EA',
+                    inventoryLocation: '메인창고',
+                    safeInventory: 0,
+                    inventoryStatus: '정상',
+                    createdBy: 'system',
+                    updatedBy: 'system',
+                });
+
+                await this.inventoryRepository.save(newInventory);
+
+                console.log(`[완제품재고생성] ${productCode}(${productName}): ${quantity}개 생성`);
+
+                // 재고 조정 로그 기록
+                try {
+                    await this.inventoryAdjustmentLogService.logAdjustment(
+                        productCode,
+                        productName,
+                        'SET',
+                        0,
+                        quantity,
+                        quantity,
+                        `생산 완료 - 완제품 입고 (신규 재고 생성)`,
+                        'system'
+                    );
+                } catch (logError) {
+                    console.error(`[재고로그기록실패] ${productCode}: ${logError.message}`);
+                }
+            }
+        } catch (error) {
+            console.error(`[완제품재고처리실패] ${productCode}: ${error.message}`);
+            throw error;
+        }
     }
 
     /**

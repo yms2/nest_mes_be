@@ -330,4 +330,205 @@ export class ReceivingManagementReadService {
             throw error;
         }
     }
+
+    /**
+     * 발주별 미입고 현황 조회
+     * @param searchParams 검색 조건
+     * @returns 발주별 미입고 현황 목록
+     */
+    async getUnreceivedOrders(searchParams: {
+        page?: number;
+        limit?: number;
+        search?: string;
+        productCode?: string;
+        customerCode?: string;
+        startDate?: string;
+        endDate?: string;
+        hasUnreceived?: boolean;
+    } = {}) {
+        try {
+            const {
+                page = 1,
+                limit = 10,
+                search,
+                productCode,
+                customerCode,
+                startDate,
+                endDate,
+                hasUnreceived
+            } = searchParams;
+
+            const offset = (page - 1) * limit;
+
+            // 발주 정보와 입고 정보를 조인하여 미입고 현황 계산
+            const queryBuilder = this.orderInfoRepository
+                .createQueryBuilder('oi')
+                .leftJoin('receiving', 'r', 'oi.orderCode = r.orderCode')
+                .select([
+                    'oi.id as orderId',
+                    'oi.orderCode as orderCode',
+                    'oi.customerCode as customerCode',
+                    'oi.customerName as customerName',
+                    'oi.productCode as productCode',
+                    'oi.productName as productName',
+                    'oi.productOrderUnit as unit',
+                    'oi.projectCode as projectCode',
+                    'oi.projectName as projectName',
+                    'oi.orderQuantity as orderQuantity',
+                    'oi.unitPrice as unitPrice',
+                    'oi.orderDate as orderDate',
+                    'COALESCE(SUM(r.quantity), 0) as receivedQuantity',
+                    'oi.orderQuantity - COALESCE(SUM(r.quantity), 0) as unreceivedQuantity'
+                ])
+                .groupBy('oi.id, oi.orderCode, oi.customerCode, oi.customerName, oi.productCode, oi.productName, oi.unit, oi.projectCode, oi.projectName, oi.orderQuantity, oi.unitPrice, oi.orderDate')
+                .having('oi.orderQuantity - COALESCE(SUM(r.quantity), 0) > 0')
+                .orderBy('oi.orderDate', 'DESC');
+
+            // 검색 조건 적용
+            if (search) {
+                queryBuilder.andWhere(
+                    '(oi.orderCode LIKE :search OR oi.customerName LIKE :search OR oi.productName LIKE :search)',
+                    { search: `%${search}%` }
+                );
+            }
+
+            if (productCode) {
+                queryBuilder.andWhere('oi.productCode = :productCode', { productCode });
+            }
+
+            if (customerCode) {
+                queryBuilder.andWhere('oi.customerCode = :customerCode', { customerCode });
+            }
+
+            if (startDate && endDate) {
+                queryBuilder.andWhere('oi.orderDate BETWEEN :startDate AND :endDate', { startDate, endDate });
+            }
+
+            // 미입고만 조회하는 경우
+            if (hasUnreceived === true) {
+                queryBuilder.having('oi.orderQuantity - COALESCE(SUM(r.quantity), 0) > 0');
+            }
+
+            // 전체 개수 조회
+            const totalQuery = queryBuilder.clone();
+            const total = await totalQuery.getCount();
+
+            // 페이지네이션 적용
+            const results = await queryBuilder
+                .offset(offset)
+                .limit(limit)
+                .getRawMany();
+
+            // 결과 데이터 변환
+            const data = results.map((row: any) => ({
+                orderId: row.orderId,
+                orderCode: row.orderCode,
+                customerCode: row.customerCode,
+                customerName: row.customerName,
+                productCode: row.productCode,
+                productName: row.productName,
+                unit: row.unit || 'EA',
+                projectCode: row.projectCode,
+                projectName: row.projectName,
+                orderQuantity: parseInt(row.orderQuantity) || 0,
+                receivedQuantity: parseInt(row.receivedQuantity) || 0,
+                unreceivedQuantity: parseInt(row.unreceivedQuantity) || 0,
+                unitPrice: parseInt(row.unitPrice) || 0,
+                orderDate: row.orderDate,
+                receivingRate: row.orderQuantity > 0 ? Math.round((parseInt(row.receivedQuantity) / parseInt(row.orderQuantity)) * 100) : 0
+            }));
+
+            const totalPages = Math.ceil(total / limit);
+
+            return {
+                data,
+                total,
+                page,
+                limit,
+                totalPages
+            };
+
+        } catch (error) {
+            await this.logService.createDetailedLog({
+                moduleName: '입고관리 미입고 현황 조회',
+                action: 'READ_FAILED',
+                username: 'system',
+                targetId: 'unreceived-orders',
+                targetName: '미입고 현황',
+                details: `미입고 현황 조회 실패: ${error.message}`,
+            });
+            throw error;
+        }
+    }
+
+    /**
+     * 특정 발주의 입고 현황 상세 조회
+     * @param orderCode 발주 코드
+     * @returns 발주 입고 현황 상세 정보
+     */
+    async getOrderReceivingStatus(orderCode: string) {
+        try {
+            // 발주 정보 조회
+            const orderInfo = await this.orderInfoRepository.findOne({
+                where: { orderCode }
+            });
+
+            if (!orderInfo) {
+                throw new Error(`발주 코드 ${orderCode}를 찾을 수 없습니다.`);
+            }
+
+            // 해당 발주의 모든 입고 내역 조회
+            const receivings = await this.receivingRepository.find({
+                where: { orderCode },
+                order: { receivingDate: 'DESC' }
+            });
+
+            // 입고 수량 합계 계산
+            const totalReceivedQuantity = receivings.reduce((sum, r) => sum + (r.quantity || 0), 0);
+            const unreceivedQuantity = Math.max(0, (orderInfo.orderQuantity || 0) - totalReceivedQuantity);
+
+            // 입고 현황 상세 정보
+            const receivingDetails = receivings.map(r => ({
+                receivingCode: r.receivingCode,
+                receivingDate: r.receivingDate,
+                quantity: r.quantity,
+                lotCode: r.lotCode,
+                warehouseName: r.warehouseName,
+                approvalStatus: r.approvalStatus,
+                remark: r.remark,
+                createdAt: r.createdAt
+            }));
+
+            return {
+                orderInfo: {
+                    orderCode: orderInfo.orderCode,
+                    customerName: orderInfo.customerName,
+                    productName: orderInfo.productName,
+                    orderQuantity: orderInfo.orderQuantity,
+                    unitPrice: orderInfo.unitPrice,
+                    orderDate: orderInfo.orderDate,
+                    projectCode: orderInfo.projectCode,
+                    projectName: orderInfo.projectName
+                },
+                receivingSummary: {
+                    totalReceivedQuantity,
+                    unreceivedQuantity,
+                    receivingRate: orderInfo.orderQuantity > 0 ? Math.round((totalReceivedQuantity / orderInfo.orderQuantity) * 100) : 0,
+                    totalReceivings: receivings.length
+                },
+                receivingDetails
+            };
+
+        } catch (error) {
+            await this.logService.createDetailedLog({
+                moduleName: '입고관리 발주 입고 현황 조회',
+                action: 'READ_FAILED',
+                username: 'system',
+                targetId: orderCode,
+                targetName: '발주 입고 현황',
+                details: `발주 입고 현황 조회 실패: ${error.message}`,
+            });
+            throw error;
+        }
+    }
 }
