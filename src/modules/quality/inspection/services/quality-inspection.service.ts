@@ -185,14 +185,12 @@ export class QualityInspectionService {
             return {
                 success: true,
                 message: '품질검사 목록 조회 성공',
-                data: {
-                    inspections,
-                    pagination: {
-                        page,
-                        limit,
-                        total,
-                        totalPages: Math.ceil(total / limit),
-                    },
+                data: inspections,
+                pagination: {
+                    page,
+                    limit,
+                    total,
+                    totalPages: Math.ceil(total / limit),
                 },
             };
         } catch (error) {

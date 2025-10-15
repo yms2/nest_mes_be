@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsString, IsOptional, IsNumber, IsDateString, MaxLength } from "class-validator";
+import { IsNotEmpty, IsString, IsOptional, IsNumber, IsDateString, MaxLength, IsArray } from "class-validator";
 
 export class CreateReceivingDto {
     @ApiProperty({ example: '2025-01-01', description: '입고 일자', required: false })
@@ -29,6 +29,20 @@ export class CreateReceivingDto {
     @IsOptional()
     @IsNumber({}, { message: '입고수량은 숫자여야 합니다.' })
     quantity?: number;
+
+    @ApiProperty({ example: 5, description: '불량수량', required: false })
+    @IsOptional()
+    @IsNumber({}, { message: '불량수량은 숫자여야 합니다.' })
+    defectQuantity?: number;
+
+    @ApiProperty({ 
+        example: [{type: "파손", quantity: 2}, {type: "오염", quantity: 3}], 
+        description: '불량 상세 정보 (유형별 수량)', 
+        required: false 
+    })
+    @IsOptional()
+    @IsArray({ message: '불량 상세 정보는 배열이어야 합니다.' })
+    defectDetails?: Array<{type: string; quantity: number}>;
 
     @ApiProperty({ example: 'CUS001', description: '거래처 코드', required: false })
     @IsOptional()

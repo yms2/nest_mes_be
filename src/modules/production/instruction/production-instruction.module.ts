@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductionInstruction } from './entities/production-instruction.entity';
 import { ProductionPlan } from '@/modules/production/plan/entities/production-plan.entity';
+import { Production } from '@/modules/production/equipment-production/entities/production.entity';
+import { BomProcess } from '@/modules/base-info/bom-info/entities/bom-process.entity';
 import { ProductionInstructionService } from './services/production-instruction-create.service';
 import { ProductionInstructionReadService } from './services/production-instruction-read.service';
 import { ProductionInstructionUpdateService } from './services/production-instruction-update.service';
@@ -19,6 +21,8 @@ import { CommonModule } from '@/common/common.module';
     TypeOrmModule.forFeature([
       ProductionInstruction,
       ProductionPlan,
+      Production,
+      BomProcess,
     ]),
     CommonModule,
   ],    
