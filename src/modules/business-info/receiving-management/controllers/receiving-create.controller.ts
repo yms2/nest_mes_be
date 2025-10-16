@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Request } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { ReceivingCreateService } from '../services/receiving-create.service';
 import { CreateReceivingDto } from '../dto/create-receiving.dto';
@@ -17,7 +17,8 @@ export class ReceivingCreateController {
     @ApiBody({ type: CreateReceivingDto })
     @ApiResponse({ status: 201, description: '입고 정보가 성공적으로 등록되었습니다.' })
     @ApiResponse({ status: 400, description: '잘못된 요청 데이터입니다.' })
-    async createReceiving(@Body() createReceivingDto: CreateReceivingDto) {
-        return await this.receivingCreateService.createReceiving(createReceivingDto);
+    async createReceiving(@Body() createReceivingDto: CreateReceivingDto, @Request() req: any) {
+        const username = req.user?.username || 'system';
+        return await this.receivingCreateService.createReceiving(createReceivingDto, username);
     }
 }

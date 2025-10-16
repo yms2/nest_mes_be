@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProjectStatusController } from './controllers/project-status.controller';
 import { ProjectStatusService } from './services/project-status.service';
+import { ProjectStatusExcelController } from './controllers/project-status-excel.controller';
+import { ProjectStatusExcelService } from './services/project-status-excel.service';
 import { OrderManagement } from '../ordermanagement-info/entities/ordermanagement.entity';
 import { OrderMain } from '../order-info/entities/order-main.entity';
 import { ProductionPlan } from '../../production/plan/entities/production-plan.entity';
@@ -32,8 +34,8 @@ import { QualityInspection } from '../../quality/inspection/entities/quality-ins
             QualityInspection
         ])
     ],
-    controllers: [ProjectStatusController],
-    providers: [ProjectStatusService],
-    exports: [ProjectStatusService]
+    controllers: [ProjectStatusController, ProjectStatusExcelController],
+    providers: [ProjectStatusService, ProjectStatusExcelService],
+    exports: [ProjectStatusService, ProjectStatusExcelService]
 })
 export class ProjectStatusModule {}

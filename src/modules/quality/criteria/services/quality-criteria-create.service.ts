@@ -22,12 +22,11 @@ export class QualityCriteriaCreateService {
             try {
 
             //품질기준정보 코드 자동 생성
-            if (!qualityCriteria.criteriaCode) {
-                qualityCriteria.criteriaCode = await this.criteriaHandler.generateCriteriaCode(this.qualityCriteriaRepository);
-            }
+            const criteriaCode = await this.criteriaHandler.generateCriteriaCode(this.qualityCriteriaRepository);
 
             const newQualityCriteria = this.qualityCriteriaRepository.create({
                 ...qualityCriteria,
+                criteriaCode: criteriaCode,
                 createdBy: username,
                 updatedBy: username,
             });

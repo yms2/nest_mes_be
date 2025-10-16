@@ -7,6 +7,7 @@ import { ProductionPlan } from '@/modules/production/plan/entities/production-pl
 import { BomProcess } from '@/modules/base-info/bom-info/entities/bom-process.entity';
 import { BomInfo } from '@/modules/base-info/bom-info/entities/bom-info.entity';
 import { Inventory } from '@/modules/inventory/inventory-management/entities/inventory.entity';
+import { ProductInfo } from '@/modules/base-info/product-info/product_sample/entities/product-info.entity';
 import { StartProductionDto } from '../dto/start-production.dto';
 
 @Injectable()
@@ -24,6 +25,8 @@ export class ProductionStartService {
     private readonly bomInfoRepository: Repository<BomInfo>,
     @InjectRepository(Inventory)
     private readonly inventoryRepository: Repository<Inventory>,
+    @InjectRepository(ProductInfo)
+    private readonly productInfoRepository: Repository<ProductInfo>,
   ) {}
 
   /**
@@ -161,6 +164,25 @@ export class ProductionStartService {
     });
 
   }
+
+  /**
+   * 생산 지시 코드로 현재 진행중인 생산 정보를 조회합니다.
+   * @param productionInstructionCode 생산 지시 코드
+   * @returns 현재 생산 정보
+   */
+  async getCurrentProduction(productionInstructionCode: string): Promise<Production> {
+    // 가장 최근 생산 정보 조회 (진행중 또는 최종완료 상태)
+    const production = await this.productionRepository.findOne({
+      where: { productionInstructionCode },
+      order: { createdAt: 'DESC' },
+    });
+
+    if (!production) {
+      throw new NotFoundException(`생산 정보를 찾을 수 없습니다: ${productionInstructionCode}`);
+    }
+
+    return production;
+  }
   // 4. 생산 불량 코드 생성 
   private async generateProductionDefectCode(): Promise<string> {
     const today = new Date().toISOString().slice(0, 10).replace(/-/g, '');
@@ -177,6 +199,12 @@ export class ProductionStartService {
    * @param quantity 생산 수량
    */
   private async checkBomInventory(productCode: string, quantity: number): Promise<void> {
+    // 생산할 제품 정보 조회
+    const productInfo = await this.productInfoRepository.findOne({
+      where: { productCode }
+    });
+    const productName = productInfo?.productName || productCode;
+
     // BOM 정보 조회 (자재 정보)
     const bomItems = await this.bomInfoRepository.find({
       where: { parentProductCode: productCode }
@@ -186,12 +214,18 @@ export class ProductionStartService {
     const insufficientItems: string[] = [];
     
     for (const bomItem of bomItems) {
+      // 자재의 품목명 조회
+      const childProductInfo = await this.productInfoRepository.findOne({
+        where: { productCode: bomItem.childProductCode }
+      });
+      const childProductName = childProductInfo?.productName || bomItem.childProductCode;
+
       const inventory = await this.inventoryRepository.findOne({
         where: { inventoryCode: bomItem.childProductCode }
       });
 
       if (!inventory) {
-        insufficientItems.push(`${bomItem.childProductCode} (재고 정보 없음)`);
+        insufficientItems.push(`${childProductName} (재고 정보 없음)`);
         continue;
       }
 
@@ -199,14 +233,14 @@ export class ProductionStartService {
       const requiredQuantity = bomItem.quantity * quantity;
       
       if (currentStock < requiredQuantity) {
-        insufficientItems.push(`${bomItem.childProductCode} (현재: ${currentStock}, 필요: ${requiredQuantity})`);
+        insufficientItems.push(`${childProductName} (현재: ${currentStock}, 필요: ${requiredQuantity})`);
       }
     }
 
     // 재고 부족 시 생산 시작 불가
     if (insufficientItems.length > 0) {
       const errorMessage = `재고 부족으로 생산을 시작할 수 없습니다:\n${insufficientItems.join('\n')}\n\n재고를 보충한 후 다시 시도해주세요.`;
-      console.error(`[생산시작실패] 재고부족 - 제품: ${productCode}, 생산수량: ${quantity}개`);
+      console.error(`[생산시작실패] 재고부족 - 제품: ${productName}, 생산수량: ${quantity}개`);
       console.error(`[부족재고목록] ${insufficientItems.join(', ')}`);
       throw new NotFoundException(errorMessage);
     }
