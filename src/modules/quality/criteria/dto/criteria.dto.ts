@@ -2,10 +2,6 @@ import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty, IsString } from "class-validator";
 
 export class CreateCriteriaDto {
-    @ApiProperty({example: 'CRI001', description: '품질기준 코드', required: false })
-    @IsString()
-    @IsNotEmpty()
-    criteriaCode: string;
     @ApiProperty({example: '품질기준 이름', description: '품질기준 이름', required: false })
     @IsString()
     @IsNotEmpty()

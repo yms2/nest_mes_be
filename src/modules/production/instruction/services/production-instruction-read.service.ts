@@ -4,6 +4,8 @@ import { Repository, SelectQueryBuilder } from 'typeorm';
 import { ProductionInstruction } from '../entities/production-instruction.entity';
 import { ProductionPlan } from '@/modules/production/plan/entities/production-plan.entity';
 import { QueryProductionInstructionDto } from '../dto/query-production-instruction.dto';
+import { Production } from '@/modules/production/equipment-production/entities/production.entity';
+import { BomProcess } from '@/modules/base-info/bom-info/entities/bom-process.entity';
 
 @Injectable()
 export class ProductionInstructionReadService {
@@ -12,6 +14,10 @@ export class ProductionInstructionReadService {
     private readonly productionInstructionRepository: Repository<ProductionInstruction>,
     @InjectRepository(ProductionPlan)
     private readonly productionPlanRepository: Repository<ProductionPlan>,
+    @InjectRepository(Production)
+    private readonly productionRepository: Repository<Production>,
+    @InjectRepository(BomProcess)
+    private readonly bomProcessRepository: Repository<BomProcess>,
   ) {}
 
   /**
@@ -56,6 +62,12 @@ export class ProductionInstructionReadService {
           where: { productionPlanCode: entity.productionPlanCode },
         });
 
+        // 현재 공정 정보 조회
+        const currentProcessInfo = await this.getCurrentProcessInfo(
+          entity.productionInstructionCode,
+          productionPlan?.productCode
+        );
+
         return {
           ...entity,
           productionPlanInfo: productionPlan ? {
@@ -72,6 +84,9 @@ export class ProductionInstructionReadService {
             customerCode: productionPlan.customerCode,
             customerName: productionPlan.customerName,
           } : null,
+          currentProcess: currentProcessInfo.currentProcess,
+          currentProcessName: currentProcessInfo.currentProcessName,
+          processStatus: currentProcessInfo.processStatus,
         };
       })
     );
@@ -394,5 +409,56 @@ export class ProductionInstructionReadService {
     }
 
     return queryBuilder;
+  }
+
+  /**
+   * 현재 공정 정보를 조회합니다.
+   * @param productionInstructionCode 생산 지시 코드
+   * @param productCode 제품 코드
+   * @returns 현재 공정 정보
+   */
+  private async getCurrentProcessInfo(productionInstructionCode: string, productCode?: string): Promise<{
+    currentProcess: string;
+    currentProcessName: string;
+    processStatus: string;
+  }> {
+    // 가장 최근 생산 정보 조회
+    const latestProduction = await this.productionRepository.findOne({
+      where: { productionInstructionCode },
+      order: { createdAt: 'DESC' },
+    });
+
+    if (latestProduction) {
+      // 생산이 시작된 경우
+      return {
+        currentProcess: latestProduction.productionProcessCode || '',
+        currentProcessName: latestProduction.productionProcessName || '',
+        processStatus: latestProduction.productionStatus === '진행중' ? 'in_progress' : 
+                      latestProduction.productionStatus === '최종완료' ? 'completed' : 'pending',
+      };
+    }
+
+    // 생산이 시작되지 않은 경우 BOM 첫 번째 공정 조회
+    if (productCode) {
+      const firstBomProcess = await this.bomProcessRepository.findOne({
+        where: { productCode },
+        order: { processOrder: 'ASC' },
+      });
+
+      if (firstBomProcess) {
+        return {
+          currentProcess: firstBomProcess.processCode || '',
+          currentProcessName: firstBomProcess.processName || '',
+          processStatus: 'not_started',
+        };
+      }
+    }
+
+    // BOM 공정이 없는 경우 기본값
+    return {
+      currentProcess: '',
+      currentProcessName: '',
+      processStatus: 'not_started',
+    };
   }
 }

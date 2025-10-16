@@ -96,9 +96,15 @@ export class OrderManagementReadService {
     /**
      * ID로 수주를 조회합니다.
      */
-    async getOrderManagementById(id: number, username: string): Promise<OrderManagement> {
+    async getOrderManagementById(id: string, username: string): Promise<OrderManagement> {
+        // undefined나 유효하지 않은 ID 처리
+        if (!id || id === 'undefined' || isNaN(Number(id))) {
+            throw new NotFoundException('유효하지 않은 ID입니다.');
+        }
+
+        const numericId = parseInt(id, 10);
         const orderManagement = await this.orderManagementRepository.findOne({
-            where: { id },
+            where: { id: numericId },
         });
 
         if (!orderManagement) {

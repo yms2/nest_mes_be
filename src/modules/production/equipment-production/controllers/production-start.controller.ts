@@ -58,4 +58,24 @@ export class ProductionStartController {
       return ApiResponseBuilder.error(error.message);
     }
   }
+
+  @Get('current/:productionInstructionCode')
+  @ApiOperation({
+    summary: '현재 생산 정보 조회',
+    description: '생산 지시 코드로 현재 진행중인 생산 정보를 조회합니다.',
+  })
+  @ApiParam({ name: 'productionInstructionCode', description: '생산 지시 코드' })
+  @ApiResponse({ status: 200, description: '현재 생산 정보를 성공적으로 조회했습니다.' })
+  @ApiResponse({ status: 404, description: '생산 정보를 찾을 수 없습니다.' })
+  async getCurrentProduction(
+    @Param('productionInstructionCode') productionInstructionCode: string,
+  ) {
+    try {
+      const result = await this.productionStartService.getCurrentProduction(productionInstructionCode);
+
+      return ApiResponseBuilder.success(result, '현재 생산 정보를 성공적으로 조회했습니다.');
+    } catch (error) {
+      return ApiResponseBuilder.error(error.message);
+    }
+  }
 }
