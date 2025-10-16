@@ -7,6 +7,7 @@ import { ProductionPlan } from '@/modules/production/plan/entities/production-pl
 import { BomProcess } from '@/modules/base-info/bom-info/entities/bom-process.entity';
 import { BomInfo } from '@/modules/base-info/bom-info/entities/bom-info.entity';
 import { Inventory } from '@/modules/inventory/inventory-management/entities/inventory.entity';
+import { InventoryLot } from '@/modules/inventory/inventory-management/entities/inventory-lot.entity';
 import { ProductInfo } from '@/modules/base-info/product-info/product_sample/entities/product-info.entity';
 import { ProductionStartService } from './services/production-start.service';
 import { ProductionEndService } from './services/production-end.service';
@@ -36,6 +37,7 @@ import { LogModule } from '@/modules/log/log.module';
       BomProcess,
       BomInfo,
       Inventory,
+      InventoryLot,
       ProductInfo,
     ]),
     CommonModule,

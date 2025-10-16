@@ -13,6 +13,7 @@ export class Production extends BaseEntity {
     @Column({ name: 'production_instruction_code', type: 'varchar', length: 20, comment: '생산 지시 코드' })
     productionInstructionCode: string;
 
+
     @ApiProperty({ example: 'PRD001', description: '제품 코드' })
     @Column({ name: 'product_code', type: 'varchar', length: 20, comment: '제품 코드' })
     productCode: string;

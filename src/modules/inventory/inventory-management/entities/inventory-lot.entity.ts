@@ -3,7 +3,7 @@ import { BaseEntity } from 'src/common/entities/base.entity';
 import { ApiProperty } from '@nestjs/swagger';
 
 @Entity()
-@Index(['productCode', 'lotCode'], { unique: true }) // 품목코드 + LOT코드 조합 유니크
+@Index(['lotCode'], { unique: true }) // LOT코드만 유니크 (품목코드 + 날짜 + 시퀀스 조합이므로)
 export class InventoryLot extends BaseEntity {
     @ApiProperty({ example: 'PRD001', description: '품목 코드' })
     @Column({ name: 'product_code', type: 'varchar', length: 50, comment: '품목 코드' })
