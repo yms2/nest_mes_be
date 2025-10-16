@@ -37,18 +37,50 @@ export class ReceivingCreateService {
             let unreceivedQuantity = 0;
             
             if (createReceivingDto.orderCode) {
+                // 발주 코드와 품목 코드를 함께 확인
+                const whereCondition: any = { orderCode: createReceivingDto.orderCode };
+                if (createReceivingDto.productCode) {
+                    whereCondition.productCode = createReceivingDto.productCode;
+                }
+                
+                console.log(`[입고등록디버그] 발주코드: ${createReceivingDto.orderCode}, 품목코드: ${createReceivingDto.productCode}`);
+                console.log(`[입고등록디버그] 검색조건:`, whereCondition);
+                
                 orderInfo = await this.orderInfoRepository.findOne({
-                    where: { orderCode: createReceivingDto.orderCode }
+                    where: whereCondition
                 });
                 
+                console.log(`[입고등록디버그] 발주정보:`, orderInfo ? {
+                    orderCode: orderInfo.orderCode,
+                    productCode: orderInfo.productCode,
+                    productName: orderInfo.productName,
+                    orderQuantity: orderInfo.orderQuantity
+                } : '발주정보 없음');
+                
                 if (orderInfo) {
-                    // 기존 입고 수량 조회
+                    // 기존 입고 수량 조회 (발주 코드와 품목 코드 함께 확인)
+                    const receivingWhereCondition: any = { orderCode: createReceivingDto.orderCode };
+                    if (createReceivingDto.productCode) {
+                        receivingWhereCondition.productCode = createReceivingDto.productCode;
+                    }
+                    
+                    console.log(`[입고등록디버그] 기존입고 검색조건:`, receivingWhereCondition);
+                    
                     const existingReceivings = await this.receivingRepository.find({
-                        where: { orderCode: createReceivingDto.orderCode }
+                        where: receivingWhereCondition
                     });
+                    
+                    console.log(`[입고등록디버그] 기존입고내역:`, existingReceivings.map(r => ({
+                        receivingCode: r.receivingCode,
+                        quantity: r.quantity,
+                        productCode: r.productCode,
+                        productName: r.productName
+                    })));
                     
                     const totalReceivedQuantity = existingReceivings.reduce((sum, r) => sum + (r.quantity || 0), 0);
                     const remainingQuantity = Math.max(0, (orderInfo.orderQuantity || 0) - totalReceivedQuantity);
+                    
+                    console.log(`[입고등록디버그] 발주수량: ${orderInfo.orderQuantity}, 총입고수량: ${totalReceivedQuantity}, 남은수량: ${remainingQuantity}`);
                     
                     // 입고 수량이 남은 수량을 초과하는지 확인
                     if ((createReceivingDto.quantity || 0) > remainingQuantity) {

@@ -194,6 +194,9 @@ export class InventoryLotService {
         productCode?: string;
         lotCode?: string;
         lotStatus?: string;
+        warehouseCode?: string;
+        warehouseName?: string;
+        warehouseZone?: string;
     }): Promise<{ lotInventories: InventoryLot[]; total: number; page: number; limit: number; totalPages: number }> {
         const page = searchParams?.page || 1;
         const limit = searchParams?.limit || 10;
@@ -213,6 +216,18 @@ export class InventoryLotService {
             queryBuilder.andWhere('lot.lotStatus = :lotStatus', { lotStatus: searchParams.lotStatus });
         }
 
+        if (searchParams?.warehouseCode) {
+            queryBuilder.andWhere('lot.warehouseCode LIKE :warehouseCode', { warehouseCode: `%${searchParams.warehouseCode}%` });
+        }
+
+        if (searchParams?.warehouseName) {
+            queryBuilder.andWhere('lot.warehouseName LIKE :warehouseName', { warehouseName: `%${searchParams.warehouseName}%` });
+        }
+
+        if (searchParams?.warehouseZone) {
+            queryBuilder.andWhere('lot.warehouseZone LIKE :warehouseZone', { warehouseZone: `%${searchParams.warehouseZone}%` });
+        }
+
         const [lotInventories, total] = await queryBuilder
             .orderBy('lot.productCode', 'ASC')
             .addOrderBy('lot.lotCode', 'ASC')
@@ -230,6 +245,7 @@ export class InventoryLotService {
             totalPages
         };
     }
+
 
     /**
      * 품목별 총 재고 수량 계산
