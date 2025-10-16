@@ -87,4 +87,31 @@ export class EndProductionDto {
   @Type(() => DefectReasonDto)
   @IsOptional()
   defectReasons?: DefectReasonDto[];
+
+  @ApiProperty({ 
+    example: 'WHS001', 
+    description: '창고 코드',
+    required: false 
+  })
+  @IsString()
+  @IsOptional()
+  warehouseCode?: string;
+
+  @ApiProperty({ 
+    example: '창고1', 
+    description: '창고명',
+    required: false 
+  })
+  @IsString()
+  @IsOptional()
+  warehouseName?: string;
+
+  @ApiProperty({ 
+    example: '1구역', 
+    description: '창고 구역',
+    required: false 
+  })
+  @IsString()
+  @IsOptional()
+  warehouseZone?: string;
 }

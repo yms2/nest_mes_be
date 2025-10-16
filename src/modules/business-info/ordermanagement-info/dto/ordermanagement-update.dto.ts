@@ -87,6 +87,11 @@ export class UpdateOrderManagementDto {
     @IsString()
     estimateCode?: string;
 
+    @ApiProperty({ example: '견적내용', description: '견적내용', required: false })
+    @IsOptional()
+    @IsString()
+    estimateContent?: string;
+
     @ApiProperty({ example: '긴급 주문', description: '비고', required: false })
     @IsOptional()
     @IsString()
