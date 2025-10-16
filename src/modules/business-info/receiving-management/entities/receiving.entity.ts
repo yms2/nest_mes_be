@@ -72,6 +72,10 @@ export class Receiving extends BaseEntity {
     @Column({ name: 'warehouse_name', type: 'varchar', length: 50 ,comment: '창고 명' ,nullable: true})
     warehouseName: string;
 
+    @ApiProperty({ example: '창고 구역', description: '창고 구역' })
+    @Column({ name: 'warehouse_zone', type: 'varchar', length: 50 ,comment: '창고 구역' ,nullable: true})
+    warehouseZone: string;
+
     @ApiProperty({ example: '단가', description: '단가' })
     @Column({ name: 'unit_price', type: 'int' ,comment: '단가' ,nullable: true})
     unitPrice: number;

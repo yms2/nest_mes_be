@@ -29,6 +29,18 @@ export class InventoryLot extends BaseEntity {
     @Column({ name: 'storage_location', type: 'varchar', length: 50, comment: '보관 위치' })
     storageLocation: string;
 
+    @ApiProperty({ example: 'WHS001', description: '창고 코드' })
+    @Column({ name: 'warehouse_code', type: 'varchar', length: 20, comment: '창고 코드', nullable: true })
+    warehouseCode: string;
+
+    @ApiProperty({ example: '창고1', description: '창고명' })
+    @Column({ name: 'warehouse_name', type: 'varchar', length: 50, comment: '창고명', nullable: true })
+    warehouseName: string;
+
+    @ApiProperty({ example: '1구역', description: '창고 구역' })
+    @Column({ name: 'warehouse_zone', type: 'varchar', length: 50, comment: '창고 구역', nullable: true })
+    warehouseZone: string;
+
     @ApiProperty({ example: '정상', description: 'LOT 상태' })
     @Column({ name: 'lot_status', type: 'varchar', length: 20, comment: 'LOT 상태', default: '정상' })
     lotStatus: string;

@@ -32,7 +32,10 @@ export class InventoryLotService {
         unit: string,
         storageLocation: string,
         receivingCode: string,
-        username: string = 'system'
+        username: string = 'system',
+        warehouseCode?: string,
+        warehouseName?: string,
+        warehouseZone?: string
     ): Promise<InventoryLot> {
         try {
             // 기존 LOT 재고 조회
@@ -68,6 +71,9 @@ export class InventoryLotService {
                     lotQuantity: quantity,
                     unit,
                     storageLocation,
+                    warehouseCode,
+                    warehouseName,
+                    warehouseZone,
                     firstReceivingCode: receivingCode,
                     lotStatus: '정상',
                     createdBy: username,

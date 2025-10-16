@@ -7,6 +7,7 @@ import { logService } from '../../../log/Services/log.service';
 import { Inventory } from '../../../inventory/inventory-management/entities/inventory.entity';
 import { InventoryManagementService } from '../../../inventory/inventory-management/services/inventory-management.service';
 import { InventoryLotService } from '../../../inventory/inventory-management/services/inventory-lot.service';
+import { InventoryLot } from '../../../inventory/inventory-management/entities/inventory-lot.entity';
 import { ChangeQuantityDto } from '../../../inventory/inventory-management/dto/quantity-change.dto';
 import { OrderInfo } from '../../order-info/entities/order-info.entity';
 
@@ -19,6 +20,8 @@ export class ReceivingCreateService {
         private readonly inventoryRepository: Repository<Inventory>,
         @InjectRepository(OrderInfo)
         private readonly orderInfoRepository: Repository<OrderInfo>,
+        @InjectRepository(InventoryLot)
+        private readonly inventoryLotRepository: Repository<InventoryLot>,
         private readonly logService: logService,
         private readonly inventoryManagementService: InventoryManagementService,
         private readonly inventoryLotService: InventoryLotService,
@@ -77,6 +80,18 @@ export class ReceivingCreateService {
             const totalQuantity = createReceivingDto.quantity || 0;
             const goodQuantity = totalQuantity - defectQuantity; // 정상품 수량
 
+            // LOT 코드 자동 생성 (입고용: 1+품목코드+날짜+001)
+            let lotCode = createReceivingDto.lotCode;
+            console.log(`[입고등록] 받은 LOT 코드: ${lotCode}`);
+            console.log(`[입고등록] 품목 코드: ${createReceivingDto.productCode}`);
+            
+            if (!lotCode && createReceivingDto.productCode) {
+                lotCode = await this.generateReceivingLotNumber(createReceivingDto.productCode);
+                console.log(`[입고등록] 자동 생성된 LOT 코드: ${lotCode}`);
+            } else if (lotCode) {
+                console.log(`[입고등록] 클라이언트에서 제공한 LOT 코드 사용: ${lotCode}`);
+            }
+
             // 입고 정보 생성
             const receiving = this.receivingRepository.create({
                 receivingCode: createReceivingDto.receivingCode || nextCode,
@@ -92,7 +107,8 @@ export class ReceivingCreateService {
                 unit: createReceivingDto.unit || orderInfo?.productOrderUnit || 'EA',
                 warehouseCode: createReceivingDto.warehouseCode || '',
                 warehouseName: createReceivingDto.warehouseName || '',
-                lotCode: createReceivingDto.lotCode || '',
+                warehouseZone: createReceivingDto.warehouseZone || '',
+                lotCode: lotCode || '',
                 remark: createReceivingDto.remark || '',
                 approvalStatus: createReceivingDto.approvalStatus || '대기',
                 // 클라이언트에서 보낸 값 우선 사용, 없으면 자동 계산
@@ -136,7 +152,10 @@ export class ReceivingCreateService {
                             savedReceiving.unit || 'EA',
                             savedReceiving.warehouseName || '기본창고',
                             savedReceiving.receivingCode,
-                            username
+                            username,
+                            savedReceiving.warehouseCode,
+                            savedReceiving.warehouseName,
+                            savedReceiving.warehouseZone
                         );
                     }
 
@@ -213,6 +232,50 @@ export class ReceivingCreateService {
             });
 
             throw new BadRequestException(`입고 정보 등록 중 오류가 발생했습니다: ${error.message}`);
+        }
+    }
+
+    /**
+     * 입고용 LOT 번호를 생성합니다.
+     * 형식: 1 + 품목코드 + 날짜(YYYYMMDD) + 001
+     * @param productCode 제품 코드
+     * @returns 생성된 LOT 번호
+     */
+    private async generateReceivingLotNumber(productCode: string): Promise<string> {
+        try {
+            const today = new Date();
+            const dateString = today.getFullYear().toString() + 
+                              (today.getMonth() + 1).toString().padStart(2, '0') + 
+                              today.getDate().toString().padStart(2, '0');
+            
+            // 오늘 날짜로 생성된 LOT 번호 중 가장 높은 번호 조회
+            const prefix = `1${productCode}${dateString}`;
+            console.log(`[입고LOT번호생성] prefix: ${prefix}`);
+            
+            const existingLots = await this.inventoryLotRepository
+                .createQueryBuilder('lot')
+                .where('lot.lotCode LIKE :prefix', { prefix: `${prefix}%` })
+                .orderBy('lot.lotCode', 'DESC')
+                .getMany();
+            
+            console.log(`[입고LOT번호생성] 기존 LOT 개수: ${existingLots.length}`);
+            
+            let sequence = 1;
+            if (existingLots.length > 0) {
+                // 기존 LOT 번호에서 시퀀스 번호 추출하여 +1
+                const lastLotCode = existingLots[0].lotCode;
+                const lastSequence = parseInt(lastLotCode.substring(lastLotCode.length - 3));
+                sequence = lastSequence + 1;
+                console.log(`[입고LOT번호생성] 마지막 LOT: ${lastLotCode}, 다음 시퀀스: ${sequence}`);
+            }
+            
+            const finalLotNumber = `${prefix}${sequence.toString().padStart(3, '0')}`;
+            console.log(`[입고LOT번호생성완료] 최종 LOT 번호: ${finalLotNumber}`);
+            
+            return finalLotNumber;
+        } catch (error) {
+            console.error(`[입고LOT번호생성실패] ${productCode}: ${error.message}`);
+            throw error;
         }
     }
 }
