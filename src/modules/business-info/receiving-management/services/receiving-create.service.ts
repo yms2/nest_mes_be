@@ -181,13 +181,9 @@ export class ReceivingCreateService {
                             savedReceiving.lotCode,
                             savedGoodQuantity,
                             savedReceiving.productName,
-                            savedReceiving.unit || 'EA',
-                            savedReceiving.warehouseName || '기본창고',
-                            savedReceiving.receivingCode,
                             username,
                             savedReceiving.warehouseCode,
-                            savedReceiving.warehouseName,
-                            savedReceiving.warehouseZone
+                            savedReceiving.warehouseName
                         );
                     }
 

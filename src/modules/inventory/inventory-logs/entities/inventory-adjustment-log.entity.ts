@@ -7,7 +7,7 @@ import { BaseEntity } from 'src/common/entities/base.entity';
 @Index(['createdBy', 'createdAt'])
 export class InventoryAdjustmentLog extends BaseEntity {
 
-  @Column({ name: 'inventory_code', type: 'varchar', length: 20, comment: '재고 코드' })
+  @Column({ name: 'inventory_code', type: 'varchar', length: 50, comment: '재고 코드' })
   inventoryCode: string;
 
   @Column({ name: 'inventory_name', type: 'varchar', length: 100, comment: '재고명' })
