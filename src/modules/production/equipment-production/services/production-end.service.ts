@@ -85,7 +85,6 @@ export class ProductionEndService {
             await this.moveToNextProcess(production, nextProcess, actualProductionQuantity, dto.employeeCode, dto.employeeName, username);
         } else {
             // 모든 공정이 완료된 경우 최종 완료 처리
-            console.log(`[최종완료] 제품: ${production.productCode}, 생산수량: ${actualProductionQuantity}개`);
             
             production.productionStatus = '최종완료';
             await this.productionRepository.save(production);
@@ -290,8 +289,6 @@ export class ProductionEndService {
                     }
                 );
 
-                console.log(`[완제품재고증가] ${productCode}(${productName}): ${currentStock}개 → ${newStock}개 (+${quantity}개)`);
-
                 // 재고 조정 로그 기록 (LOT번호 사용)
                 try {
                     await this.inventoryAdjustmentLogService.logAdjustment(
@@ -305,7 +302,6 @@ export class ProductionEndService {
                         'system'
                     );
                 } catch (logError) {
-                    console.error(`[재고로그기록실패] ${productCode}: ${logError.message}`);
                 }
             } else {
                 // 재고가 없으면 새로 생성
@@ -324,8 +320,6 @@ export class ProductionEndService {
 
                 await this.inventoryRepository.save(newInventory);
 
-                console.log(`[완제품재고생성] ${productCode}(${productName}): ${quantity}개 생성`);
-
                 // 재고 조정 로그 기록 (LOT번호 사용)
                 try {
                     await this.inventoryAdjustmentLogService.logAdjustment(
@@ -339,17 +333,14 @@ export class ProductionEndService {
                         'system'
                     );
                 } catch (logError) {
-                    console.error(`[재고로그기록실패] ${productCode}: ${logError.message}`);
                 }
 
             }
 
             // LOT 재고 생성 (기존 재고 있든 없든 항상 실행)
-            console.log(`[LOT재고생성호출] ${productCode}(${productName}): 수량=${quantity}개`);
             await this.updateLotInventory(productCode, productName, quantity, 'system', dto.warehouseCode, dto.warehouseName, dto.warehouseZone);
             
         } catch (error) {
-            console.error(`[완제품재고처리실패] ${productCode}: ${error.message}`);
             throw error;
         }
     }
@@ -391,15 +382,12 @@ export class ProductionEndService {
         // 재고 부족 시 생산 종료 불가
         if (insufficientItems.length > 0) {
             const errorMessage = `재고 부족으로 생산을 완료할 수 없습니다:\n${insufficientItems.join('\n')}\n\n재고를 보충한 후 다시 시도해주세요.`;
-            console.error(`[생산종료실패] 재고부족 - 제품: ${productCode}, 생산수량: ${quantity}개`);
-            console.error(`[부족재고목록] ${insufficientItems.join(', ')}`);
             throw new NotFoundException(errorMessage);
         }
 
         // 2단계: LOT 재고 우선 차감 시도
         for (const bomItem of bomItems) {
             const requiredQuantity = bomItem.quantity * quantity;
-            console.log(`[BOM재료차감시작] ${bomItem.childProductCode}: 필요수량=${requiredQuantity}개`);
             
             // LOT 재고에서 먼저 차감 시도
             const lotDeductedQuantity = await this.deductFromLotInventory(
@@ -407,12 +395,10 @@ export class ProductionEndService {
                 requiredQuantity
             );
             
-            console.log(`[LOT차감결과] ${bomItem.childProductCode}: LOT에서 ${lotDeductedQuantity}개 차감`);
             
             // LOT에서 차감되지 않은 수량이 있으면 일반 재고에서 차감
             const remainingQuantity = requiredQuantity - lotDeductedQuantity;
             if (remainingQuantity > 0) {
-                console.log(`[일반재고차감] ${bomItem.childProductCode}: ${remainingQuantity}개 차감`);
                 await this.deductFromGeneralInventory(bomItem.childProductCode, remainingQuantity, productCode, quantity, bomItem.quantity);
             }
         }
@@ -433,7 +419,6 @@ export class ProductionEndService {
             
             // 오늘 날짜로 생성된 LOT 번호 중 가장 높은 번호 조회
             const prefix = `2${productCode}${dateString}`;
-            console.log(`[LOT번호생성] prefix: ${prefix}`);
             
             const existingLots = await this.inventoryLotRepository
                 .createQueryBuilder('lot')
@@ -441,7 +426,6 @@ export class ProductionEndService {
                 .orderBy('lot.lotCode', 'DESC')
                 .getMany();
             
-            console.log(`[LOT번호생성] 기존 LOT 개수: ${existingLots.length}`);
             
             let sequence = 1;
             if (existingLots.length > 0) {
@@ -449,15 +433,12 @@ export class ProductionEndService {
                 const lastLotCode = existingLots[0].lotCode;
                 const lastSequence = parseInt(lastLotCode.substring(lastLotCode.length - 3));
                 sequence = lastSequence + 1;
-                console.log(`[LOT번호생성] 마지막 LOT: ${lastLotCode}, 다음 시퀀스: ${sequence}`);
             }
             
             const finalLotNumber = `${prefix}${sequence.toString().padStart(3, '0')}`;
-            console.log(`[LOT번호생성완료] 최종 LOT 번호: ${finalLotNumber}`);
             
             return finalLotNumber;
         } catch (error) {
-            console.error(`[LOT번호생성실패] ${productCode}: ${error.message}`);
             throw error;
         }
     }
@@ -471,7 +452,6 @@ export class ProductionEndService {
      */
     private async updateLotInventory(productCode: string, productName: string, quantity: number, username: string, warehouseCode?: string, warehouseName?: string, warehouseZone?: string): Promise<void> {
         try {
-            console.log(`[LOT재고생성시작] ${productCode}(${productName}): 수량=${quantity}개`);
             
             // 창고 정보 결정 (DTO에서 받은 정보 우선, 없으면 기본 창고 사용)
             let warehouseInfo;
@@ -482,16 +462,13 @@ export class ProductionEndService {
                     warehouseName: warehouseName || await this.getWarehouseNameByCode(warehouseCode),
                     warehouseZone: warehouseZone || null
                 };
-                console.log(`[DTO창고정보사용] ${JSON.stringify(warehouseInfo)}`);
             } else {
                 // 기본 창고 정보 조회
                 warehouseInfo = await this.getDefaultWarehouse();
-                console.log(`[기본창고조회] ${JSON.stringify(warehouseInfo)}`);
             }
             
             // LOT 번호 생성
             const lotNumber = await this.generateLotNumber(productCode);
-            console.log(`[LOT번호생성완료] ${productCode}: LOT번호=${lotNumber}`);
             
             // 먼저 동일한 LOT 코드가 이미 존재하는지 확인
             const existingLot = await this.inventoryLotRepository.findOne({
@@ -499,11 +476,9 @@ export class ProductionEndService {
             });
             
             if (existingLot) {
-                console.log(`[LOT재고업데이트] 기존 LOT 발견: ${lotNumber}, 수량 증가`);
                 existingLot.lotQuantity += quantity;
                 existingLot.updatedBy = username;
                 await this.inventoryLotRepository.save(existingLot);
-                console.log(`[LOT재고업데이트완료] LOT번호: ${existingLot.lotCode}, 총수량: ${existingLot.lotQuantity}`);
                 return;
             }
             
@@ -523,24 +498,9 @@ export class ProductionEndService {
                 updatedBy: username,
             });
 
-            console.log(`[LOT재고객체생성완료] ${JSON.stringify({
-                productCode: newLotInventory.productCode,
-                productName: newLotInventory.productName,
-                lotCode: newLotInventory.lotCode,
-                lotQuantity: newLotInventory.lotQuantity,
-                unit: newLotInventory.unit,
-                storageLocation: newLotInventory.storageLocation,
-                warehouseCode: newLotInventory.warehouseCode,
-                warehouseName: newLotInventory.warehouseName,
-                warehouseZone: newLotInventory.warehouseZone
-            })}`);
-
             const savedLotInventory = await this.inventoryLotRepository.save(newLotInventory);
-            console.log(`[LOT재고저장완료] ID: ${(savedLotInventory as any).id}, LOT번호: ${(savedLotInventory as any).lotCode}`);
             
         } catch (error) {
-            console.error(`[LOT재고처리실패] ${productCode}: ${error.message}`);
-            console.error(`[LOT재고처리실패] 스택: ${error.stack}`);
             throw error;
         }
     }
@@ -564,7 +524,6 @@ export class ProductionEndService {
             }
 
             if (warehouse) {
-                console.log(`[기본창고조회] 실제 창고 사용: ${warehouse.warehouseName}`);
                 return {
                     warehouseCode: warehouse.warehouseCode,
                     warehouseName: warehouse.warehouseName,
@@ -572,7 +531,6 @@ export class ProductionEndService {
                 };
             } else {
                 // 창고가 없는 경우 기본값 사용
-                console.log(`[기본창고조회] 창고가 없어 기본값 사용`);
                 return {
                     warehouseCode: 'WHS001',
                     warehouseName: '메인창고',
@@ -580,7 +538,6 @@ export class ProductionEndService {
                 };
             }
         } catch (error) {
-            console.error(`[기본창고조회실패] ${error.message}`);
             // 실패 시 기본값 반환
             return {
                 warehouseCode: 'WHS001',
@@ -603,11 +560,9 @@ export class ProductionEndService {
                 return warehouse.warehouseName;
             } else {
                 // 창고 코드가 없으면 코드를 그대로 사용
-                console.log(`[창고코드조회실패] ${warehouseCode} - 코드를 그대로 사용`);
                 return warehouseCode;
             }
         } catch (error) {
-            console.error(`[창고코드조회실패] ${warehouseCode}: ${error.message}`);
             return warehouseCode;
         }
     }
@@ -618,7 +573,6 @@ export class ProductionEndService {
      */
     private async deductFromLotInventory(productCode: string, requiredQuantity: number): Promise<number> {
         try {
-            console.log(`[LOT차감시작] ${productCode}: 필요수량=${requiredQuantity}개`);
             
             // 해당 품목의 LOT 재고를 입고일 순으로 조회 (FIFO)
             const lotInventories = await this.inventoryLotRepository.find({
@@ -627,7 +581,6 @@ export class ProductionEndService {
             });
 
             if (lotInventories.length === 0) {
-                console.log(`[LOT차감] ${productCode}: LOT 재고 없음`);
                 return 0;
             }
 
@@ -651,8 +604,6 @@ export class ProductionEndService {
                     totalDeducted += deductQuantity;
                     remainingRequired -= deductQuantity;
                     
-                    console.log(`[LOT차감완료] ${productCode} - LOT: ${lot.lotCode}, 차감: ${deductQuantity}개, 잔여: ${newLotQuantity}개`);
-                    
                     // LOT 재고 조정 로그 기록
                     try {
                         await this.inventoryAdjustmentLogService.logAdjustment(
@@ -666,16 +617,14 @@ export class ProductionEndService {
                             'system'
                         );
                     } catch (logError) {
-                        console.error(`[LOT재고로그기록실패] ${lot.lotCode}: ${logError.message}`);
+                    
                     }
                 }
             }
 
-            console.log(`[LOT차감완료] ${productCode}: 총 ${totalDeducted}개 차감`);
             return totalDeducted;
             
         } catch (error) {
-            console.error(`[LOT차감실패] ${productCode}: ${error.message}`);
             return 0;
         }
     }
@@ -722,11 +671,9 @@ export class ProductionEndService {
                         'system'
                     );
                 } catch (logError) {
-                    console.error(`[재고로그기록실패] ${productCode}: ${logError.message}`);
                 }
             }
         } catch (error) {
-            console.error(`[일반재고차감실패] ${productCode}: ${error.message}`);
             throw error;
         }
     }
@@ -746,7 +693,6 @@ export class ProductionEndService {
             
             // 오늘 날짜로 생성된 생산 LOT 번호 중 가장 높은 번호 조회
             const prefix = `2${productCode}${dateString}`;
-            console.log(`[생산LOT번호생성] prefix: ${prefix}`);
             
             const existingLots = await this.inventoryLotRepository
                 .createQueryBuilder('lot')
@@ -754,7 +700,6 @@ export class ProductionEndService {
                 .orderBy('lot.lotCode', 'DESC')
                 .getMany();
             
-            console.log(`[생산LOT번호생성] 기존 LOT 개수: ${existingLots.length}`);
             
             let sequence = 1;
             if (existingLots.length > 0) {
@@ -762,15 +707,12 @@ export class ProductionEndService {
                 const lastLotCode = existingLots[0].lotCode;
                 const lastSequence = parseInt(lastLotCode.substring(lastLotCode.length - 3));
                 sequence = lastSequence + 1;
-                console.log(`[생산LOT번호생성] 마지막 LOT: ${lastLotCode}, 다음 시퀀스: ${sequence}`);
             }
             
             const finalLotNumber = `${prefix}${sequence.toString().padStart(3, '0')}`;
-            console.log(`[생산LOT번호생성완료] 최종 LOT 번호: ${finalLotNumber}`);
             
             return finalLotNumber;
         } catch (error) {
-            console.error(`[생산LOT번호생성실패] ${productCode}: ${error.message}`);
             throw error;
         }
     }
