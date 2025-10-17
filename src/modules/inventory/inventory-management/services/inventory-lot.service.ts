@@ -31,7 +31,8 @@ export class InventoryLotService {
         username: string = 'system',
         warehouseCode?: string,
         warehouseName?: string,
-        warehouseZone?: string
+        warehouseZone?: string,
+        adjustmentType: 'CHANGE' | 'PRODUCTION' = 'CHANGE'
     ): Promise<InventoryLot> {
         try {
             // 기존 LOT 재고 조회
@@ -52,7 +53,7 @@ export class InventoryLotService {
                 await this.inventoryAdjustmentLogService.logAdjustment(
                     lotCode, // inventoryCode (LOT 코드만 사용)
                     `${productName} (${lotCode})`, // inventoryName
-                    'CHANGE', // adjustmentType
+                    adjustmentType, // adjustmentType
                     oldQuantity, // beforeQuantity
                     savedLot.lotQuantity, // afterQuantity
                     quantity, // quantityChange
@@ -90,7 +91,7 @@ export class InventoryLotService {
                 await this.inventoryAdjustmentLogService.logAdjustment(
                     lotCode, // inventoryCode (LOT 코드만 사용)
                     `${productName} (${lotCode})`, // inventoryName
-                    'SET', // adjustmentType
+                    adjustmentType === 'PRODUCTION' ? 'PRODUCTION' : 'SET', // adjustmentType
                     0, // beforeQuantity
                     savedLot.lotQuantity, // afterQuantity
                     quantity, // quantityChange
