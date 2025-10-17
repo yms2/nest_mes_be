@@ -15,6 +15,14 @@ export class CreateWarehouseDto {
     
     @ApiProperty({
         example: '창고1',
+        description: '창고 구역 (선택)',
+        required: false,
+    })
+    @OptionalString()
+    warehouseZone: string;
+
+    @ApiProperty({
+        example: '창고1',
         description: '창고 위치 (선택)',
         required: false,
     })
