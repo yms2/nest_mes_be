@@ -7,13 +7,13 @@ import { BaseEntity } from 'src/common/entities/base.entity';
 @Index(['createdBy', 'createdAt'])
 export class InventoryAdjustmentLog extends BaseEntity {
 
-  @Column({ name: 'inventory_code', type: 'varchar', length: 50, comment: '재고 코드' })
+  @Column({ name: 'inventory_code', type: 'varchar', length: 50, comment: '재고 코드 (또는 LOT 번호)' })
   inventoryCode: string;
 
   @Column({ name: 'inventory_name', type: 'varchar', length: 100, comment: '재고명' })
   inventoryName: string;
 
-  @Column({ name: 'adjustment_type', type: 'varchar', length: 20, comment: '조정 유형 (CHANGE, SET, RESET)' })
+  @Column({ name: 'adjustment_type', type: 'varchar', length: 20, comment: '조정 유형 (CHANGE, SET, RESET, PRODUCTION, INSERT)' })
   adjustmentType: string;
 
   @Column({ name: 'before_quantity', type: 'int', comment: '조정 전 수량' })
@@ -25,7 +25,7 @@ export class InventoryAdjustmentLog extends BaseEntity {
   @Column({ name: 'quantity_change', type: 'int', comment: '수량 변경량 (증감)' })
   quantityChange: number;
 
-  @Column({ name: 'adjustment_reason', type: 'varchar', length: 255, nullable: true, comment: '조정 사유' })
+  @Column({ name: 'adjustment_reason', type: 'text', nullable: true, comment: '조정 사유' })
   adjustmentReason: string;
 
   @Column({ name: 'log_status', type: 'varchar', length: 20, default: 'SUCCESS', comment: '로그 상태 (SUCCESS, FAILED)' })
