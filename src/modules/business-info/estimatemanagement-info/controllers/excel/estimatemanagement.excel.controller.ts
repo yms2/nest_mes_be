@@ -50,16 +50,35 @@ export class EstimateManagementExcelController {
         let result;
 
         
-        // 검색어가 있으면 검색 결과만, 없으면 전체 데이터
-        if (keyword && keyword.trim()) {
-            result = await this.estimateManagementReadService.getAllEstimates(1, 99999, 'system', keyword.trim());
-        } else if (estimateName && estimateName.trim()) {
-            result = await this.estimateManagementReadService.getAllEstimates(1, 99999, 'system', estimateName.trim());
-        } else if (customerName && customerName.trim()) {
-            result = await this.estimateManagementReadService.getAllEstimates(1, 99999, 'system', customerName.trim());
-        } else if (projectName && projectName.trim()) {
-            result = await this.estimateManagementReadService.getAllEstimates(1, 99999, 'system', projectName.trim());
+        // 검색 조건이 있는지 확인
+        const hasSearchConditions = keyword || estimateCode || estimateName || customerName || projectName || estimateStatus;
+        
+        if (hasSearchConditions) {
+            // 개별 검색 조건이 있으면 개별 조건으로만 검색 (keyword 제외)
+            const hasIndividualConditions = estimateCode || estimateName || customerName || projectName || estimateStatus;
+            
+            if (hasIndividualConditions) {
+                // 개별 조건별 검색 - keyword는 제외하고 개별 조건만 전달
+                result = await this.estimateManagementReadService.getAllEstimates(
+                    1, 99999, 'system', 
+                    undefined, // search 키워드 없음
+                    undefined, // startDate
+                    undefined, // endDate
+                    estimateName,
+                    customerName,
+                    projectName,
+                    estimateStatus,
+                    estimateCode
+                );
+            } else if (keyword && keyword.trim()) {
+                // keyword만 있고 개별 조건이 없으면 통합 검색
+                result = await this.estimateManagementReadService.getAllEstimates(
+                    1, 99999, 'system', 
+                    keyword.trim()
+                );
+            }
         } else {
+            // 검색 조건이 없으면 전체 데이터
             result = await this.estimateManagementReadService.getAllEstimates(1, 99999, 'system');
         }
 

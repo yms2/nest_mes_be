@@ -7,8 +7,11 @@ import { logService } from '../../../log/Services/log.service';
 import { Inventory } from '../../../inventory/inventory-management/entities/inventory.entity';
 import { InventoryManagementService } from '../../../inventory/inventory-management/services/inventory-management.service';
 import { InventoryLotService } from '../../../inventory/inventory-management/services/inventory-lot.service';
+import { InventoryLot } from '../../../inventory/inventory-management/entities/inventory-lot.entity';
 import { ChangeQuantityDto } from '../../../inventory/inventory-management/dto/quantity-change.dto';
 import { OrderInfo } from '../../order-info/entities/order-info.entity';
+import { InventoryAdjustmentLog } from '../../../inventory/inventory-logs/entities/inventory-adjustment-log.entity';
+import { InventoryAdjustmentLogService } from '../../../inventory/inventory-logs/services/inventory-adjustment-log.service';
 
 @Injectable()
 export class ReceivingCreateService {
@@ -19,9 +22,14 @@ export class ReceivingCreateService {
         private readonly inventoryRepository: Repository<Inventory>,
         @InjectRepository(OrderInfo)
         private readonly orderInfoRepository: Repository<OrderInfo>,
+        @InjectRepository(InventoryLot)
+        private readonly inventoryLotRepository: Repository<InventoryLot>,
+        @InjectRepository(InventoryAdjustmentLog)
+        private readonly inventoryAdjustmentLogRepository: Repository<InventoryAdjustmentLog>,
         private readonly logService: logService,
         private readonly inventoryManagementService: InventoryManagementService,
         private readonly inventoryLotService: InventoryLotService,
+        private readonly inventoryAdjustmentLogService: InventoryAdjustmentLogService,
     ) {}
 
     /**
@@ -34,18 +42,50 @@ export class ReceivingCreateService {
             let unreceivedQuantity = 0;
             
             if (createReceivingDto.orderCode) {
+                // 발주 코드와 품목 코드를 함께 확인
+                const whereCondition: any = { orderCode: createReceivingDto.orderCode };
+                if (createReceivingDto.productCode) {
+                    whereCondition.productCode = createReceivingDto.productCode;
+                }
+                
+                console.log(`[입고등록디버그] 발주코드: ${createReceivingDto.orderCode}, 품목코드: ${createReceivingDto.productCode}`);
+                console.log(`[입고등록디버그] 검색조건:`, whereCondition);
+                
                 orderInfo = await this.orderInfoRepository.findOne({
-                    where: { orderCode: createReceivingDto.orderCode }
+                    where: whereCondition
                 });
                 
+                console.log(`[입고등록디버그] 발주정보:`, orderInfo ? {
+                    orderCode: orderInfo.orderCode,
+                    productCode: orderInfo.productCode,
+                    productName: orderInfo.productName,
+                    orderQuantity: orderInfo.orderQuantity
+                } : '발주정보 없음');
+                
                 if (orderInfo) {
-                    // 기존 입고 수량 조회
+                    // 기존 입고 수량 조회 (발주 코드와 품목 코드 함께 확인)
+                    const receivingWhereCondition: any = { orderCode: createReceivingDto.orderCode };
+                    if (createReceivingDto.productCode) {
+                        receivingWhereCondition.productCode = createReceivingDto.productCode;
+                    }
+                    
+                    console.log(`[입고등록디버그] 기존입고 검색조건:`, receivingWhereCondition);
+                    
                     const existingReceivings = await this.receivingRepository.find({
-                        where: { orderCode: createReceivingDto.orderCode }
+                        where: receivingWhereCondition
                     });
+                    
+                    console.log(`[입고등록디버그] 기존입고내역:`, existingReceivings.map(r => ({
+                        receivingCode: r.receivingCode,
+                        quantity: r.quantity,
+                        productCode: r.productCode,
+                        productName: r.productName
+                    })));
                     
                     const totalReceivedQuantity = existingReceivings.reduce((sum, r) => sum + (r.quantity || 0), 0);
                     const remainingQuantity = Math.max(0, (orderInfo.orderQuantity || 0) - totalReceivedQuantity);
+                    
+                    console.log(`[입고등록디버그] 발주수량: ${orderInfo.orderQuantity}, 총입고수량: ${totalReceivedQuantity}, 남은수량: ${remainingQuantity}`);
                     
                     // 입고 수량이 남은 수량을 초과하는지 확인
                     if ((createReceivingDto.quantity || 0) > remainingQuantity) {
@@ -77,6 +117,18 @@ export class ReceivingCreateService {
             const totalQuantity = createReceivingDto.quantity || 0;
             const goodQuantity = totalQuantity - defectQuantity; // 정상품 수량
 
+            // LOT 코드 자동 생성 (입고용: 1+품목코드+날짜+001)
+            let lotCode = createReceivingDto.lotCode;
+            console.log(`[입고등록] 받은 LOT 코드: ${lotCode}`);
+            console.log(`[입고등록] 품목 코드: ${createReceivingDto.productCode}`);
+            
+            if (!lotCode && createReceivingDto.productCode) {
+                lotCode = await this.generateReceivingLotNumber(createReceivingDto.productCode);
+                console.log(`[입고등록] 자동 생성된 LOT 코드: ${lotCode}`);
+            } else if (lotCode) {
+                console.log(`[입고등록] 클라이언트에서 제공한 LOT 코드 사용: ${lotCode}`);
+            }
+
             // 입고 정보 생성
             const receiving = this.receivingRepository.create({
                 receivingCode: createReceivingDto.receivingCode || nextCode,
@@ -92,7 +144,8 @@ export class ReceivingCreateService {
                 unit: createReceivingDto.unit || orderInfo?.productOrderUnit || 'EA',
                 warehouseCode: createReceivingDto.warehouseCode || '',
                 warehouseName: createReceivingDto.warehouseName || '',
-                lotCode: createReceivingDto.lotCode || '',
+                warehouseZone: createReceivingDto.warehouseZone || '',
+                lotCode: lotCode || '',
                 remark: createReceivingDto.remark || '',
                 approvalStatus: createReceivingDto.approvalStatus || '대기',
                 // 클라이언트에서 보낸 값 우선 사용, 없으면 자동 계산
@@ -114,33 +167,111 @@ export class ReceivingCreateService {
             // 재고 수량 증가 처리 (정상품만 재고에 추가)
             if (savedReceiving.productCode && savedGoodQuantity > 0) {
                 try {
-                    // 1. 일반 재고 수량 증가 (정상품만)
-                    const changeQuantityDto: ChangeQuantityDto = {
-                        inventoryCode: savedReceiving.productCode,
-                        quantityChange: savedGoodQuantity,
-                        reason: `입고 처리 - ${savedReceiving.receivingCode}${savedReceiving.defectiveQuantity > 0 ? ` (불량 ${savedReceiving.defectiveQuantity}개 제외)` : ''}`
-                    };
+                    // 현재 재고 수량 조회
+                    const currentInventory = await this.inventoryRepository.findOne({
+                        where: { inventoryCode: savedReceiving.productCode }
+                    });
+                    
+                    const beforeQuantity = currentInventory ? currentInventory.inventoryQuantity : 0;
+                    const afterQuantity = beforeQuantity + savedGoodQuantity;
 
-                    await this.inventoryManagementService.changeInventoryQuantity(
-                        changeQuantityDto,
-                        username
-                    );
-
-                    // 2. LOT별 재고 처리 (정상품만)
-                    if (savedReceiving.lotCode) {
-                        await this.inventoryLotService.createOrUpdateLotInventory(
-                            savedReceiving.productCode,
-                            savedReceiving.lotCode,
-                            savedGoodQuantity,
-                            savedReceiving.productName,
-                            savedReceiving.unit || 'EA',
-                            savedReceiving.warehouseName || '기본창고',
-                            savedReceiving.receivingCode,
-                            username
+                    // 1. 일반 재고 수량 증가 (정상품만) - 직접 업데이트
+                    if (currentInventory) {
+                        // 기존 재고가 있으면 수량 증가
+                        await this.inventoryRepository.update(
+                            { inventoryCode: savedReceiving.productCode },
+                            {
+                                inventoryQuantity: afterQuantity,
+                                updatedBy: username,
+                                updatedAt: new Date()
+                            }
                         );
+                    } else {
+                        // 재고가 없으면 새로 생성
+                        const newInventory = this.inventoryRepository.create({
+                            inventoryCode: savedReceiving.productCode,
+                            inventoryName: savedReceiving.productName,
+                            inventoryType: '원자재',
+                            inventoryQuantity: savedGoodQuantity,
+                            inventoryUnit: savedReceiving.unit || 'EA',
+                            inventoryLocation: savedReceiving.warehouseName || '메인창고',
+                            safeInventory: 0,
+                            inventoryStatus: '정상',
+                            createdBy: username,
+                            updatedBy: username,
+                        });
+                        await this.inventoryRepository.save(newInventory);
+                        console.log(`[재고생성] ${savedReceiving.productCode}(${savedReceiving.productName}): ${savedGoodQuantity}개 생성`);
                     }
 
-                    // 재고 증가 로그 기록
+                    // 2. LOT별 재고 처리 (정상품만) - 직접 INSERT
+                    if (savedReceiving.lotCode) {
+                        // 기존 LOT 재고 조회
+                        let lotInventory = await this.inventoryLotRepository.findOne({
+                            where: { 
+                                productCode: savedReceiving.productCode, 
+                                lotCode: savedReceiving.lotCode 
+                            }
+                        });
+
+                        if (lotInventory) {
+                            // 기존 LOT이 있는 경우 수량 증가
+                            const oldLotQuantity = lotInventory.lotQuantity;
+                            lotInventory.lotQuantity += savedGoodQuantity;
+                            lotInventory.updatedBy = username;
+                            lotInventory.updatedAt = new Date();
+
+                            await this.inventoryLotRepository.save(lotInventory);
+
+                            console.log(`[LOT재고증가] ${savedReceiving.productCode} - LOT: ${savedReceiving.lotCode}, 증가: ${savedGoodQuantity}개, 총수량: ${lotInventory.lotQuantity}개`);
+
+                            // LOT 재고 조정 로그 기록
+                            await this.inventoryAdjustmentLogService.logAdjustment(
+                                savedReceiving.lotCode, // inventory_code에는 LOT번호 사용
+                                savedReceiving.productName,
+                                'INSERT',
+                                oldLotQuantity,
+                                lotInventory.lotQuantity,
+                                savedGoodQuantity,
+                                `입고 처리 - LOT 재고 증가 (입고코드: ${savedReceiving.receivingCode})`,
+                                username
+                            );
+                        } else {
+                            // 새로운 LOT 생성
+                            const newLotInventory = this.inventoryLotRepository.create({
+                                productCode: savedReceiving.productCode,
+                                productName: savedReceiving.productName,
+                                lotCode: savedReceiving.lotCode,
+                                lotQuantity: savedGoodQuantity,
+                                unit: savedReceiving.unit || 'EA',
+                                storageLocation: savedReceiving.warehouseZone || '기본위치',
+                                warehouseCode: savedReceiving.warehouseCode,
+                                warehouseName: savedReceiving.warehouseName,
+                                warehouseZone: savedReceiving.warehouseZone,
+                                lotStatus: '정상',
+                                createdBy: username,
+                            });
+
+                            await this.inventoryLotRepository.save(newLotInventory);
+
+                            console.log(`[LOT재고생성] ${savedReceiving.productCode} - LOT: ${savedReceiving.lotCode}, 수량: ${savedGoodQuantity}개`);
+
+                            // LOT 재고 조정 로그 기록 (새 LOT 생성)
+                            await this.inventoryAdjustmentLogService.logAdjustment(
+                                savedReceiving.lotCode, // inventory_code에는 LOT번호 사용
+                                savedReceiving.productName,
+                                'INSERT',
+                                0,
+                                savedGoodQuantity,
+                                savedGoodQuantity,
+                                `입고 처리 - 새 LOT 재고 생성 (입고코드: ${savedReceiving.receivingCode})`,
+                                username
+                            );
+                        }
+                    }
+
+
+                    // 4. 기존 로그 기록 (logService)
                     let logDetails = `입고로 인한 재고 증가: ${savedReceiving.productCode} (${savedReceiving.productName}) +${savedGoodQuantity}`;
                     
                     if (savedReceiving.defectiveQuantity > 0) {
@@ -164,6 +295,7 @@ export class ReceivingCreateService {
 
                 } catch (inventoryError) {
                     // 재고 처리 실패 시 로그만 기록하고 입고는 성공으로 처리
+                    console.error(`[입고재고처리실패] ${savedReceiving.productCode}:`, inventoryError);
                     await this.logService.createDetailedLog({
                         moduleName: '재고관리',
                         action: 'INVENTORY_INCREASE_FAILED',
@@ -171,6 +303,7 @@ export class ReceivingCreateService {
                         targetId: savedReceiving.productCode,
                         details: `입고 후 재고 증가 실패: ${savedReceiving.productCode} - ${inventoryError.message}`
                     });
+                    
                 }
             }
 
@@ -213,6 +346,50 @@ export class ReceivingCreateService {
             });
 
             throw new BadRequestException(`입고 정보 등록 중 오류가 발생했습니다: ${error.message}`);
+        }
+    }
+
+    /**
+     * 입고용 LOT 번호를 생성합니다.
+     * 형식: 1 + 품목코드 + 날짜(YYYYMMDD) + 001
+     * @param productCode 제품 코드
+     * @returns 생성된 LOT 번호
+     */
+    private async generateReceivingLotNumber(productCode: string): Promise<string> {
+        try {
+            const today = new Date();
+            const dateString = today.getFullYear().toString() + 
+                              (today.getMonth() + 1).toString().padStart(2, '0') + 
+                              today.getDate().toString().padStart(2, '0');
+            
+            // 오늘 날짜로 생성된 LOT 번호 중 가장 높은 번호 조회
+            const prefix = `1${productCode}${dateString}`;
+            console.log(`[입고LOT번호생성] prefix: ${prefix}`);
+            
+            const existingLots = await this.inventoryLotRepository
+                .createQueryBuilder('lot')
+                .where('lot.lotCode LIKE :prefix', { prefix: `${prefix}%` })
+                .orderBy('lot.lotCode', 'DESC')
+                .getMany();
+            
+            console.log(`[입고LOT번호생성] 기존 LOT 개수: ${existingLots.length}`);
+            
+            let sequence = 1;
+            if (existingLots.length > 0) {
+                // 기존 LOT 번호에서 시퀀스 번호 추출하여 +1
+                const lastLotCode = existingLots[0].lotCode;
+                const lastSequence = parseInt(lastLotCode.substring(lastLotCode.length - 3));
+                sequence = lastSequence + 1;
+                console.log(`[입고LOT번호생성] 마지막 LOT: ${lastLotCode}, 다음 시퀀스: ${sequence}`);
+            }
+            
+            const finalLotNumber = `${prefix}${sequence.toString().padStart(3, '0')}`;
+            console.log(`[입고LOT번호생성완료] 최종 LOT 번호: ${finalLotNumber}`);
+            
+            return finalLotNumber;
+        } catch (error) {
+            console.error(`[입고LOT번호생성실패] ${productCode}: ${error.message}`);
+            throw error;
         }
     }
 }

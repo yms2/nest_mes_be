@@ -74,6 +74,12 @@ export class CreateReceivingDto {
     @MaxLength(20, { message: '창고 명은 20자를 초과할 수 없습니다.' })
     warehouseName?: string;
 
+    @ApiProperty({ example: '1구역', description: '창고 구역', required: false })
+    @IsOptional()
+    @IsString({ message: '창고 구역은 문자열이어야 합니다.' })
+    @MaxLength(20, { message: '창고 구역은 20자를 초과할 수 없습니다.' })
+    warehouseZone?: string;
+
     @ApiProperty({ example: 'LOT001', description: 'LOT 코드', required: false })
     @IsOptional()
     @IsString({ message: 'LOT 코드는 문자열이어야 합니다.' })

@@ -50,6 +50,7 @@ export class WarehouseCreateService {
         return this.warehouseRepository.create({
             ...dto,
             warehouseCode,
+            warehouseZone: dto.warehouseZone || '전체', // 구역이 없으면 '전체'를 기본값으로 설정
             createdBy,
         });
     }

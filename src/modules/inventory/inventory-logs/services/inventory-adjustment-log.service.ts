@@ -25,7 +25,7 @@ export class InventoryAdjustmentLogService {
   async logAdjustment(
     inventoryCode: string,
     inventoryName: string,
-    adjustmentType: 'CHANGE' | 'SET' | 'RESET',
+    adjustmentType: 'CHANGE' | 'SET' | 'RESET' | 'PRODUCTION' | 'INSERT',
     beforeQuantity: number,
     afterQuantity: number,
     quantityChange: number,
@@ -58,7 +58,7 @@ export class InventoryAdjustmentLogService {
   async logFailedAdjustment(
     inventoryCode: string,
     inventoryName: string,
-    adjustmentType: 'CHANGE' | 'SET' | 'RESET',
+    adjustmentType: 'CHANGE' | 'SET' | 'RESET' | 'PRODUCTION' | 'INSERT',
     errorMessage: string,
     createdBy: string,
   ): Promise<InventoryAdjustmentLog> {

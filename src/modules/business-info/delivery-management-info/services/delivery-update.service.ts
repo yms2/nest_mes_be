@@ -292,7 +292,6 @@ export class DeliveryUpdateService {
             }
 
         } catch (error) {
-            console.error('재고 롤백 실패:', error);
             throw error;
         }
     }
@@ -355,7 +354,6 @@ export class DeliveryUpdateService {
             }
 
         } catch (error) {
-            console.error('재고 차감 실패:', error);
             throw error;
         }
     }
