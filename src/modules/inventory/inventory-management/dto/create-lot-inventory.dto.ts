@@ -39,33 +39,6 @@ export class CreateLotInventoryDto {
     productName: string;
 
     @ApiProperty({
-        example: 'EA',
-        description: '단위',
-        required: true,
-    })
-    @IsString({ message: '단위는 문자열이어야 합니다.' })
-    @IsNotEmpty({ message: '단위는 필수입니다.' })
-    unit: string;
-
-    @ApiProperty({
-        example: '창고A',
-        description: '보관 위치',
-        required: true,
-    })
-    @IsString({ message: '보관 위치는 문자열이어야 합니다.' })
-    @IsNotEmpty({ message: '보관 위치는 필수입니다.' })
-    storageLocation: string;
-
-    @ApiProperty({
-        example: 'RCV001',
-        description: '입고 코드',
-        required: true,
-    })
-    @IsString({ message: '입고 코드는 문자열이어야 합니다.' })
-    @IsNotEmpty({ message: '입고 코드는 필수입니다.' })
-    receivingCode: string;
-
-    @ApiProperty({
         example: 'system',
         description: '사용자명',
         required: false,
@@ -84,6 +57,15 @@ export class DecreaseLotInventoryDto {
     @IsString({ message: '품목 코드는 문자열이어야 합니다.' })
     @IsNotEmpty({ message: '품목 코드는 필수입니다.' })
     productCode: string;
+
+    @ApiProperty({
+        example: '제품명',
+        description: '품목명', 
+        required: true,
+    })
+    @IsString({ message: '품목명은 문자열이어야 합니다.' })
+    @IsNotEmpty({ message: '품목명은 필수입니다.' })
+    productName: string;
 
     @ApiProperty({
         example: 'LOT001',

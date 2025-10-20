@@ -29,6 +29,7 @@ export class EstimateManagementReadService {
     customerName?: string,
     projectName?: string,
     estimateStatus?: string,
+    estimateCode?: string,
   ) {
     try {
       
@@ -68,9 +69,13 @@ export class EstimateManagementReadService {
         queryBuilder.andWhere('estimate.projectName LIKE :projectName', { projectName: `%${projectName}%` });
       }
 
-      if (estimateStatus) {
-        queryBuilder.andWhere('estimate.estimateStatus LIKE :estimateStatus', { estimateStatus: `%${estimateStatus}%` });
-      }
+        if (estimateStatus) {
+          queryBuilder.andWhere('estimate.estimateStatus LIKE :estimateStatus', { estimateStatus: `%${estimateStatus}%` });
+        }
+
+        if (estimateCode) {
+          queryBuilder.andWhere('estimate.estimateCode LIKE :estimateCode', { estimateCode: `%${estimateCode}%` });
+        }
 
       if (startDate && endDate) {
         queryBuilder.andWhere('estimate.estimateDate BETWEEN :startDate AND :endDate', {

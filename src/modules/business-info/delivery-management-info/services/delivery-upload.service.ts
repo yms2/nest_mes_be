@@ -308,7 +308,7 @@ export class DeliveryUploadService {
             });
 
             // 재고 차감 실패해도 납품은 성공으로 처리 (비즈니스 로직에 따라 결정)
-            console.error('재고 차감 실패:', error);
+            throw error;
         }
     }
 }

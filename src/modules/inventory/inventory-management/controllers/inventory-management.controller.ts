@@ -3,6 +3,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiQuery }
 import { InventoryManagementService } from '../services/inventory-management.service';
 import { DevAuth } from '@/common/decorators/dev-auth.decorator';
 import { ChangeQuantityDto, MultipleQuantityChangeDto } from '../dto/quantity-change.dto';
+import { InventoryLotService } from '../services/inventory-lot.service';
 
 @ApiTags('재고 관리')
 @Controller('inventory/management')
@@ -11,6 +12,7 @@ import { ChangeQuantityDto, MultipleQuantityChangeDto } from '../dto/quantity-ch
 export class InventoryManagementController {
   constructor(
     private readonly inventoryManagementService: InventoryManagementService,
+    private readonly inventoryLotService: InventoryLotService,
   ) {}
 
   @Get('all')
@@ -74,6 +76,29 @@ export class InventoryManagementController {
       productName,
 
     });
+  }
+
+  @Get('lot/all')
+  @ApiOperation({ 
+    summary: '모든 LOT 재고 조회',
+    description: '모든 LOT 재고 목록을 조회합니다.'
+  })
+  @ApiQuery({ name: 'page', required: false, description: '페이지 번호 (기본값: 1)' })
+  @ApiQuery({ name: 'limit', required: false, description: '페이지당 개수 (기본값: 10)' })
+  @ApiQuery({ name: 'productCode', required: false, description: '품목 코드' })
+  @ApiQuery({ name: 'lotCode', required: false, description: 'LOT 코드' })
+  @ApiQuery({ name: 'lotStatus', required: false, description: 'LOT 상태' })
+  @ApiQuery({ name: 'warehouseCode', required: false, description: '창고 코드' })
+  @ApiQuery({ name: 'warehouseName', required: false, description: '창고명' })
+  @ApiQuery({ name: 'warehouseZone', required: false, description: '창고 구역' })
+  async getAllLotInventories(@Query() searchParams: any) {
+    const result = await this.inventoryLotService.getAllLotInventories(searchParams);
+    return {
+            success: true,
+            message: 'LOT 재고 목록을 성공적으로 조회했습니다.',
+            data: result,
+            timestamp: new Date().toISOString()
+        };
   }
 
   @Get('by-type/:productType')

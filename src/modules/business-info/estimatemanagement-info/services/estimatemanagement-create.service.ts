@@ -44,6 +44,13 @@ export class EstimateManagementCreateService {
         createEstimateDto.projectCode = await this.getOrGenerateProjectCode(createEstimateDto.projectName);
       }
 
+      // 공급가액과 세액 총액 자동 계산 (견적 가격 기준)
+      if (createEstimateDto.estimatePrice && (!createEstimateDto.supplyAmount || !createEstimateDto.taxTotalAmount)) {
+        const calculatedAmounts = this.calculateSupplyAndTaxAmounts(createEstimateDto.estimatePrice);
+        createEstimateDto.supplyAmount = createEstimateDto.supplyAmount || calculatedAmounts.supplyAmount;
+        createEstimateDto.taxTotalAmount = createEstimateDto.taxTotalAmount || calculatedAmounts.taxTotalAmount;
+      }
+
       // 견적 생성
       const estimate = this.estimateRepository.create(createEstimateDto);
       const savedEstimate = await this.estimateRepository.save(estimate);
@@ -388,5 +395,26 @@ export class EstimateManagementCreateService {
     } catch (error) {
       throw new BadRequestException(`프로젝트 정보 처리 중 오류가 발생했습니다: ${projectName}`);
     }
+  }
+
+  /**
+   * 견적 가격을 기준으로 공급가액과 세액 총액을 계산합니다.
+   * @param estimatePrice 견적 가격 (부가세 포함)
+   * @returns 공급가액과 세액 총액
+   */
+  private calculateSupplyAndTaxAmounts(estimatePrice: number): { supplyAmount: number; taxTotalAmount: number } {
+    // 부가세율 10% 기준으로 계산
+    const taxRate = 0.1;
+    
+    // 공급가액 = 견적가격 / (1 + 부가세율)
+    const supplyAmount = Math.round(estimatePrice / (1 + taxRate));
+    
+    // 세액 총액 = 견적가격 - 공급가액
+    const taxTotalAmount = estimatePrice - supplyAmount;
+    
+    return {
+      supplyAmount,
+      taxTotalAmount
+    };
   }
 }
