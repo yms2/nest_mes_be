@@ -143,6 +143,36 @@ export class CreateEstimateDto {
   estimatePrice: number;
 
   @ApiProperty({ 
+    description: '공급가액', 
+    example: 45454545, 
+    minimum: 0 
+  })
+  @IsNotEmpty()
+  @IsNumber()
+  @Min(0)
+  supplyAmount: number;
+
+  @ApiProperty({ 
+    description: '세액 총액', 
+    example: 4545455, 
+    minimum: 0 
+  })
+  @IsNotEmpty()
+  @IsNumber()
+  @Min(0)
+  taxTotalAmount: number;
+
+  @ApiProperty({ 
+    description: '합계 금액', 
+    example: 50000000, 
+    minimum: 0 
+  })
+  @IsNotEmpty()
+  @IsNumber()
+  @Min(0)
+  totalAmount: number;
+
+  @ApiProperty({ 
     description: '직원 코드', 
     example: 'EMP001', 
     minLength: 1, 
@@ -319,6 +349,33 @@ export class UpdateEstimateDto {
   @IsOptional()
   @IsNumber()
   estimatePrice?: number;
+
+  @ApiProperty({ 
+    description: '공급가액', 
+    example: 45454545, 
+    required: false,
+  })
+  @IsOptional()
+  @IsNumber()
+  supplyAmount?: number;
+
+  @ApiProperty({ 
+    description: '세액 총액', 
+    example: 4545455, 
+    required: false,
+  })
+  @IsOptional()
+  @IsNumber()
+  taxTotalAmount?: number;
+
+  @ApiProperty({ 
+    description: '합계 금액', 
+    example: 50000000, 
+    required: false,
+  })
+  @IsOptional()
+  @IsNumber()
+  totalAmount?: number;
 
   @ApiProperty({ 
     description: '직원 코드', 

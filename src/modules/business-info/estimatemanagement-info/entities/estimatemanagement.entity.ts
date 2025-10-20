@@ -43,6 +43,15 @@ export class EstimateManagement extends BaseEntity{
     @Column({ name : 'estimate_price', type: 'int', nullable: true })
     estimatePrice: number;
 
+    @Column({ name : 'supply_amount', type: 'int', nullable: true })
+    supplyAmount: number;
+
+    @Column({ name : 'tax_total_amount', type: 'int', nullable: true })
+    taxTotalAmount: number;
+
+    @Column({ name : 'total_amount', type: 'int', nullable: true })
+    totalAmount: number;
+
     @Column({ name : 'employee_code', type: 'varchar', length: 20, nullable: true })
     employeeCode: string;
 
